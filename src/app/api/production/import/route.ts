@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
         (SELECT COUNT(*)::int FROM upserted) AS imported,
         (SELECT COUNT(*)::int FROM moved_entries) AS moved_entries,
         (SELECT COUNT(*)::int FROM archived) AS archived
-    `, [JSON.stringify(rows), fileType]);
+    `, [JSON.stringify(rows)]);
     return NextResponse.json({ success: true, imported: Number(result[0]?.imported || 0), movedEntries: Number(result[0]?.moved_entries || 0), archived: Number(result[0]?.archived || 0), ignored: 0 });
   } catch (error) {
     console.error(error);
