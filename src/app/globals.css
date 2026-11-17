@@ -290,3 +290,10 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 @media(max-width:1000px){.master-overview{grid-template-columns:minmax(0,1fr) 210px}.master-reference-bottom{grid-template-columns:1fr}.master-stage-summary-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.master-page.master-reference{padding:12px 8px 20px}.master-reference .master-heading{align-items:flex-start;flex-direction:column}.master-reference .master-head-actions{width:100%;flex-wrap:wrap;justify-content:flex-start}.master-overview{grid-template-columns:1fr}.master-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}.master-overview-grid>div:nth-child(2){border-right:0}.master-process-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.master-reference-chart-head{align-items:flex-start;flex-direction:column}.master-reference-chart .master-legend{flex-wrap:wrap}.master-reference-subhead{align-items:flex-start;flex-direction:column}.master-reference-subhead>span{text-align:left;white-space:normal}.master-conference-tools{flex-wrap:wrap}.master-conference-tools label{flex:1 1 30%}.master-stage-summary-grid article{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.master-process-grid{grid-template-columns:1fr}.master-overview-grid{grid-template-columns:1fr}.master-overview-grid>div{border-right:0!important;border-bottom:1px solid #2d5c79;padding:6px 0 10px}.master-overview-grid>div:last-child{border-bottom:0}.master-overview-progress{padding:4px 0}.master-process-metrics b{font-size:15px}}
+
+
+.master-sector-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 9px}
+.master-sector-tabs button{border:1px solid #315b78;background:#0a1d2d;color:#c8dced;border-radius:6px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer}
+.master-sector-tabs button.active{background:#087caa;border-color:#20d4df;color:#fff;box-shadow:0 0 0 1px #20d4df55}
+.master-sector-tabs button:hover{border-color:#20d4df;color:#fff}
+@media(max-width:520px){.master-sector-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.master-sector-tabs button{width:100%}}
