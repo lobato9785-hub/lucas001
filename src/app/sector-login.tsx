@@ -24,7 +24,7 @@ export default function SectorLogin() {
 
   return <main className="sector-login-page">
     <form className="sector-login-card" onSubmit={submit}>
-      <div className="sector-login-brand">TAM</div>
+      <div className="sector-login-brand"><img src="/logo-itam.svg" alt="ITAM Transformadores" /></div>
       <h1>⌑　Controle de Produção</h1>
       <p>Acesse seu setor para realizar os apontamentos e acompanhar a produção.</p>
       <div className="sector-login-label">SETOR DE ACESSO</div>
