@@ -53,3 +53,5 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .plasma-login-card a{margin-top:7px;text-align:center;color:#90abc4;text-decoration:none;font-size:10px}
 .plasma-login-card a:hover{color:#fff}
 .plasma-login-error{padding:9px;border:1px solid #76313e;background:#421e27;border-radius:6px;color:#ffabb3;font-size:10px}
+
+.access-link{display:inline-flex;align-items:center;margin-left:auto;margin-right:10px;color:#8ecaff;text-decoration:none;font-size:10px;font-weight:800;border:1px solid #24517a;background:#102a42;padding:8px 10px;border-radius:7px;white-space:nowrap}.access-link:hover{background:#163b5e;border-color:#1688ff;color:#fff}@media(max-width:650px){.access-link{font-size:8px;padding:7px 6px;margin-right:5px}}
