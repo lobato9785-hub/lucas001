@@ -131,6 +131,49 @@ export default function MasterDashboard() {
   });
   const dailyDescending=[...daily].sort((a,b)=>b.date.localeCompare(a.date));
 
+  // OPs finalizadas por setor e dia: no Corte Laser as três etapas precisam concluir;
+  // nos demais setores, a soma apontada precisa alcançar a quantidade programada.
+  const completedMap = new Map<string, Schedule[]>();
+  monthRows.forEach(row => {
+    const key = normalizeProcess(row.process_type) + '|' + String(row.scheduled_date).slice(0,10) + '|' + row.op_number;
+    const group = completedMap.get(key) || [];
+    group.push(row);
+    completedMap.set(key, group);
+  });
+  const completedOps = Array.from(completedMap.entries()).flatMap(([key,items]) => {
+    const [sector,date,op] = key.split('|');
+    if (dayFilter && date !== dayFilter) return [];
+    if (search && !op.toLowerCase().includes(search.toLowerCase())) return [];
+    let planned = 0;
+    let done = 0;
+    if (sector === 'CORTE LASER') {
+      const stages = STAGES.map(name => {
+        const matches = items.filter(item => item.operation_type.toUpperCase() === name);
+        return {
+          planned: matches.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0),
+          done: matches.reduce((sum,item) => sum + Number(item.reported_quantity || 0),0)
+        };
+      });
+      planned = stages.reduce((sum,item) => sum + item.planned,0);
+      done = stages.reduce((sum,item) => sum + Math.min(item.done,item.planned),0);
+      if (!stages.every(item => item.planned > 0 && item.done >= item.planned)) return [];
+    } else {
+      planned = items.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
+      done = items.reduce((sum,item) => sum + Math.min(Number(item.reported_quantity || 0),Number(item.planned_quantity || 0)),0);
+      if (planned <= 0 || done < planned) return [];
+    }
+    return [{
+      key,sector,date,op,
+      product:items[0].product_description || items[0].product_reference || '—',
+      planned,done
+    }];
+  }).sort((a,b) => b.date.localeCompare(a.date) || PROCESS_ORDER.indexOf(a.sector)-PROCESS_ORDER.indexOf(b.sector) || a.op.localeCompare(b.op));
+  const completedBySector = PROCESS_ORDER.map(sector => ({
+    sector,
+    name:PROCESS_NAMES[sector],
+    count:completedOps.filter(item => item.sector === sector).length
+  }));
+
   return (
     <main className="master-page master-reference">
       <header className="master-heading">
@@ -247,6 +290,24 @@ export default function MasterDashboard() {
           </div>
           <div className="master-conference-foot">{selectedSector === 'CORTE LASER' ? 'A OP só é considerada concluída quando Corpo, Fundo e Tampa atingem a quantidade programada na mesma data.' : 'A OP é considerada concluída quando a quantidade realizada atinge a quantidade programada.'}</div>
         </div>
+        <aside className="master-completed-panel">
+          <div className="master-section-kicker">✓　OPs FINALIZADAS</div>
+          <h2>Concluídas por Dia e Setor</h2>
+          <p>{dayFilter ? 'Finalizações em '+brDate(dayFilter) : 'Finalizações no mês – '+monthName}</p>
+          <div className="master-completed-counts">
+            {completedBySector.map(item=><div key={item.sector}><span>{item.name}</span><b>{fmt(item.count)}</b></div>)}
+          </div>
+          <div className="master-reference-table-wrap master-completed-table-wrap">
+            <table>
+              <thead><tr><th>Data</th><th>Setor</th><th>OP</th><th>Peças</th></tr></thead>
+              <tbody>
+                {completedOps.map(item=><tr key={item.key}><td>{brDate(item.date)}</td><td>{PROCESS_NAMES[item.sector]}</td><td className="master-op">{item.op}</td><td className="master-green">{fmt(item.done)}</td></tr>)}
+                {!completedOps.length && <tr><td colSpan={4}>Nenhuma OP finalizada neste período.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          <div className="master-conference-foot">Corte Laser: Corpo, Fundo e Tampa concluídos. Demais setores: quantidade realizada igual ou superior à programada.</div>
+        </aside>
       </section>
 
       <section className="master-stage-summary">
