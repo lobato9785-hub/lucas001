@@ -53,8 +53,10 @@ export default function MasterDashboard(){
     const planned=monthRows.reduce((n,r)=>n+Number(r.planned_quantity||0),0);
     const done=monthRows.reduce((n,r)=>n+Math.min(Number(r.reported_quantity||0),Number(r.planned_quantity||0)),0);
     const pending=Math.max(0,planned-done);
-    const late=monthRows.filter(r=>String(r.scheduled_date).slice(0,10)<todayManaus()&&Number(r.reported_quantity||0)<Number(r.planned_quantity||0)).length;
-    return {planned,done,pending,late,pct:planned?Math.round(done/planned*100):0};
+    const lateRows=monthRows.filter(r=>String(r.scheduled_date).slice(0,10)<todayManaus()&&Number(r.reported_quantity||0)<Number(r.planned_quantity||0));
+    const late= new Set(lateRows.map(r=>String(r.scheduled_date).slice(0,10)+'|'+r.op_number)).size;
+    const latePieces=lateRows.reduce((n,r)=>n+Math.max(0,Number(r.planned_quantity||0)-Number(r.reported_quantity||0)),0);
+    return {planned,done,pending,late,latePieces,pct:planned?Math.round(done/planned*100):0};
   },[monthRows]);
 
   const sectors=useMemo(()=>sectorOrder.map(key=>{
@@ -62,7 +64,8 @@ export default function MasterDashboard(){
     const planned=data.reduce((n,r)=>n+Number(r.planned_quantity||0),0);
     const done=data.reduce((n,r)=>n+Math.min(Number(r.reported_quantity||0),Number(r.planned_quantity||0)),0);
     const pending=Math.max(0,planned-done);
-    const late=data.filter(r=>String(r.scheduled_date).slice(0,10)<todayManaus()&&Number(r.reported_quantity||0)<Number(r.planned_quantity||0)).length;
+    const lateRows=data.filter(r=>String(r.scheduled_date).slice(0,10)<todayManaus()&&Number(r.reported_quantity||0)<Number(r.planned_quantity||0));
+    const late=new Set(lateRows.map(r=>String(r.scheduled_date).slice(0,10)+'|'+r.op_number)).size;
     return {key,name:label(key),planned,done,pending,late,pct:planned?Math.round(done/planned*100):0};
   }).filter(s=>s.planned||s.done),[monthRows]);
 
@@ -154,7 +157,7 @@ export default function MasterDashboard(){
         </tbody></table></div>
         <div className="master-audit-foot">Exibindo {audit.length} OPs no mês selecionado. Quantidades consolidadas sem duplicar apontamentos.</div>
       </div>
-      <aside className="master-late-panel"><div className="master-section-kicker">ATENÇÃO À PRODUÇÃO</div><h2>Peças e OPs do Corte Laser em atraso</h2><strong>{fmt(totals.late)}</strong><p>programações vencidas com saldo pendente</p><div className="master-late-divider"/><div className="master-shift-info"><b>◷　1º Turno</b><span>07:00 às 17:15</span><b>◷　2º Turno</b><span>17:20 às 02:48</span></div><small>Os indicadores são calculados a partir da programação e dos apontamentos registrados.</small></aside>
+      <aside className="master-late-panel"><div className="master-section-kicker">ATENÇÃO À PRODUÇÃO</div><h2>OPs do Corte Laser em atraso</h2><strong>{fmt(totals.late)}</strong><p>OPs com data vencida e saldo pendente</p><div className="master-late-pieces"><b>{fmt(totals.latePieces)}</b><span>peças pendentes nessas OPs</span></div><div className="master-late-divider"/><div className="master-shift-info"><b>◷　1º Turno</b><span>07:00 às 17:15</span><b>◷　2º Turno</b><span>17:20 às 02:48</span></div><small>Os indicadores são calculados a partir da programação e dos apontamentos registrados.</small></aside>
     </section>
     {loading&&<div className="master-loading">Carregando produção...</div>}
     {error&&<div className="master-error" role="alert">{error}</div>}
