@@ -30,7 +30,7 @@ export function getSectorRole(token?: string | null): SectorRole | null {
   const [payload, supplied, extra] = token.split('.');
   if (!payload || !supplied || extra !== undefined) return null;
   const [role, issuedAt] = payload.split(':');
-  if ((role !== 'ferragem' && role !== 'laser') || !/^\\d{10,}$/.test(issuedAt || '')) return null;
+  if ((role !== 'ferragem' && role !== 'laser') || !/^\d{10,}$/.test(issuedAt || '')) return null;
   const age = Date.now() - Number(issuedAt);
   if (!Number.isFinite(age) || age < -60000 || age > 12 * 60 * 60 * 1000) return null;
   const a = Buffer.from(supplied, 'hex');
