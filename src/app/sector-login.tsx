@@ -2,7 +2,7 @@
 import { useState, FormEvent } from 'react';
 
 export default function SectorLogin() {
-  const [sector, setSector] = useState<'ferragem'|'laser'>('ferragem');
+  const [sector, setSector] = useState<'ferragem'|'laser'|'master'>('ferragem');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export default function SectorLogin() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Não foi possível entrar.');
-      window.location.assign(sector === 'ferragem' ? '/ferragem' : '/laser');
+      window.location.assign(sector === 'ferragem' ? '/ferragem' : sector === 'laser' ? '/laser' : '/master');
     } catch (err: any) { setError(err.message || 'Falha ao validar o acesso.'); }
     finally { setBusy(false); }
   }
@@ -34,6 +34,9 @@ export default function SectorLogin() {
         </button>
         <button type="button" className={sector==='laser'?'chosen':''} onClick={()=>{setSector('laser');setPassword('');setError('')}}>
           <span className="choice-dot"/> <span><b>Laser</b><small>Demais setores</small></span>
+        </button>
+        <button type="button" className={sector==='master'?'chosen':''} onClick={()=>{setSector('master');setPassword('');setError('')}}>
+          <span className="choice-dot"/> <span><b>MASTER</b><small>Gestão geral da Estamparia</small></span>
         </button>
       </div>
       <label htmlFor="sector-password">♙　Senha do setor</label>
