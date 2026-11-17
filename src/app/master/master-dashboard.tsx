@@ -171,7 +171,8 @@ export default function MasterDashboard() {
       planned = stageCompletions.reduce((sum,item) => sum + item.planned,0);
       done = stageCompletions.reduce((sum,item) => sum + Math.min(item.done,item.planned),0);
       if (!stageCompletions.every(item => item.planned>0 && item.done>=item.planned && item.finished)) return [];
-      finishedAt = stageCompletions.map(item=>item.finished).sort().at(-1) || '';
+      const finishedDays = stageCompletions.map(item=>item.finished).sort();
+      finishedAt = finishedDays[finishedDays.length-1] || '';
     } else {
       planned = items.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
       done = items.reduce((sum,item) => sum + Math.min(Number(item.reported_quantity || 0),Number(item.planned_quantity || 0)),0);
