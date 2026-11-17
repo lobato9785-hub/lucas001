@@ -8,9 +8,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const role = body.sector as SectorRole;
     const password = typeof body.password === 'string' ? body.password : '';
-    if (role !== 'ferragem' && role !== 'laser') return NextResponse.json({error:'Selecione um setor válido.'},{status:400});
+    if (role !== 'ferragem' && role !== 'laser' && role !== 'master') return NextResponse.json({error:'Selecione um setor válido.'},{status:400});
     if (!process.env.SECTOR_SESSION_SECRET ||
-        !(role === 'ferragem' ? process.env.FERRAGEM_ACCESS_PASSWORD : process.env.LASER_ACCESS_PASSWORD)) {
+        !(role === 'ferragem' ? process.env.FERRAGEM_ACCESS_PASSWORD : role === 'laser' ? process.env.LASER_ACCESS_PASSWORD : process.env.MASTER_ACCESS_PASSWORD)) {
       return NextResponse.json({error:'Acesso ainda não configurado. Avise o administrador.'},{status:503});
     }
     if (!verifySectorPassword(role,password)) return NextResponse.json({error:'Senha incorreta.'},{status:401});
