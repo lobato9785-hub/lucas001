@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidPlasmaToken, PLASMA_COOKIE } from '@/lib/plasma-auth';
 export const dynamic = 'force-dynamic';
 
 const sectors: Record<string,string[]> = {
@@ -16,6 +17,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const fileType = String(body.fileType || '');
     const rows = Array.isArray(body.rows) ? body.rows : [];
+    const hasProtectedRows = rows.some((row:any) => ['PLASMA','DOBRADEIRA'].includes(String(row.process_type || '').toUpperCase()));
+    if (hasProtectedRows && !isValidPlasmaToken(req.cookies.get(PLASMA_COOKIE)?.value)) {
+      return NextResponse.json({ error: 'Para importar Ferragem, Plasma e Dobradeira, entre pelo acesso protegido.' }, { status: 401 });
+    }
     if (!['FERRAGEM','DEMAIS'].includes(fileType) || !rows.length || rows.length > 10000)
       return NextResponse.json({ error: 'Envie uma planilha válida com até 10.000 linhas.' }, { status: 400 });
 
