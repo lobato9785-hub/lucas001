@@ -1,8 +1,9 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import { isValidPlasmaToken, PLASMA_COOKIE } from '@/lib/plasma-auth';
 export const dynamic = 'force-dynamic';
-const allowed = ['CORTE LASER','RADIADOR','BORDEADEIRA','PRENSA','PLASMA','DOBRADEIRA'];
+const allowed = ['CORTE LASER','RADIADOR','BORDEADEIRA','PRENSA','PLASMA','DOBRADEIRA','PLASMA + DOBRADEIRA'];
 const db = () => {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL ausente');
   return neon(process.env.DATABASE_URL);
@@ -11,6 +12,8 @@ export async function GET(req: NextRequest) {
   try {
     const sector = (req.nextUrl.searchParams.get('sector') || 'CORTE LASER').toUpperCase();
     if (!allowed.includes(sector)) return NextResponse.json({ error: 'Setor inválido' }, { status: 400 });
+    const protectedSector = ['PLASMA','DOBRADEIRA','PLASMA + DOBRADEIRA'].includes(sector);
+    if (protectedSector && !isValidPlasmaToken(req.cookies.get(PLASMA_COOKIE)?.value)) return NextResponse.json({ error: 'Acesso protegido. Informe a senha novamente.' }, { status: 401 });
     const sql = db();
     const rows = await sql.query(`
       SELECT ps.id, ps.process_type, ps.operation_type, ps.op_number, ps.parent_op,
@@ -22,11 +25,11 @@ export async function GET(req: NextRequest) {
           FILTER (WHERE pe.id IS NOT NULL), '[]'::json) AS entries
       FROM process_schedule ps
       LEFT JOIN process_entries pe ON pe.schedule_id = ps.id
-      WHERE ps.process_type = $1 AND COALESCE(ps.source_status,'') <> '__ARCHIVED__'
+      WHERE ${sector === 'PLASMA + DOBRADEIRA' ? "ps.process_type IN ('PLASMA','DOBRADEIRA')" : "ps.process_type = $1"} AND COALESCE(ps.source_status,'') <> '__ARCHIVED__'
       GROUP BY ps.id
       ORDER BY ps.scheduled_date, ps.op_number
       LIMIT 10000
-    `, [sector]);
+    `, sector === 'PLASMA + DOBRADEIRA' ? [] : [sector]);
     return NextResponse.json({ rows });
   } catch (error) {
     console.error(error);
@@ -42,6 +45,13 @@ export async function POST(req: NextRequest) {
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até três etapas.' }, { status: 400 });
     const sql = db();
+    const token = req.cookies.get(PLASMA_COOKIE)?.value;
+    for (const entry of entries) {
+      const schedule = await sql.query('SELECT process_type FROM process_schedule WHERE id = $1 LIMIT 1', [Number(entry.scheduleId)]);
+      if (schedule[0] && ['PLASMA','DOBRADEIRA'].includes(String(schedule[0].process_type)) && !isValidPlasmaToken(token)) {
+        return NextResponse.json({ error: 'Acesso protegido. Entre pelo link PLASMA + DOBRADEIRA.' }, { status: 401 });
+      }
+    }
     const saved = [];
     for (const entry of entries) {
       const rows = await sql.query(
