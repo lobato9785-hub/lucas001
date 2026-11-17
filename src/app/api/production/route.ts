@@ -56,10 +56,35 @@ export async function POST(req: NextRequest) {
     }
     const saved = [];
     for (const entry of entries) {
-      const rows = await sql.query(
-        'INSERT INTO process_entries (schedule_id, quantity, operator_name, note, idempotency_key) VALUES ($1,$2,$3,$4,$5) RETURNING id',
-        [Number(entry.scheduleId), Number(entry.quantity), String(entry.operator || '').slice(0,120), String(entry.note || '').slice(0,500), randomUUID()]
-      );
+      const scheduleId = Number(entry.scheduleId);
+      const quantity = Number(entry.quantity);
+      const operator = String(entry.operator || '').slice(0,120);
+      const note = String(entry.note || '').slice(0,500);
+      // Lock the schedule row and calculate the already reported quantity in
+      // the same statement, so simultaneous requests cannot exceed the day plan.
+      const rows = await sql.query(`
+        WITH target AS MATERIALIZED (
+          SELECT id, planned_quantity
+          FROM process_schedule
+          WHERE id = $1 AND COALESCE(source_status,'') <> '__ARCHIVED__'
+          FOR UPDATE
+        ),
+        current_total AS (
+          SELECT COALESCE(SUM(pe.quantity),0)::int AS reported
+          FROM process_entries pe JOIN target t ON t.id = pe.schedule_id
+        ),
+        inserted AS (
+          INSERT INTO process_entries (schedule_id, quantity, operator_name, note, idempotency_key)
+          SELECT t.id, $2, $3, $4, $5
+          FROM target t CROSS JOIN current_total c
+          WHERE $2 <= GREATEST(0, t.planned_quantity - c.reported)
+          RETURNING id
+        )
+        SELECT id FROM inserted
+      `, [scheduleId, quantity, operator, note, randomUUID()]);
+      if (!rows.length) {
+        return NextResponse.json({ error: 'Quantidade acima do programado para este dia. Disponível: consulte o saldo pendente da etapa.' }, { status: 400 });
+      }
       saved.push(rows[0]);
     }
     return NextResponse.json({ success: true, saved: saved.length });
@@ -88,10 +113,29 @@ export async function PUT(req: NextRequest) {
     if ((protectedSector && role !== 'ferragem') || (!protectedSector && role !== 'laser')) {
       return NextResponse.json({ error: protectedSector ? 'Acesso Ferragem necessário.' : 'Acesso Laser necessário.' }, { status: 401 });
     }
-    await sql.query(
-      'UPDATE process_entries SET quantity = $1, operator_name = $2, note = $3 WHERE id = $4',
-      [quantity, String(body.operator || '').slice(0,120), String(body.note || '').slice(0,500), entryId]
-    );
+    const updated = await sql.query(`
+      WITH target AS MATERIALIZED (
+        SELECT ps.id AS schedule_id, ps.planned_quantity
+        FROM process_entries pe
+        JOIN process_schedule ps ON ps.id = pe.schedule_id
+        WHERE pe.id = $4 AND COALESCE(ps.source_status,'') <> '__ARCHIVED__'
+        FOR UPDATE OF ps
+      ),
+      current_total AS (
+        SELECT COALESCE(SUM(pe.quantity),0)::int AS reported
+        FROM process_entries pe JOIN target t ON t.schedule_id = pe.schedule_id
+        WHERE pe.id <> $4
+      ),
+      changed AS (
+        UPDATE process_entries pe
+        SET quantity = $1, operator_name = $2, note = $3
+        FROM target t CROSS JOIN current_total c
+        WHERE pe.id = $4 AND $1 <= GREATEST(0, t.planned_quantity - c.reported)
+        RETURNING pe.id
+      )
+      SELECT id FROM changed
+    `, [quantity, String(body.operator || '').slice(0,120), String(body.note || '').slice(0,500), entryId]);
+    if (!updated.length) return NextResponse.json({ error: 'A edição ultrapassa a quantidade programada para este dia.' }, { status: 400 });
     return NextResponse.json({ success: true, updated: 1 });
   } catch (error) {
     console.error(error);
