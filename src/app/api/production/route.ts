@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN process_entries pe ON pe.schedule_id = ps.id
       WHERE ${sector === 'PLASMA + DOBRADEIRA' ? "ps.process_type IN ('PLASMA','DOBRADEIRA')" : "ps.process_type = $1"} AND COALESCE(ps.source_status,'') <> '__ARCHIVED__'
       GROUP BY ps.id
-      ORDER BY ps.scheduled_date, ps.op_number
+      ORDER BY ps.scheduled_date, ps.id
       LIMIT 10000
     `, sector === 'PLASMA + DOBRADEIRA' ? [] : [sector]);
     return NextResponse.json({ rows });
