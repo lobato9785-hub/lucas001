@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     for (const row of rows) {
       const process = String(row.process_type || '').toUpperCase();
       const stage = String(row.operation_type || '').toUpperCase();
-      const ferragem = process === 'PLASMA' && stage === 'FERRAGEM';
+      const ferragem = (process === 'PLASMA' && stage === 'FERRAGEM') || (process === 'DOBRADEIRA' && stage === 'DOBRA');
       if (!(sectors[process] || []).includes(stage) ||
           !String(row.op_number || '').trim() ||
           !/^\d{4}-\d{2}-\d{2}$/.test(String(row.scheduled_date || '')) ||
