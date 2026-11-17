@@ -59,7 +59,7 @@ export default function Home(){
    if(!imported.length)throw new Error('Nenhuma linha válida encontrada para esta planilha.');
    const res=await fetch('/api/production/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileType,rows:imported})}),out=await res.json();
    if(!res.ok)throw new Error(out.error||'Falha ao adicionar planilha');
-   alert('Planilha adicionada: '+out.imported+' registros incluídos/atualizados; '+out.ignored+' ignorados. Apontamentos preservados.');
+   alert('Programação atualizada: '+out.imported+' registros incluídos/atualizados; '+out.archived+' programações antigas retiradas da visualização; '+out.movedEntries+' apontamentos reaproveitados.');
    setSettings(false);await load();
   }catch(e:any){alert(e.message||'Erro ao adicionar planilha.')}finally{setImportBusy('')}
  }
