@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
           FILTER (WHERE pe.id IS NOT NULL), '[]'::json) AS entries
       FROM process_schedule ps
       LEFT JOIN process_entries pe ON pe.schedule_id = ps.id
-      WHERE ps.process_type = $1
+      WHERE ps.process_type = $1 AND COALESCE(ps.source_status,'') <> '__ARCHIVED__'
       GROUP BY ps.id
       ORDER BY ps.scheduled_date, ps.op_number
       LIMIT 10000
