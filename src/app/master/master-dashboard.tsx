@@ -9,11 +9,12 @@ type Schedule = {
   reported_quantity:number; entries:Entry[];
 };
 
-const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','BORDEADEIRA'];
+const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','DOBRADEIRA'];
 const PROCESS_NAMES:Record<string,string> = {
-  'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', BORDEADEIRA:'Bordadeira'
+  'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', DOBRADEIRA:'Dobradeira'
 };
 const STAGES = ['CORPO','FUNDO','TAMPA'];
+const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); return key==='BORDEADEIRA'?'DOBRADEIRA':key; };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const brDate = (s:string) => { const p=s.split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
@@ -58,10 +59,10 @@ export default function MasterDashboard() {
 
   useEffect(()=>{ load(); },[]);
 
-  const monthRows = rows.filter(r => PROCESS_ORDER.includes(r.process_type) && String(r.scheduled_date).slice(0,7)===month);
+  const monthRows = rows.filter(r => PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && String(r.scheduled_date).slice(0,7)===month);
 
   const sectors = PROCESS_ORDER.map(key => {
-    const items = monthRows.filter(r=>r.process_type===key);
+    const items = monthRows.filter(r=>normalizeProcess(r.process_type)===key);
     const planned = items.reduce((sum,r)=>sum+Number(r.planned_quantity||0),0);
     const done = items.reduce((sum,r)=>sum+Math.min(Number(r.reported_quantity||0),Number(r.planned_quantity||0)),0);
     const late = items.filter(r=>String(r.scheduled_date).slice(0,10)<today() && Number(r.reported_quantity||0)<Number(r.planned_quantity||0));
@@ -90,7 +91,7 @@ export default function MasterDashboard() {
   const maxDaily = Math.max(1,...daily.map(d=>d.total));
   const monthName = new Date(month+'-01T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
 
-  const sectorRows = monthRows.filter(r => r.process_type === selectedSector);
+  const sectorRows = monthRows.filter(r => normalizeProcess(r.process_type) === selectedSector);
   const opMap = new Map<string, Schedule[]>();
   sectorRows.forEach(r => {
     const key = String(r.scheduled_date).slice(0,10) + '|' + r.op_number;
