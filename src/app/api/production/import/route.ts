@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidPlasmaToken, PLASMA_COOKIE } from '@/lib/plasma-auth';
+import { isValidPlasmaToken, PLASMA_COOKIE } from '../../../../lib/plasma-auth';
 export const dynamic = 'force-dynamic';
 
 const sectors: Record<string,string[]> = {
