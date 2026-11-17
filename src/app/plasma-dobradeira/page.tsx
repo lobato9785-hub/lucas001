@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import Home from '../page';
 import PlasmaLogin from './login';
-import { isValidPlasmaToken, PLASMA_COOKIE } from '@/lib/plasma-auth';
+import { isValidPlasmaToken, PLASMA_COOKIE } from '../../lib/plasma-auth';
 
 export const dynamic = 'force-dynamic';
 
