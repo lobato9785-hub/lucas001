@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       const ferragem = process === 'PLASMA' && stage === 'FERRAGEM';
       if (!(sectors[process] || []).includes(stage) ||
           !String(row.op_number || '').trim() ||
-          !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(row.scheduled_date || '')) ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(String(row.scheduled_date || '')) ||
           (fileType === 'FERRAGEM' && !ferragem) ||
           (fileType === 'DEMAIS' && ferragem)) {
         return NextResponse.json({ error: 'A planilha contém linhas incompatíveis com a opção escolhida, ou dados inválidos.' }, { status: 400 });
