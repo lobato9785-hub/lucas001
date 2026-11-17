@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 type Entry = {id:number;quantity:number;operator?:string;note?:string;at?:string};
 type Stage = {id:number;planned:number;reported:number;entries:Entry[]};
 type Row = {key:string;date:string;op:string;parentOp:string;client:string;reference:string;line:string;power:string;orderQty:number;series:string;stages:Record<string,Stage>};
-const STAGES_BY_SECTOR:Record<string,string[]>={'CORTE LASER':['CORPO','FUNDO','TAMPA'],'RADIADOR':['CORTE','DOBRA','ESTAMPAGEM'],'BORDEADEIRA':['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'],'PRENSA':['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE'],'PLASMA':['FERRAGEM','FERRAGEM INFERIOR','FERRAGEM SUPERIOR'],'DOBRADEIRA':['DOBRA']};
+const STAGES_BY_SECTOR:Record<string,string[]>={'CORTE LASER':['CORPO','FUNDO','TAMPA'],'RADIADOR':['CORTE','DOBRA','ESTAMPAGEM'],'BORDEADEIRA':['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'],'PRENSA':['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE'],'PLASMA':['FERRAGEM INFERIOR','FERRAGEM SUPERIOR'],'DOBRADEIRA':['DOBRA']};
 const SECTORS=['CORTE LASER','RADIADOR','BORDEADEIRA','PRENSA','PLASMA','DOBRADEIRA'];
 const fmt=(n:number)=>new Intl.NumberFormat('pt-BR').format(n||0);
 const dateBR=(s:string)=>{const d=new Date(s+'T00:00:00');return Number.isNaN(+d)?s:d.toLocaleDateString('pt-BR')};
