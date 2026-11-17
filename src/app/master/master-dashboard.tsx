@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 type Entry = { id:number; quantity:number; operator?:string; note?:string; at?:string };
 type Schedule = {
@@ -114,7 +114,7 @@ export default function MasterDashboard(){
         <div><small>PROGRAMADA</small><strong>{fmt(totals.planned)}</strong></div>
         <div><small>REALIZADA</small><strong className="master-green">{fmt(totals.done)}</strong></div>
         <div><small>PENDENTE</small><strong className="master-orange">{fmt(totals.pending)}</strong></div>
-        <div className="master-progress-wrap"><div className="master-ring" style={{'--progress':totals.pct+'%'} as React.CSSProperties}><b>{totals.pct}%</b></div><div><small>Conclusão do mês</small><div className="master-track"><i style={{width:totals.pct+'%'}}/></div></div></div>
+        <div className="master-progress-wrap"><div className="master-ring" style={{'--progress':totals.pct+'%'} as CSSProperties}><b>{totals.pct}%</b></div><div><small>Conclusão do mês</small><div className="master-track"><i style={{width:totals.pct+'%'}}/></div></div></div>
       </div>
     </section>
 
