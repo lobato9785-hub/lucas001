@@ -34,35 +34,100 @@ export async function POST(req: NextRequest) {
     if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL ausente');
     const sql = neon(process.env.DATABASE_URL);
     const result = await sql.query(`
-      INSERT INTO process_schedule (
-        process_type, operation_type, op_number, parent_op, scheduled_date,
-        series_start, series_end, client_name, client_code, product_reference,
-        product_description, production_line, power_pa, order_quantity,
-        planned_quantity, source_status, updated_at
+      WITH incoming AS MATERIALIZED (
+        SELECT *
+        FROM json_to_recordset($1::json) AS x(
+          process_type text, operation_type text, op_number text, parent_op text,
+          scheduled_date date, series_start text, series_end text, client_name text,
+          client_code text, product_reference text, product_description text,
+          production_line text, power_pa text, order_quantity integer,
+          planned_quantity integer, source_status text
+        )
+      ),
+      upserted AS (
+        INSERT INTO process_schedule (
+          process_type, operation_type, op_number, parent_op, scheduled_date,
+          series_start, series_end, client_name, client_code, product_reference,
+          product_description, production_line, power_pa, order_quantity,
+          planned_quantity, source_status, updated_at
+        )
+        SELECT
+          process_type, operation_type, op_number, parent_op, scheduled_date,
+          series_start, series_end, client_name, client_code, product_reference,
+          product_description, production_line, power_pa, order_quantity,
+          planned_quantity, '__ACTIVE__', NOW()
+        FROM incoming
+        ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
+        DO UPDATE SET
+          parent_op = EXCLUDED.parent_op, client_name = EXCLUDED.client_name,
+          client_code = EXCLUDED.client_code, product_reference = EXCLUDED.product_reference,
+          product_description = EXCLUDED.product_description, production_line = EXCLUDED.production_line,
+          power_pa = EXCLUDED.power_pa, order_quantity = EXCLUDED.order_quantity,
+          planned_quantity = EXCLUDED.planned_quantity, source_status = '__ACTIVE__',
+          updated_at = NOW()
+        RETURNING id, process_type, operation_type, op_number, scheduled_date, series_start, series_end
+      ),
+      moved_entries AS (
+        UPDATE process_entries pe
+        SET schedule_id = target.id
+        FROM process_schedule old
+        CROSS JOIN LATERAL (
+          SELECT u.id
+          FROM upserted u
+          WHERE u.process_type = old.process_type
+            AND u.operation_type = old.operation_type
+            AND u.op_number = old.op_number
+            AND COALESCE(u.series_start,'') = COALESCE(old.series_start,'')
+            AND COALESCE(u.series_end,'') = COALESCE(old.series_end,'')
+          ORDER BY (u.scheduled_date = old.scheduled_date) DESC, u.scheduled_date ASC, u.id
+          LIMIT 1
+        ) target
+        WHERE pe.schedule_id = old.id
+          AND old.id <> target.id
+          AND (
+            ($2 = 'FERRAGEM' AND (
+              (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
+              (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
+            ))
+            OR
+            ($2 = 'DEMAIS' AND NOT (
+              (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
+              (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
+            ))
+          )
+        RETURNING pe.id
+      ),
+      archived AS (
+        UPDATE process_schedule old
+        SET source_status = '__ARCHIVED__', updated_at = NOW()
+        WHERE (
+          ($2 = 'FERRAGEM' AND (
+            (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
+            (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
+          ))
+          OR
+          ($2 = 'DEMAIS' AND NOT (
+            (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
+            (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
+          ))
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM incoming i
+          WHERE i.process_type = old.process_type
+            AND i.operation_type = old.operation_type
+            AND i.op_number = old.op_number
+            AND i.scheduled_date = old.scheduled_date
+            AND COALESCE(i.series_start,'') = COALESCE(old.series_start,'')
+            AND COALESCE(i.series_end,'') = COALESCE(old.series_end,'')
+        )
+        RETURNING old.id
       )
       SELECT
-        x.process_type, x.operation_type, x.op_number, x.parent_op, x.scheduled_date,
-        x.series_start, x.series_end, x.client_name, x.client_code, x.product_reference,
-        x.product_description, x.production_line, x.power_pa, x.order_quantity,
-        x.planned_quantity, x.source_status, NOW()
-      FROM json_to_recordset($1::json) AS x(
-        process_type text, operation_type text, op_number text, parent_op text,
-        scheduled_date date, series_start text, series_end text, client_name text,
-        client_code text, product_reference text, product_description text,
-        production_line text, power_pa text, order_quantity integer,
-        planned_quantity integer, source_status text
-      )
-      ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
-      DO UPDATE SET
-        parent_op = EXCLUDED.parent_op, client_name = EXCLUDED.client_name,
-        client_code = EXCLUDED.client_code, product_reference = EXCLUDED.product_reference,
-        product_description = EXCLUDED.product_description, production_line = EXCLUDED.production_line,
-        power_pa = EXCLUDED.power_pa, order_quantity = EXCLUDED.order_quantity,
-        planned_quantity = EXCLUDED.planned_quantity, source_status = EXCLUDED.source_status,
-        updated_at = NOW()
-      RETURNING id
-    `, [JSON.stringify(rows)]);
-    return NextResponse.json({ success: true, imported: result.length, ignored: 0 });
+        (SELECT COUNT(*)::int FROM upserted) AS imported,
+        (SELECT COUNT(*)::int FROM moved_entries) AS moved_entries,
+        (SELECT COUNT(*)::int FROM archived) AS archived
+    `, [JSON.stringify(rows), fileType]);
+    return NextResponse.json({ success: true, imported: Number(result[0]?.imported || 0), movedEntries: Number(result[0]?.moved_entries || 0), archived: Number(result[0]?.archived || 0), ignored: 0 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Não foi possível adicionar a planilha ao banco de produção.' }, { status: 500 });
