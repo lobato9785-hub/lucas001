@@ -84,32 +84,20 @@ export async function POST(req: NextRequest) {
         ) target
         WHERE pe.schedule_id = old.id
           AND old.id <> target.id
-          AND (
-            ($2 = 'FERRAGEM' AND (
-              (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
-              (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
-            ))
-            OR
-            ($2 = 'DEMAIS' AND NOT (
-              (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
-              (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
-            ))
+          AND EXISTS (
+            SELECT 1 FROM incoming scope
+            WHERE scope.process_type = old.process_type
+              AND scope.operation_type = old.operation_type
           )
         RETURNING pe.id
       ),
       archived AS (
         UPDATE process_schedule old
         SET source_status = '__ARCHIVED__', updated_at = NOW()
-        WHERE (
-          ($2 = 'FERRAGEM' AND (
-            (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
-            (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
-          ))
-          OR
-          ($2 = 'DEMAIS' AND NOT (
-            (old.process_type = 'PLASMA' AND old.operation_type = 'FERRAGEM') OR
-            (old.process_type = 'DOBRADEIRA' AND old.operation_type = 'DOBRA')
-          ))
+        WHERE EXISTS (
+          SELECT 1 FROM incoming scope
+          WHERE scope.process_type = old.process_type
+            AND scope.operation_type = old.operation_type
         )
         AND NOT EXISTS (
           SELECT 1 FROM incoming i
