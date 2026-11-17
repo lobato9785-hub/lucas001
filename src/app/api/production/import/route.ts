@@ -98,10 +98,21 @@ export async function POST(req: NextRequest) {
       archived AS (
         UPDATE process_schedule old
         SET source_status = '__ARCHIVED__', updated_at = NOW()
-        WHERE EXISTS (
-          SELECT 1 FROM incoming scope
-          WHERE scope.process_type = old.process_type
-            AND scope.operation_type = old.operation_type
+        WHERE (
+          EXISTS (
+            SELECT 1 FROM incoming scope
+            WHERE scope.process_type = old.process_type
+              AND scope.operation_type = old.operation_type
+          )
+          OR (
+            old.process_type = 'PLASMA'
+            AND old.operation_type = 'FERRAGEM'
+            AND EXISTS (
+              SELECT 1 FROM incoming scope
+              WHERE scope.process_type = 'PLASMA'
+                AND scope.operation_type IN ('FERRAGEM INFERIOR','FERRAGEM SUPERIOR')
+            )
+          )
         )
         AND NOT EXISTS (
           SELECT 1 FROM incoming i
