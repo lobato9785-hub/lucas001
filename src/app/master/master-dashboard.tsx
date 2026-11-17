@@ -131,39 +131,56 @@ export default function MasterDashboard() {
   });
   const dailyDescending=[...daily].sort((a,b)=>b.date.localeCompare(a.date));
 
-  // OPs finalizadas por setor e dia: no Corte Laser as três etapas precisam concluir;
-  // nos demais setores, a soma apontada precisa alcançar a quantidade programada.
+  // A data de finalização é o dia do apontamento que completou a OP,
+  // e não apenas a data originalmente programada.
+  const completionDay = (items:Schedule[], required:number) => {
+    const events = items.flatMap(item => (item.entries || []).filter(entry => entry.at).map(entry => ({
+      at:String(entry.at), quantity:Number(entry.quantity || 0)
+    }))).sort((a,b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+    let accumulated = 0;
+    for (const event of events) {
+      accumulated += event.quantity;
+      if (accumulated >= required) {
+        const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(event.at));
+        const get = (name:string) => parts.find(part => part.type === name)?.value || '';
+        return get('year')+'-'+get('month')+'-'+get('day');
+      }
+    }
+    return '';
+  };
   const completedMap = new Map<string, Schedule[]>();
   monthRows.forEach(row => {
-    const key = normalizeProcess(row.process_type) + '|' + String(row.scheduled_date).slice(0,10) + '|' + row.op_number;
+    const key = normalizeProcess(row.process_type) + '|' + row.op_number;
     const group = completedMap.get(key) || [];
     group.push(row);
     completedMap.set(key, group);
   });
   const completedOps = Array.from(completedMap.entries()).flatMap(([key,items]) => {
-    const [sector,date,op] = key.split('|');
-    if (dayFilter && date !== dayFilter) return [];
+    const [sector,op] = key.split('|');
     if (search && !op.toLowerCase().includes(search.toLowerCase())) return [];
     let planned = 0;
     let done = 0;
+    let finishedAt = '';
     if (sector === 'CORTE LASER') {
-      const stages = STAGES.map(name => {
+      const stageCompletions = STAGES.map(name => {
         const matches = items.filter(item => item.operation_type.toUpperCase() === name);
-        return {
-          planned: matches.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0),
-          done: matches.reduce((sum,item) => sum + Number(item.reported_quantity || 0),0)
-        };
+        const stagePlanned = matches.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
+        const stageDone = matches.reduce((sum,item) => sum + Number(item.reported_quantity || 0),0);
+        return {planned:stagePlanned,done:stageDone,finished:stagePlanned>0 && stageDone>=stagePlanned ? completionDay(matches,stagePlanned) : ''};
       });
-      planned = stages.reduce((sum,item) => sum + item.planned,0);
-      done = stages.reduce((sum,item) => sum + Math.min(item.done,item.planned),0);
-      if (!stages.every(item => item.planned > 0 && item.done >= item.planned)) return [];
+      planned = stageCompletions.reduce((sum,item) => sum + item.planned,0);
+      done = stageCompletions.reduce((sum,item) => sum + Math.min(item.done,item.planned),0);
+      if (!stageCompletions.every(item => item.planned>0 && item.done>=item.planned && item.finished)) return [];
+      finishedAt = stageCompletions.map(item=>item.finished).sort().at(-1) || '';
     } else {
       planned = items.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
       done = items.reduce((sum,item) => sum + Math.min(Number(item.reported_quantity || 0),Number(item.planned_quantity || 0)),0);
-      if (planned <= 0 || done < planned) return [];
+      if (planned<=0 || done<planned) return [];
+      finishedAt = completionDay(items,planned);
     }
+    if (!finishedAt || (dayFilter && finishedAt !== dayFilter)) return [];
     return [{
-      key,sector,date,op,
+      key,sector,date:finishedAt,op,
       product:items[0].product_description || items[0].product_reference || '—',
       planned,done
     }];
