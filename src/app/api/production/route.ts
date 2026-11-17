@@ -68,3 +68,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não foi possível salvar o apontamento.' }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const entryId = Number(body.entryId);
+    const quantity = Number(body.quantity);
+    if (!Number.isSafeInteger(entryId) || entryId < 1 || !Number.isSafeInteger(quantity) || quantity < 1) {
+      return NextResponse.json({ error: 'Informe uma quantidade válida para editar.' }, { status: 400 });
+    }
+    const sql = db();
+    const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
+    const found = await sql.query(
+      'SELECT pe.id, ps.process_type FROM process_entries pe JOIN process_schedule ps ON ps.id = pe.schedule_id WHERE pe.id = $1 LIMIT 1',
+      [entryId]
+    );
+    if (!found.length) return NextResponse.json({ error: 'Apontamento não encontrado.' }, { status: 404 });
+    const protectedSector = ['PLASMA','DOBRADEIRA','PLASMA + DOBRADEIRA'].includes(String(found[0].process_type));
+    if ((protectedSector && role !== 'ferragem') || (!protectedSector && role !== 'laser')) {
+      return NextResponse.json({ error: protectedSector ? 'Acesso Ferragem necessário.' : 'Acesso Laser necessário.' }, { status: 401 });
+    }
+    await sql.query(
+      'UPDATE process_entries SET quantity = $1, operator_name = $2, note = $3 WHERE id = $4',
+      [quantity, String(body.operator || '').slice(0,120), String(body.note || '').slice(0,500), entryId]
+    );
+    return NextResponse.json({ success: true, updated: 1 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Não foi possível editar o apontamento.' }, { status: 500 });
+  }
+}
