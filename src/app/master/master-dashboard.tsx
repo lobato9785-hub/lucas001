@@ -14,7 +14,7 @@ const PROCESS_NAMES:Record<string,string> = {
   'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', DOBRADEIRA:'Dobradeira'
 };
 const STAGES = ['CORPO','FUNDO','TAMPA'];
-const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); return key==='BORDEADEIRA'?'DOBRADEIRA':key; };
+const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase(); return key==='BORDEADEIRA'?'DOBRADEIRA':key; };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const brDate = (s:string) => { const p=s.split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
