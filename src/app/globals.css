@@ -297,3 +297,21 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-sector-tabs button.active{background:#087caa;border-color:#20d4df;color:#fff;box-shadow:0 0 0 1px #20d4df55}
 .master-sector-tabs button:hover{border-color:#20d4df;color:#fff}
 @media(max-width:520px){.master-sector-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.master-sector-tabs button{width:100%}}
+
+
+/* MASTER: painel lateral de OPs concluídas por dia e setor */
+.master-reference-bottom{grid-template-columns:minmax(230px,.82fr) minmax(440px,1.35fr) minmax(280px,.9fr);align-items:stretch}
+.master-completed-panel{border:1px solid #0bbf9c;border-radius:9px;background:linear-gradient(145deg,#092a35,#0b1b2b);padding:10px;min-width:0;display:flex;flex-direction:column;gap:7px}
+.master-completed-panel .master-section-kicker{color:#25e0bb;font-size:10px}
+.master-completed-panel h2{font-size:15px;margin:0;color:#f0f7ff}
+.master-completed-panel>p{font-size:9px;color:#aec6d8;margin:0}
+.master-completed-counts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.master-completed-counts>div{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:6px 7px;border:1px solid #23546a;border-radius:5px;background:#0b2636}
+.master-completed-counts span{font-size:9px;color:#c5d8e8}
+.master-completed-counts b{font-size:13px;color:#24e2bb}
+.master-completed-table-wrap{max-height:300px;overflow:auto;border:1px solid #244a61;border-radius:6px}
+.master-completed-table-wrap table{min-width:360px;width:100%}
+.master-completed-table-wrap th,.master-completed-table-wrap td{padding:7px 5px;font-size:9px}
+.master-completed-panel .master-conference-foot{margin-top:auto}
+@media(max-width:1250px){.master-reference-bottom{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}.master-daily-summary{grid-column:1/-1}}
+@media(max-width:850px){.master-reference-bottom{grid-template-columns:1fr}.master-daily-summary{grid-column:auto}.master-completed-table-wrap{max-height:260px}}
