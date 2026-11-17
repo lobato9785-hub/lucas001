@@ -28,7 +28,13 @@ export default function MasterDashboard(){
  const monthTitle=new Date(month+'-01T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
  const selectedDate=dayFilter||todayManaus();
  const dayRows=audit.filter(a=>a.date===selectedDate);
- const dayStages=stageNames.map(name=>{const entries=dayRows.flatMap(a=>a.stages.filter(s=>s.name===name));const planned=entries.reduce((n,s)=>n+s.planned,0),done=entries.reduce((n,s)=>n+Math.min(s.done,s.planned),0);return {name,planned,done,pending:Math.max(0,planned-done),pct:planned?Math.round(done/planned*100):0};});
+ const dayStages = stageNames.map((name) => {
+  const stageRows = dayRows.flatMap((item) => item.stages.filter((stage) => stage.name === name));
+  const planned = stageRows.reduce((sum, stage) => sum + stage.planned, 0);
+  const done = stageRows.reduce((sum, stage) => sum + Math.min(stage.done, stage.planned), 0);
+  const pending = Math.max(0, planned - done);
+  return { name, planned, done, pending, pct: planned ? Math.round((done / planned) * 100) : 0 };
+ });
  return <main className="master-page master-reference">
   <header className="master-heading"><div><div className="master-breadcrumb">ITAM　›　MASTER - ESTAMPARIA</div><h1>▣　Estamparia</h1><p>Acompanhamento da Produção – Visão Master</p></div><div className="master-head-actions"><label className="master-period">Período <input type="month" value={month} onChange={e=>{setMonth(e.target.value);setDayFilter('');}}/></label><button onClick={load} disabled={loading}>↻ Atualizar</button><span className="master-live">● Dados do banco</span><a href="/">Sair</a></div></header>
   <section className="master-overview"><div className="master-overview-main"><div className="master-overview-title">✓　Resumo Geral do Mês <span>{monthTitle}</span></div><div className="master-overview-grid"><div><small>PROGRAMADA</small><b>{fmt(totals.planned)}</b></div><div><small>REALIZADA</small><b className="master-green">{fmt(totals.done)}</b></div><div><small>PENDENTE</small><b className="master-orange">{fmt(totals.pending)}</b></div><div className="master-overview-progress"><div className="master-ring" style={{'--progress':totals.pct+'%'} as CSSProperties}><b>{totals.pct}%</b></div><div><small>Conclusão do Mês</small><div className="master-track"><i style={{width:totals.pct+'%'}}/></div></div></div></div><aside className="master-overview-late"><b>⚑　Peças Atrasadas</b><strong>{fmt(totals.latePieces)}</strong><span>{fmt(totals.lateOps)} programações vencidas</span></aside></section>
