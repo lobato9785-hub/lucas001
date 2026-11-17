@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPlasmaToken, PLASMA_COOKIE, PLASMA_SESSION_SECONDS, verifyPlasmaPassword } from '@/lib/plasma-auth';
+import { createPlasmaToken, PLASMA_COOKIE, PLASMA_SESSION_SECONDS, verifyPlasmaPassword } from '../../../lib/plasma-auth';
 
 export const dynamic = 'force-dynamic';
 
