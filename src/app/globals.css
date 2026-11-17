@@ -2,3 +2,25 @@
 
 /* Destaque visual dos apontamentos conforme a referência enviada */
 .stagecell-pointed>b{color:#31d8ac}.stagecell-pointed .progress i{background:#28c89f}
+
+/* Navegação lateral dos setores */
+.workspace{display:grid;grid-template-columns:218px minmax(0,1fr);min-height:calc(100vh - 51px)}
+.sidebar{position:sticky;top:0;height:calc(100vh - 51px);min-height:620px;background:#0d151f;border-right:1px solid #243447;padding:20px 12px 14px;display:flex;flex-direction:column}
+.sidebrand{display:flex;align-items:center;gap:10px;padding:3px 9px 25px;border-bottom:1px solid #1e2d3d}
+.brandmark{width:32px;height:32px;border-radius:8px;background:linear-gradient(145deg,#0878ec,#1552a4);display:grid;place-items:center;color:#fff;font-size:17px;font-weight:900}
+.sidebrand b{display:block;font-size:11px;letter-spacing:1px;color:#e7f2ff}
+.sidebrand small{display:block;margin-top:4px;font-size:8px;letter-spacing:1.1px;color:#6f8aa5}
+.sidetitle{font-size:8px;letter-spacing:1.4px;color:#607a94;padding:22px 10px 9px;font-weight:800}
+.sector-nav{display:flex;flex-direction:column;gap:5px}
+.sector-nav button{height:39px;display:flex;align-items:center;gap:10px;text-align:left;padding:0 10px;background:transparent;border:1px solid transparent;border-radius:7px;color:#a9bdd1;font-size:10px;font-weight:700}
+.sector-nav button:hover{background:#142438;border-color:#253b52;color:#eaf4ff}
+.sector-nav button.active{background:#12375a;border-color:#1d5d92;color:#fff;box-shadow:inset 2px 0 #1688ff}
+.sector-nav button .navicon{width:19px;text-align:center;color:#78a9d5;font-size:14px}
+.sector-nav button.active .navicon{color:#53b1ff}
+.sector-nav button i{margin-left:auto;width:6px;height:6px;border-radius:50%;background:#2dd4a3}
+.sidebar-foot{margin-top:auto;padding:14px 9px 4px;border-top:1px solid #1e2d3d;color:#7892aa;font-size:9px;display:flex;align-items:center;gap:8px}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#21c997;box-shadow:0 0 8px #21c99766}
+.mainpanel{min-width:0;overflow:hidden}
+.current-sector{display:inline-flex;align-items:center;padding:7px 11px;border:1px solid #24517a;background:#102a42;color:#8ecaff;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.5px}
+@media(max-width:800px){.workspace{grid-template-columns:68px minmax(0,1fr)}.sidebar{padding:15px 7px}.sidebrand{justify-content:center;padding:3px 0 18px}.sidebrand>div,.sidetitle,.sector-nav button:not(.active)::after,.sidebar-foot{display:none}.sector-nav{margin-top:18px}.sector-nav button{justify-content:center;padding:0}.sector-nav button{font-size:0}.sector-nav button .navicon{font-size:16px}.sector-nav button.active i{display:none}.content{padding:18px 12px 28px}}
+@media(max-width:520px){.workspace{grid-template-columns:56px minmax(0,1fr)}.topbar{padding:0 10px}.content{padding:14px 9px 24px}.current-sector{font-size:8px;padding:6px}}
