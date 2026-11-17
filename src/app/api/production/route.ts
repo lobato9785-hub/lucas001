@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { isValidPlasmaToken, PLASMA_COOKIE } from '../../../lib/plasma-auth';
+import { getSectorRole, SECTOR_COOKIE } from '../../../lib/sector-auth';
 export const dynamic = 'force-dynamic';
 const allowed = ['CORTE LASER','RADIADOR','BORDEADEIRA','PRENSA','PLASMA','DOBRADEIRA','PLASMA + DOBRADEIRA'];
 const db = () => {
@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
     const sector = (req.nextUrl.searchParams.get('sector') || 'CORTE LASER').toUpperCase();
     if (!allowed.includes(sector)) return NextResponse.json({ error: 'Setor inválido' }, { status: 400 });
     const protectedSector = ['PLASMA','DOBRADEIRA','PLASMA + DOBRADEIRA'].includes(sector);
-    if (protectedSector && !isValidPlasmaToken(req.cookies.get(PLASMA_COOKIE)?.value)) return NextResponse.json({ error: 'Acesso protegido. Informe a senha novamente.' }, { status: 401 });
+    const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
+    if (protectedSector && role !== 'ferragem') return NextResponse.json({ error: 'Acesso Ferragem necessário.' }, { status: 401 });
+    if (!protectedSector && role !== 'laser') return NextResponse.json({ error: 'Acesso Laser necessário.' }, { status: 401 });
     const sql = db();
     const rows = await sql.query(`
       SELECT ps.id, ps.process_type, ps.operation_type, ps.op_number, ps.parent_op,
@@ -45,11 +47,11 @@ export async function POST(req: NextRequest) {
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até três etapas.' }, { status: 400 });
     const sql = db();
-    const token = req.cookies.get(PLASMA_COOKIE)?.value;
+    const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
     for (const entry of entries) {
       const schedule = await sql.query('SELECT process_type FROM process_schedule WHERE id = $1 LIMIT 1', [Number(entry.scheduleId)]);
-      if (schedule[0] && ['PLASMA','DOBRADEIRA'].includes(String(schedule[0].process_type)) && !isValidPlasmaToken(token)) {
-        return NextResponse.json({ error: 'Acesso protegido. Entre pelo link PLASMA + DOBRADEIRA.' }, { status: 401 });
+      if (schedule[0] && ['PLASMA','DOBRADEIRA'].includes(String(schedule[0].process_type)) && role !== 'ferragem') {
+        return NextResponse.json({ error: 'Acesso Ferragem necessário. Entre pelo acesso Ferragem.' }, { status: 401 });
       }
     }
     const saved = [];
