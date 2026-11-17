@@ -39,6 +39,7 @@ export default function MasterDashboard() {
   const [dayFilter,setDayFilter] = useState('');
   const [search,setSearch] = useState('');
   const [status,setStatus] = useState('TODAS');
+  const [selectedSector,setSelectedSector] = useState('CORTE LASER');
 
   async function load() {
     setLoading(true);
@@ -89,34 +90,39 @@ export default function MasterDashboard() {
   const maxDaily = Math.max(1,...daily.map(d=>d.total));
   const monthName = new Date(month+'-01T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
 
-  const laserRows = monthRows.filter(r=>r.process_type==='CORTE LASER');
-  const opMap = new Map<string,Schedule[]>();
-  laserRows.forEach(r=>{
-    const key=String(r.scheduled_date).slice(0,10)+'|'+r.op_number;
-    const list=opMap.get(key)||[];
-    list.push(r);
-    opMap.set(key,list);
+  const sectorRows = monthRows.filter(r => r.process_type === selectedSector);
+  const opMap = new Map<string, Schedule[]>();
+  sectorRows.forEach(r => {
+    const key = String(r.scheduled_date).slice(0,10) + '|' + r.op_number;
+    const group = opMap.get(key) || [];
+    group.push(r);
+    opMap.set(key, group);
   });
-  const audit = Array.from(opMap.entries()).map(([key,items])=>{
-    const date=key.split('|')[0];
-    const stages=STAGES.map(name=>{
-      const matching=items.filter(i=>i.operation_type.toUpperCase()===name);
-      const planned=matching.reduce((sum,i)=>sum+Number(i.planned_quantity||0),0);
-      const done=matching.reduce((sum,i)=>sum+Number(i.reported_quantity||0),0);
-      return {name,planned,done};
+  const audit = Array.from(opMap.entries()).map(([key, items]) => {
+    const date = key.split('|')[0];
+    const laser = selectedSector === 'CORTE LASER';
+    const names = laser ? STAGES : ['PROCESSO'];
+    const stages = names.map(name => {
+      const matching = laser ? items.filter(i => i.operation_type.toUpperCase() === name) : items;
+      return {
+        name,
+        planned: matching.reduce((sum,i) => sum + Number(i.planned_quantity || 0), 0),
+        done: matching.reduce((sum,i) => sum + Number(i.reported_quantity || 0), 0)
+      };
     });
-    const complete=stages.every(s=>s.planned>0 && s.done>=s.planned);
-    const started=stages.some(s=>s.done>0);
-    const state=complete?'CONCLUÍDA':started?'PARCIAL':date<today()?'ATRASADA':'NÃO INICIADA';
-    return {key,date,op:items[0].op_number,product:items[0].product_description||items[0].product_reference||'—',stages,state};
-  }).filter(a=>!dayFilter||a.date===dayFilter)
-    .filter(a=>!search||a.op.toLowerCase().includes(search.toLowerCase()))
-    .filter(a=>status==='TODAS'||a.state===status)
-    .sort((a,b)=>b.date.localeCompare(a.date)||a.op.localeCompare(b.op));
-
+    const planned = stages.reduce((sum,s) => sum + s.planned, 0);
+    const done = stages.reduce((sum,s) => sum + Math.min(s.done,s.planned), 0);
+    const state = planned > 0 && done >= planned ? 'CONCLUÍDA' : done > 0 ? 'PARCIAL' : date < today() ? 'ATRASADA' : 'NÃO INICIADA';
+    return {key,date,op:items[0].op_number,product:items[0].product_description || items[0].product_reference || '—',stages,planned,done,pending:Math.max(0,planned-done),state};
+  })
+    .filter(x => !dayFilter || x.date === dayFilter)
+    .filter(x => !search || x.op.toLowerCase().includes(search.toLowerCase()))
+    .filter(x => status === 'TODAS' || x.state === status)
+    .sort((x,y) => x.date.localeCompare(y.date) || x.op.localeCompare(y.op));
   const selectedDate=dayFilter||today();
   const selectedAudit=audit.filter(a=>a.date===selectedDate);
-  const stageSummary=STAGES.map(name=>{
+  const summaryNames = selectedSector === 'CORTE LASER' ? STAGES : ['PROCESSO'];
+  const stageSummary=summaryNames.map(name=>{
     const cells=selectedAudit.flatMap(a=>a.stages.filter(s=>s.name===name));
     const planned=cells.reduce((sum,s)=>sum+s.planned,0);
     const done=cells.reduce((sum,s)=>sum+Math.min(s.done,s.planned),0);
@@ -214,8 +220,9 @@ export default function MasterDashboard() {
         </div>
 
         <div className="master-laser-conference">
-          <div className="master-section-kicker">☀　CONFERÊNCIA DE OPs – CORTE LASER</div>
-          <p>Verificação diária da OP por etapa (Corpo, Fundo e Tampa) – Conclusão no dia</p>
+          <div className="master-section-kicker">☀　CONFERÊNCIA DE OPs – {PROCESS_NAMES[selectedSector].toUpperCase()}</div>
+          <p>{selectedSector === 'CORTE LASER' ? 'Verificação diária da OP por etapa (Corpo, Fundo e Tampa) – Conclusão no dia' : 'Acompanhamento das OPs programadas, realizadas e pendentes – Conclusão no dia'}</p>
+          <div className="master-sector-tabs">{PROCESS_ORDER.map(key => <button type="button" key={key} className={selectedSector === key ? 'active' : ''} onClick={() => {setSelectedSector(key);setDayFilter('');setSearch('');setStatus('TODAS');}}>{PROCESS_NAMES[key]}</button>)}</div>
           <div className="master-conference-tools">
             <label>Data<input type="date" value={dayFilter} onChange={e=>setDayFilter(e.target.value)} /></label>
             <label>Buscar OP<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Número da OP" /></label>
@@ -224,12 +231,12 @@ export default function MasterDashboard() {
           </div>
           <div className="master-reference-table-wrap master-conference-table-wrap">
             <table>
-              <thead><tr><th>OP</th><th>Data</th><th>Produto</th><th>Corpo</th><th>Fundo</th><th>Tampa</th><th>Resultado</th></tr></thead>
+              <thead><tr><th>OP</th><th>Data</th><th>Produto</th>{(selectedSector === 'CORTE LASER' ? STAGES : ['Programado','Realizado','Pendente']).map(col => <th key={col}>{col === 'CORPO' ? 'Corpo' : col === 'FUNDO' ? 'Fundo' : col === 'TAMPA' ? 'Tampa' : col}</th>)}<th>Resultado</th></tr></thead>
               <tbody>
                 {audit.map(a=>(
                   <tr key={a.key}>
                     <td className="master-op">{a.op}</td><td>{brDate(a.date)}</td><td>{a.product}</td>
-                    {a.stages.map(s=><td key={s.name}><b className={s.planned>0&&s.done>=s.planned?'master-green':'master-orange'}>{fmt(s.done)}/{fmt(s.planned)}</b></td>)}
+                    {selectedSector === 'CORTE LASER' ? a.stages.map(s => <td key={s.name}><b className={s.planned > 0 && s.done >= s.planned ? 'master-green' : 'master-orange'}>{fmt(s.done)}/{fmt(s.planned)}</b></td>) : <><td>{fmt(a.planned)}</td><td><b className={a.done >= a.planned ? 'master-green' : 'master-orange'}>{fmt(a.done)}</b></td><td className="master-orange">{fmt(a.pending)}</td></>}
                     <td><span className={'master-status '+a.state.toLowerCase().replaceAll(' ','-')}>{a.state}</span></td>
                   </tr>
                 ))}
@@ -237,12 +244,12 @@ export default function MasterDashboard() {
               </tbody>
             </table>
           </div>
-          <div className="master-conference-foot">A OP só é considerada concluída quando Corpo, Fundo e Tampa atingem a quantidade programada na mesma data.</div>
+          <div className="master-conference-foot">{selectedSector === 'CORTE LASER' ? 'A OP só é considerada concluída quando Corpo, Fundo e Tampa atingem a quantidade programada na mesma data.' : 'A OP é considerada concluída quando a quantidade realizada atinge a quantidade programada.'}</div>
         </div>
       </section>
 
       <section className="master-stage-summary">
-        <div className="master-section-kicker">RESUMO POR ETAPA – CORTE LASER · {brDate(selectedDate)}</div>
+        <div className="master-section-kicker">{selectedSector === 'CORTE LASER' ? 'RESUMO POR ETAPA – CORTE LASER' : 'RESUMO DE PRODUÇÃO – ' + PROCESS_NAMES[selectedSector].toUpperCase()} · {brDate(selectedDate)}</div>
         <div className="master-stage-summary-grid">
           {stageSummary.map(s=>(
             <article key={s.name}>
