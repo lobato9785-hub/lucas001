@@ -31,7 +31,7 @@ export default function Home(){
    const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});
    const imported:any[]=[];
    const map:Record<string,{process_type:string;operation_type:string}>={
-    'FERRAGEM':{process_type:'PLASMA',operation_type:'FERRAGEM'},
+    'FERRAGEM':{process_type:'PLASMA',operation_type:'FERRAGEM INFERIOR'},
     'ESTAMP. TANQUE/TAMPA':{process_type:'BORDEADEIRA',operation_type:'ESTAMPAGEM'},
     'ESTAMPAGEM TANQUE/TAMPA':{process_type:'BORDEADEIRA',operation_type:'ESTAMPAGEM'},
     'CORPO':{process_type:'CORTE LASER',operation_type:'CORPO'},'FUNDO':{process_type:'CORTE LASER',operation_type:'FUNDO'},'TAMPA':{process_type:'CORTE LASER',operation_type:'TAMPA'},
@@ -54,8 +54,11 @@ export default function Home(){
      if(!date)continue;
      const num=(v:any)=>{const n=typeof v==='number'?v:Number(String(v??'').trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?Math.max(0,Math.trunc(n)):0;};
      const base={op_number:op,parent_op:String(val(r,'OP-Pai')||op),scheduled_date:date,series_start:String(val(r,'Série Inicial')??''),series_end:String(val(r,'Série Final')??''),client_name:String(val(r,'Nome Cliente')||''),client_code:String(val(r,'Cód.Cli')||''),product_reference:String(val(r,'Referência Prod.')||''),product_description:String(val(r,'Descr.Produto')||''),production_line:String(val(r,'Linha Prod')||''),power_pa:String(val(r,'Potência PA')||''),order_quantity:num(val(r,'Qtd.OP')),planned_quantity:num(val(r,'Qtd.Programada'))};
-     imported.push({...base,process_type:m.process_type,operation_type:m.operation_type});
-     if(fileType==='FERRAGEM')imported.push({...base,process_type:'DOBRADEIRA',operation_type:'DOBRA'});
+     if(fileType==='FERRAGEM'&&activity==='FERRAGEM'){
+      imported.push({...base,process_type:'PLASMA',operation_type:'FERRAGEM INFERIOR'});
+      imported.push({...base,process_type:'PLASMA',operation_type:'FERRAGEM SUPERIOR'});
+      imported.push({...base,process_type:'DOBRADEIRA',operation_type:'DOBRA'});
+     }else imported.push({...base,process_type:m.process_type,operation_type:m.operation_type});
     }
    }
    if(!imported.length)throw new Error('Nenhuma linha válida encontrada para esta planilha.');
