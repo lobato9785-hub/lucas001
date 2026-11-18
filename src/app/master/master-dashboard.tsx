@@ -9,12 +9,12 @@ type Schedule = {
   reported_quantity:number; entries:Entry[];
 };
 
-const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','DOBRADEIRA'];
+const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','BORDADEIRA'];
 const PROCESS_NAMES:Record<string,string> = {
-  'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', DOBRADEIRA:'Dobradeira'
+  'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', BORDADEIRA:'Bordadeira'
 };
 const STAGES = ['CORPO','FUNDO','TAMPA'];
-const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase(); return key==='BORDEADEIRA'?'DOBRADEIRA':key; };
+const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase(); return key==='BORDEADEIRA'?'BORDADEIRA':key; };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const brDate = (s:string) => { const p=s.split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
@@ -345,7 +345,7 @@ export default function MasterDashboard() {
               <th rowSpan={2} className="sketch-product">Produto / Descrição</th>
               <th rowSpan={2} className="sketch-date">Data</th>
               <th rowSpan={2} className="sketch-qty">Qtd.<br/>OP</th>
-              {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'sketch-sector sketch-'+key.toLowerCase().replaceAll(' ','-')}>{key==='DOBRADEIRA'?'♧  BORDADEIRA':key==='CORTE LASER'?'⚒  CORTE LASER':key==='RADIADOR'?'▥  RADIADOR':'▣  PRENSA'}</th>)}
+              {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'sketch-sector sketch-'+key.toLowerCase().replaceAll(' ','-')}>{key==='BORDADEIRA'?'♧  BORDADEIRA':key==='CORTE LASER'?'⚒  CORTE LASER':key==='RADIADOR'?'▥  RADIADOR':'▣  PRENSA'}</th>)}
               <th rowSpan={2} className="sketch-progress">Avanço<br/>Geral</th>
               <th rowSpan={2} className="sketch-status">Status da OP</th>
             </tr>
