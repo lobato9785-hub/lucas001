@@ -9,7 +9,7 @@ const sectors: Record<string,string[]> = {
   'BORDEADEIRA':['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'],
   'PRENSA':['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE'],
   'PLASMA':['FERRAGEM','FERRAGEM INFERIOR','FERRAGEM SUPERIOR'],
-  'DOBRADEIRA':['DOBRA']
+  'DOBRADEIRA':['DOBRA','DOBRA SUPERIOR','DOBRA INFERIOR']
 };
 
 export async function POST(req: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     for (const row of rows) {
       const process = String(row.process_type || '').toUpperCase();
       const stage = String(row.operation_type || '').toUpperCase();
-      const ferragem = (process === 'PLASMA' && ['FERRAGEM INFERIOR','FERRAGEM SUPERIOR'].includes(stage)) || (process === 'DOBRADEIRA' && stage === 'DOBRA');
+      const ferragem = (process === 'PLASMA' && ['FERRAGEM INFERIOR','FERRAGEM SUPERIOR'].includes(stage)) || (process === 'DOBRADEIRA' && ['DOBRA','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(stage));
       if (!(sectors[process] || []).includes(stage) ||
           !String(row.op_number || '').trim() ||
           !/^\d{4}-\d{2}-\d{2}$/.test(String(row.scheduled_date || '')) ||
@@ -48,6 +48,22 @@ export async function POST(req: NextRequest) {
           planned_quantity integer, source_status text
         )
       ),
+      legacy_dobra AS (
+        UPDATE process_schedule old
+        SET operation_type = 'DOBRA INFERIOR', updated_at = NOW()
+        WHERE old.process_type = 'DOBRADEIRA'
+          AND old.operation_type = 'DOBRA'
+          AND EXISTS (
+            SELECT 1 FROM incoming i
+            WHERE i.process_type = 'DOBRADEIRA'
+              AND i.operation_type = 'DOBRA INFERIOR'
+              AND i.op_number = old.op_number
+              AND i.scheduled_date = old.scheduled_date
+              AND COALESCE(i.series_start,'') = COALESCE(old.series_start,'')
+              AND COALESCE(i.series_end,'') = COALESCE(old.series_end,'')
+          )
+        RETURNING old.id
+      ),
       upserted AS (
         INSERT INTO process_schedule (
           process_type, operation_type, op_number, parent_op, scheduled_date,
@@ -61,6 +77,7 @@ export async function POST(req: NextRequest) {
           product_description, production_line, power_pa, order_quantity,
           planned_quantity, '__ACTIVE__', NOW()
         FROM incoming
+        CROSS JOIN (SELECT COUNT(*) FROM legacy_dobra) migration
         ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
         DO UPDATE SET
           parent_op = EXCLUDED.parent_op, client_name = EXCLUDED.client_name,
