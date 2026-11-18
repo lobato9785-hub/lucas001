@@ -1,3 +1,4 @@
+import './master-theme.css';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getSectorRole, SECTOR_COOKIE } from '../../lib/sector-auth';
