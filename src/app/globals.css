@@ -418,3 +418,28 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-op-empty{text-align:center!important;padding:32px!important}
 @media(max-width:1050px){.master-op-progress-heading{align-items:flex-start;flex-direction:column}.master-op-progress-filters{width:100%}.master-op-progress-filters input{flex:1}}
 @media(max-width:650px){.master-op-progress-panel{padding:10px}.master-op-progress-filters{display:grid;grid-template-columns:1fr 1fr;width:100%}.master-op-progress-filters input{grid-column:1/-1;min-width:0}.master-op-progress-filters select{min-width:0;width:100%}.master-op-progress-filters button{grid-column:1/-1}}
+
+/* MASTER: leitura por subsetor, sem somar quantidades de etapas distintas */
+.master-op-progress-table-wrap table{min-width:1180px}
+.master-op-progress-table-wrap th{white-space:normal;min-width:145px}
+.master-op-progress-table-wrap th:first-child{min-width:70px}
+.master-op-progress-table-wrap th:nth-child(2){min-width:190px}
+.master-op-progress-table-wrap th:nth-child(3){min-width:75px}
+.master-op-progress-table-wrap th:nth-child(4){min-width:135px}
+.master-op-progress-table-wrap td.master-op-sector-cell{padding:5px 7px;vertical-align:top;white-space:normal;min-width:180px}
+.master-op-substage-list{display:flex;flex-direction:column;gap:5px;min-width:165px}
+.master-op-substage{padding:6px 7px;border:1px solid #254c65;border-radius:6px;background:#0a2235;text-align:left}
+.master-op-substage-title{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:4px;margin-bottom:4px;border-bottom:1px solid #24465c}
+.master-op-substage-title>b{font-size:9px;color:#eaf6ff;letter-spacing:.2px}
+.master-op-mini-status{font-size:7px;font-weight:900;white-space:nowrap}
+.master-op-mini-status.ok{color:#27e6a7}
+.master-op-mini-status.em-andamento{color:#5dbdff}
+.master-op-mini-status.pendente{color:#b7c7d5}
+.master-op-substage-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.master-op-substage-values span{display:flex;flex-direction:column;gap:2px;color:#91aec2;font-size:7px;text-align:left}
+.master-op-substage-values b{font-size:10px;color:#f4f9ff}
+.master-op-substage-values b.master-op-realized{color:#23e2b0}
+.master-op-substage-values b.master-op-pending{color:#ffc14c}
+.master-op-no-schedule{display:inline-block;color:#7e9aaf;font-size:9px;padding:10px 3px}
+.master-op-progress-table-wrap th small{display:block;font-size:7px;font-weight:500;color:#b8d6e7;margin-top:4px}
+.master-op-progress-table-wrap td.master-op-product{white-space:normal;min-width:190px}
