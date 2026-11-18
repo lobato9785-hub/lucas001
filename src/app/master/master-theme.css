@@ -7,8 +7,8 @@
 .master-reference .master-heading{
   min-height:88px!important;margin-bottom:10px!important;padding:11px 14px!important;
   border:1px solid #0a9b70!important;border-radius:11px!important;
-  background-image:linear-gradient(90deg,rgba(1,17,12,.96) 0%,rgba(2,23,16,.85) 40%,rgba(2,20,15,.22) 78%,rgba(2,13,10,.55) 100%),url('/estamparia-laser-header.jpg')!important;
-  background-size:cover!important;background-position:center 48%!important;
+  background-image:linear-gradient(90deg,rgba(1,17,12,.96) 0%,rgba(2,23,16,.85) 40%,rgba(2,20,15,.22) 78%,rgba(2,13,10,.55) 100%),url('/estamparia-laser-header.svg')!important;
+  background-size:100% 100%!important;background-position:center center!important;
   box-shadow:0 7px 22px #0008,inset 0 1px #7dffce14!important;
 }
 .master-reference .master-breadcrumb{color:#24efb4!important;letter-spacing:1.8px!important}
