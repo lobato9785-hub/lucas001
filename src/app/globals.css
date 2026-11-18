@@ -443,3 +443,44 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-op-no-schedule{display:inline-block;color:#7e9aaf;font-size:9px;padding:10px 3px}
 .master-op-progress-table-wrap th small{display:block;font-size:7px;font-weight:500;color:#b8d6e7;margin-top:4px}
 .master-op-progress-table-wrap td.master-op-product{white-space:normal;min-width:190px}
+
+/* REFINO VISUAL MASTER — leitura limpa por setor e subsetor */
+.master-op-progress-table-wrap{overflow:auto!important;max-height:calc(100vh - 350px)!important;min-height:420px!important;border:1px solid #315a75!important;border-radius:9px!important}
+.master-op-progress-table-wrap table{width:100%!important;min-width:1780px!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important}
+.master-op-progress-table-wrap thead th{position:sticky!important;top:0!important;z-index:4!important;height:46px!important;padding:10px 8px!important;white-space:normal!important;text-align:center!important;vertical-align:middle!important;font-size:10px!important;line-height:1.25!important;letter-spacing:.1px!important;background:#153b57!important;border-right:1px solid #31546b!important;border-bottom:1px solid #3a6680!important}
+.master-op-progress-table-wrap thead th.op-col{width:78px!important}
+.master-op-progress-table-wrap thead th.product-col{width:205px!important}
+.master-op-progress-table-wrap thead th.qty-col{width:82px!important}
+.master-op-progress-table-wrap thead th.date-col{width:145px!important}
+.master-op-progress-table-wrap thead th.master-op-head-corte-laser{background:#07546a!important;border-top:3px solid #05d9ed!important}
+.master-op-progress-table-wrap thead th.master-op-head-radiador{background:#48316b!important;border-top:3px solid #ad79ff!important}
+.master-op-progress-table-wrap thead th.master-op-head-prensa{background:#075a4d!important;border-top:3px solid #20dca4!important}
+.master-op-progress-table-wrap thead th.master-op-head-dobradeira{background:#66500d!important;border-top:3px solid #ffc54c!important}
+.master-op-progress-table-wrap thead th.progress-col{width:130px!important}
+.master-op-progress-table-wrap thead th.overall-col{width:145px!important}
+.master-op-progress-table-wrap tbody td{padding:9px 7px!important;vertical-align:middle!important;text-align:center!important;white-space:normal!important;border-right:1px solid #1c4058!important;border-bottom:1px solid #24475f!important;font-size:10px!important}
+.master-op-progress-table-wrap tbody tr:nth-child(odd) td{background:#071d2e!important}
+.master-op-progress-table-wrap tbody tr:nth-child(even) td{background:#0b263a!important}
+.master-op-progress-table-wrap tbody tr:hover td{background:#10334c!important}
+.master-op-progress-table-wrap tbody td.master-op{text-align:center!important;font-size:12px!important;font-weight:900!important}
+.master-op-progress-table-wrap tbody td.master-op-product{text-align:left!important;min-width:0!important;max-width:none!important;line-height:1.35!important}
+.master-op-progress-table-wrap td.master-op-sector-cell{width:285px!important;min-width:285px!important;padding:7px!important;vertical-align:top!important}
+.master-op-stage-grid{width:100%;display:flex;flex-direction:column;gap:3px}
+.master-op-stage-grid-head,.master-op-stage-grid-row{display:grid;grid-template-columns:minmax(72px,1.25fr) 38px 38px 42px minmax(72px,1fr);align-items:center;column-gap:4px}
+.master-op-stage-grid-head{padding:0 2px 5px;border-bottom:1px solid #31546b;color:#9ebbd0;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}
+.master-op-stage-grid-row{min-height:27px;padding:4px 2px;border-bottom:1px solid #1d3d54;border-radius:3px;color:#eff7fc;font-size:9px}
+.master-op-stage-grid-row:last-child{border-bottom:0}
+.master-op-stage-grid-row .stage-name{text-align:left!important;font-size:9px!important;color:#dcecf7!important;overflow-wrap:anywhere}
+.master-op-stage-grid-row>b:not(.stage-name){font-size:10px!important;font-variant-numeric:tabular-nums}
+.master-op-stage-grid-row .master-op-realized{color:#27e2b0!important}
+.master-op-stage-grid-row .master-op-pending{color:#ffc24d!important}
+.master-op-mini-status{display:inline-flex;align-items:center;justify-content:center;min-width:0;padding:4px 5px;border-radius:5px;font-size:7px!important;font-weight:900;white-space:nowrap}
+.master-op-mini-status.ok{background:#075b3d;color:#aaffd5}
+.master-op-mini-status.em-andamento{background:#104f91;color:#c4e5ff}
+.master-op-mini-status.pendente{background:#30475a;color:#d0deea}
+.master-op-progress-table-wrap .master-op-progress-cell{min-width:0!important;gap:6px}
+.master-op-progress-table-wrap .master-op-progress-track{height:9px}
+.master-op-progress-table-wrap .master-op-overall{font-size:8px!important;white-space:nowrap}
+.master-op-progress-table-wrap td.master-op-empty{padding:30px!important;text-align:center!important}
+.master-op-progress-legend{padding-top:8px!important;font-size:9px!important}
+@media(max-width:1100px){.master-op-progress-table-wrap{max-height:65vh!important}.master-op-progress-table-wrap table{min-width:1780px!important}}
