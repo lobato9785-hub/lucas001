@@ -100,10 +100,16 @@ export default function MasterDashboard() {
         return {name, planned, done, pending, state, percent:planned>0?Math.min(100,done/planned*100):0};
       });
       const programmed = stages.filter(stage => stage.planned > 0);
+      // As etapas de um setor representam as mesmas peças em operações diferentes.
+      // Para o resumo do setor, não somar etapas: usar a maior programação e
+      // o menor realizado entre as etapas, que representa peças concluídas em todas.
+      const planned = programmed.length ? Math.max(...programmed.map(stage => stage.planned)) : 0;
+      const done = programmed.length ? Math.min(planned, ...programmed.map(stage => stage.done)) : 0;
+      const pending = Math.max(0, planned - done);
       const complete = programmed.length > 0 && programmed.every(stage => stage.done >= stage.planned);
-      const percent = programmed.length ? Math.round(programmed.reduce((sum,stage) => sum + stage.percent,0)/programmed.length) : 0;
-      const state = !programmed.length ? 'NÃO PROGRAMADO' : complete ? 'OK' : programmed.some(stage => stage.done > 0) ? 'EM ANDAMENTO' : 'PENDENTE';
-      return {sector, stages, state, complete, percent, hasSchedule:programmed.length>0};
+      const percent = planned ? Math.round(done / planned * 100) : 0;
+      const state = !programmed.length ? 'NÃO PROGRAMADO' : complete ? 'OK' : done > 0 ? 'EM ANDAMENTO' : 'PENDENTE';
+      return {sector, stages, planned, done, pending, state, complete, percent, hasSchedule:programmed.length>0};
     });
     // A OP só conclui quando os quatro setores têm programação e estão completos.
     const completeCount = bySector.filter(sector => sector.complete).length;
@@ -111,7 +117,7 @@ export default function MasterDashboard() {
     const complete = bySector.length === PROCESS_ORDER.length && bySector.every(sector => sector.complete);
     const doneAny = bySector.some(sector => sector.stages.some(stage => stage.done > 0));
     const overall = complete ? 'CONCLUÍDA' : doneAny ? `${completeCount} DE ${PROCESS_ORDER.length} SETORES CONCLUÍDOS` : 'AGUARDANDO';
-    const quantity = Math.max(0,...bySector.flatMap(sector => sector.stages.map(stage => stage.planned)));
+    const quantity = Math.max(0,...bySector.map(sector => sector.planned));
     return {key, dates, dateLabel:dates.length===1?brDate(dates[0]):dates.length>1?`${brDate(dates[0])} a ${brDate(dates[dates.length-1])}`:'—', op:items[0].op_number, product:items[0].product_description || items[0].product_reference || '—', quantity, bySector, percent, overall, complete, completeCount};
   }).filter(item => !opSearch || String(item.op).toLowerCase().includes(opSearch.toLowerCase()) || item.product.toLowerCase().includes(opSearch.toLowerCase()))
     .filter(item => opStatus === 'TODOS' || (opStatus === 'CONCLUÍDA' ? item.complete : opStatus === 'EM PRODUÇÃO' ? item.overall !== 'AGUARDANDO' && !item.complete : item.overall === 'AGUARDANDO'))
@@ -350,10 +356,10 @@ export default function MasterDashboard() {
                 <td className="master-op-date">{item.dateLabel}</td>
                 <td className="master-op-qty">{fmt(item.quantity)}</td>
                 {item.bySector.map(sector=><React.Fragment key={sector.sector}>
-                  <td className="master-op-stage-col">{sector.stages.length ? sector.stages.map(stage=><div className="master-op-stage-line" key={stage.name}><b>{stage.name}</b><small>{fmt(stage.planned)}</small></div>) : <span className="master-op-no-schedule">—</span>}</td>
-                  <td className="master-op-number-col">{sector.stages.length ? sector.stages.map(stage=><div className="master-op-stage-line master-op-realized" key={stage.name}>{fmt(stage.done)}</div>) : '—'}</td>
-                  <td className="master-op-number-col">{sector.stages.length ? sector.stages.map(stage=><div className="master-op-stage-line master-op-pending" key={stage.name}>{fmt(stage.pending)}</div>) : '—'}</td>
-                  <td className="master-op-status-col">{sector.stages.length ? sector.stages.map(stage=><div className="master-op-stage-line" key={stage.name}><span className={'master-op-mini-status '+stage.state.toLowerCase().replaceAll(' ','-')}>{stage.state==='OK'?'✓ CONCLUÍDO':stage.state==='EM ANDAMENTO'?'◷ EM AND.':'● PENDENTE'}</span></div>) : <span className="master-op-no-schedule">Não prog.</span>}</td>
+                  <td className="master-op-stage-col">{sector.hasSchedule ? fmt(sector.planned) : <span className="master-op-no-schedule">—</span>}</td>
+                  <td className="master-op-number-col master-op-realized">{sector.hasSchedule ? fmt(sector.done) : '—'}</td>
+                  <td className="master-op-number-col master-op-pending">{sector.hasSchedule ? fmt(sector.pending) : '—'}</td>
+                  <td className="master-op-status-col">{sector.hasSchedule ? <span className={'master-op-mini-status '+sector.state.toLowerCase().replaceAll(' ','-')}>{sector.state==='OK'?'✓ CONCLUÍDO':sector.state==='EM ANDAMENTO'?'◷ EM AND.':'● PENDENTE'}</span> : <span className="master-op-no-schedule">Não prog.</span>}</td>
                 </React.Fragment>)}
                 <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
                 <td><span className={'master-op-overall '+(item.complete ? 'is-done' : item.overall === 'AGUARDANDO' ? 'is-waiting' : 'is-active')}>{item.overall}</span></td>
