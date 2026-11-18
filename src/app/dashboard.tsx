@@ -65,9 +65,10 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
      const num=(v:any)=>{const n=typeof v==='number'?v:Number(String(v??'').trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?Math.max(0,Math.trunc(n)):0;};
      const base={op_number:op,parent_op:String(val(r,'OP-Pai')||op),scheduled_date:date,series_start:String(val(r,'Série Inicial')??''),series_end:String(val(r,'Série Final')??''),client_name:String(val(r,'Nome Cliente')||''),client_code:String(val(r,'Cód.Cli')||''),product_reference:String(val(r,'Referência Prod.')||''),product_description:String(val(r,'Descr.Produto')||''),production_line:String(val(r,'Linha Prod')||''),power_pa:String(val(r,'Potência PA')||''),order_quantity:num(val(r,'Qtd.OP')),planned_quantity:num(val(r,'Qtd.Programada'))};
      if(fileType==='FERRAGEM'&&activity==='FERRAGEM'){
-      imported.push({...base,process_type:'PLASMA',operation_type:'FERRAGEM INFERIOR'});
       imported.push({...base,process_type:'PLASMA',operation_type:'FERRAGEM SUPERIOR'});
-      imported.push({...base,process_type:'DOBRADEIRA',operation_type:'DOBRA'});
+      imported.push({...base,process_type:'PLASMA',operation_type:'FERRAGEM INFERIOR'});
+      imported.push({...base,process_type:'DOBRADEIRA',operation_type:'DOBRA SUPERIOR'});
+      imported.push({...base,process_type:'DOBRADEIRA',operation_type:'DOBRA INFERIOR'});
      }else imported.push({...base,process_type:m.process_type,operation_type:m.operation_type});
     }
    }
