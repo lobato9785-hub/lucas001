@@ -77,19 +77,19 @@ export default function MasterDashboard() {
   });
 
 
-  // Consolida as programações de cada OP entre os quatro setores.
-  // No Corte Laser, Corpo, Fundo e Tampa são somados antes de definir o status.
-  // Uma única linha por OP/produto, reunindo todas as datas programadas do período.
+  // Uma linha para cada OP/produto/dia programado.
+  // A mesma OP aparece novamente quando tiver programação em outro dia.
   const masterOpMap = new Map<string, Schedule[]>();
   monthRows.forEach(row => {
-    const identity = [String(row.op_number), String(row.product_reference || row.product_description || '')].join('|');
+    const dateKey = String(row.scheduled_date).slice(0,10);
+    const identity = [String(row.op_number), String(row.product_reference || row.product_description || ''), dateKey].join('|');
     const group = masterOpMap.get(identity) || [];
     group.push(row);
     masterOpMap.set(identity, group);
   });
   const stageOrder = ['CORPO','FUNDO','TAMPA','CORTE','DOBRA','ESTAMPAGEM','PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE','BORDA','NÚMERO DE SÉRIE'];
   const masterOps = Array.from(masterOpMap.entries()).map(([key, items]) => {
-    const dates = Array.from(new Set(items.map(item => String(item.scheduled_date).slice(0,10)))).sort();
+    const dateKey = String(items[0].scheduled_date).slice(0,10);
     const bySector = PROCESS_ORDER.map(sector => {
       const sectorRows = items.filter(row => normalizeProcess(row.process_type) === sector);
       const stageNames = Array.from(new Set(sectorRows.map(row => String(row.operation_type || 'PROCESSO').trim().toUpperCase())))
@@ -103,9 +103,8 @@ export default function MasterDashboard() {
         return {name, planned, done, pending, state, percent:planned>0?Math.min(100,done/planned*100):0};
       });
       const programmed = stages.filter(stage => stage.planned > 0);
-      // As etapas de um setor representam as mesmas peças em operações diferentes.
-      // Para o resumo do setor, não somar etapas: usar a maior programação e
-      // o menor realizado entre as etapas, que representa peças concluídas em todas.
+      // As etapas do mesmo setor são operações sucessivas sobre as mesmas peças.
+      // O resumo do setor considera a maior quantidade programada e o menor realizado.
       const planned = programmed.length ? Math.max(...programmed.map(stage => stage.planned)) : 0;
       const done = programmed.length ? Math.min(planned, ...programmed.map(stage => stage.done)) : 0;
       const pending = Math.max(0, planned - done);
@@ -114,20 +113,20 @@ export default function MasterDashboard() {
       const state = !programmed.length ? 'NÃO PROGRAMADO' : complete ? 'OK' : done > 0 ? 'EM ANDAMENTO' : 'PENDENTE';
       return {sector, stages, planned, done, pending, state, complete, percent, hasSchedule:programmed.length>0};
     });
-    // A OP só conclui quando os quatro setores têm programação e estão completos.
     const completeCount = bySector.filter(sector => sector.complete).length;
     const percent = Math.round(bySector.reduce((sum,sector) => sum + sector.percent,0) / PROCESS_ORDER.length);
     const complete = bySector.length === PROCESS_ORDER.length && bySector.every(sector => sector.complete);
     const doneAny = bySector.some(sector => sector.stages.some(stage => stage.done > 0));
-    const overall = complete ? 'CONCLUÍDA' : doneAny ? `${completeCount} DE ${PROCESS_ORDER.length} SETORES CONCLUÍDOS` : 'AGUARDANDO';
+    const overall = complete ? 'CONCLUÍDA' : doneAny ? completeCount + ' DE ' + PROCESS_ORDER.length + ' SETORES CONCLUÍDOS' : 'AGUARDANDO';
     const quantity = Math.max(0,...bySector.map(sector => sector.planned));
-    const late = !complete && dates.length>0 && dates[dates.length-1]<today();
-    return {key, dates, dateLabel:dates.length?brDate(dates[0]):'—', op:items[0].op_number, product:items[0].product_description || items[0].product_reference || '—', quantity, bySector, percent, overall, complete, completeCount, late};
+    const late = !complete && dateKey < today();
+    return {key, dateKey, dateLabel:dateKey?brDate(dateKey):'—', op:items[0].op_number, product:items[0].product_description || items[0].product_reference || '—', quantity, bySector, percent, overall, complete, completeCount, late};
   }).filter(item => !opSearch || String(item.op).toLowerCase().includes(opSearch.toLowerCase()) || item.product.toLowerCase().includes(opSearch.toLowerCase()))
     .filter(item => opStatus === 'TODOS' || (opStatus === 'CONCLUÍDA' ? item.complete : opStatus === 'EM PRODUÇÃO' ? item.overall !== 'AGUARDANDO' && !item.complete : item.overall === 'AGUARDANDO'))
     .filter(item => opSituation === 'TODAS' || (opSituation === 'ATRASADA' ? item.late : !item.late))
     .filter(item => opSector === 'TODOS' || item.bySector.some(sector => sector.sector === opSector && sector.hasSchedule))
-    .sort((a,b) => String(a.op).localeCompare(String(b.op)));
+    .sort((a,b) => a.dateKey.localeCompare(b.dateKey) || String(a.op).localeCompare(String(b.op)));
+
   const masterOpCounts = {
     total:masterOps.length,
     complete:masterOps.filter(item => item.complete).length,
@@ -332,8 +331,8 @@ export default function MasterDashboard() {
         </div>
       </header>
       <section className="master-sketch-summary">
-        <strong>Resumo das OPs:</strong>
-        <span className="summary-total"><b>{fmt(masterOpCounts.total)}</b> Total de OPs</span>
+        <strong>Resumo das programações:</strong>
+        <span className="summary-total"><b>{fmt(masterOpCounts.total)}</b> Linhas por dia</span>
         <span className="summary-done"><b>✓ {fmt(masterOpCounts.complete)}</b> Concluídas</span>
         <span className="summary-active"><b>◉ {fmt(masterOpCounts.active)}</b> Em produção</span>
         <span className="summary-waiting"><b>⌛ {fmt(masterOpCounts.waiting)}</b> Aguardando</span>
