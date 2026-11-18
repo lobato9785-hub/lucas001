@@ -41,6 +41,9 @@ export default function MasterDashboard() {
   const [search,setSearch] = useState('');
   const [status,setStatus] = useState('TODAS');
   const [selectedSector,setSelectedSector] = useState('CORTE LASER');
+  const [opSearch,setOpSearch] = useState('');
+  const [opStatus,setOpStatus] = useState('TODOS');
+  const [opSector,setOpSector] = useState('TODOS');
 
   async function load() {
     setLoading(true);
@@ -69,6 +72,55 @@ export default function MasterDashboard() {
     const lateOps = new Set(late.map(r=>String(r.scheduled_date).slice(0,10)+'|'+r.op_number)).size;
     return {key,name:PROCESS_NAMES[key],planned,done,pending:Math.max(0,planned-done),lateOps,pct:planned?Math.round(done/planned*100):0};
   });
+
+
+  // Consolida as programações de cada OP entre os quatro setores.
+  // No Corte Laser, Corpo, Fundo e Tampa são somados antes de definir o status.
+  const masterOpMap = new Map<string, Schedule[]>();
+  monthRows.forEach(row => {
+    const identity = [String(row.op_number), String(row.product_reference || row.product_description || '')].join('|');
+    const group = masterOpMap.get(identity) || [];
+    group.push(row);
+    masterOpMap.set(identity, group);
+  });
+  const masterOps = Array.from(masterOpMap.entries()).map(([key, items]) => {
+    const bySector = PROCESS_ORDER.map(sector => {
+      const sectorRows = items.filter(row => normalizeProcess(row.process_type) === sector);
+      const planned = sectorRows.reduce((sum,row) => sum + Number(row.planned_quantity || 0),0);
+      const done = sectorRows.reduce((sum,row) => sum + Number(row.reported_quantity || 0),0);
+      const boundedDone = Math.min(done, planned);
+      const state = planned > 0 && done >= planned ? 'OK' : done > 0 ? 'EM ANDAMENTO' : 'PENDENTE';
+      return { sector, planned, done:boundedDone, state };
+    });
+    const planned = bySector.reduce((sum,item) => sum + item.planned,0);
+    const done = bySector.reduce((sum,item) => sum + item.done,0);
+    const percent = planned > 0 ? Math.round(done / planned * 100) : 0;
+    const complete = bySector.every(item => item.planned > 0 && item.done >= item.planned);
+    const overall = complete ? 'CONCLUÍDA' : done > 0 ? 'EM PRODUÇÃO' : 'AGUARDANDO';
+    const dates = items.map(item => String(item.scheduled_date).slice(0,10)).sort();
+    return {
+      key,
+      op:items[0].op_number,
+      product:items[0].product_description || items[0].product_reference || '—',
+      quantity:Math.max(...items.map(item => Number(item.order_quantity || item.planned_quantity || 0))),
+      dateStart:dates[0] || '',
+      dateEnd:dates[dates.length - 1] || '',
+      bySector,
+      planned,
+      done,
+      percent,
+      overall
+    };
+  }).filter(item => !opSearch || String(item.op).toLowerCase().includes(opSearch.toLowerCase()) || item.product.toLowerCase().includes(opSearch.toLowerCase()))
+    .filter(item => opStatus === 'TODOS' || item.overall === opStatus)
+    .filter(item => opSector === 'TODOS' || item.bySector.some(sector => sector.sector === opSector && sector.state !== 'PENDENTE'))
+    .sort((a,b) => a.dateStart.localeCompare(b.dateStart) || String(a.op).localeCompare(String(b.op)));
+  const masterOpCounts = {
+    total:masterOps.length,
+    complete:masterOps.filter(item => item.overall === 'CONCLUÍDA').length,
+    active:masterOps.filter(item => item.overall === 'EM PRODUÇÃO').length,
+    waiting:masterOps.filter(item => item.overall === 'AGUARDANDO').length
+  };
 
   const plannedTotal = sectors.reduce((sum,s)=>sum+s.planned,0);
   const doneTotal = sectors.reduce((sum,s)=>sum+s.done,0);
@@ -242,6 +294,52 @@ export default function MasterDashboard() {
             <footer><span>{s.pct}% concluído</span><span>{fmt(s.planned)} peças</span></footer>
           </article>
         ))}
+      </section>
+
+      <section className="master-op-progress-panel">
+        <div className="master-op-progress-heading">
+          <div>
+            <div className="master-section-kicker">ACOMPANHAMENTO GERAL DAS ORDENS</div>
+            <h2>Avanço das OPs – Master</h2>
+            <p>Visualize a mesma Ordem de Produção passando pelo Corte Laser, Radiador, Prensa e Bordadeira.</p>
+          </div>
+          <div className="master-op-progress-filters">
+            <input aria-label="Buscar OP ou produto" value={opSearch} onChange={e=>setOpSearch(e.target.value)} placeholder="Buscar OP ou produto..." />
+            <select aria-label="Filtrar status" value={opStatus} onChange={e=>setOpStatus(e.target.value)}>
+              <option value="TODOS">Status: Todos</option><option value="CONCLUÍDA">Concluídas</option><option value="EM PRODUÇÃO">Em produção</option><option value="AGUARDANDO">Aguardando</option>
+            </select>
+            <select aria-label="Filtrar setor" value={opSector} onChange={e=>setOpSector(e.target.value)}>
+              <option value="TODOS">Setor: Todos</option>{PROCESS_ORDER.map(key=><option key={key} value={key}>{PROCESS_NAMES[key]}</option>)}
+            </select>
+            <button type="button" onClick={()=>{setOpSearch('');setOpStatus('TODOS');setOpSector('TODOS');}}>Limpar</button>
+          </div>
+        </div>
+        <div className="master-op-progress-summary">
+          <span><b>{fmt(masterOpCounts.total)}</b> OPs no período</span>
+          <span className="is-done"><b>{fmt(masterOpCounts.complete)}</b> Concluídas</span>
+          <span className="is-active"><b>{fmt(masterOpCounts.active)}</b> Em produção</span>
+          <span className="is-waiting"><b>{fmt(masterOpCounts.waiting)}</b> Aguardando</span>
+        </div>
+        <div className="master-op-progress-table-wrap">
+          <table>
+            <thead>
+              <tr><th rowSpan={2}>OP</th><th rowSpan={2}>Produto</th><th rowSpan={2}>Qtd. OP</th><th rowSpan={2}>Programação</th><th colSpan={4} className="master-op-process-group">Avanço por Processo</th><th rowSpan={2}>Avanço da OP</th><th rowSpan={2}>Status geral</th></tr>
+              <tr>{PROCESS_ORDER.map(key=><th key={key}>{PROCESS_NAMES[key]}</th>)}</tr>
+            </thead>
+            <tbody>
+              {masterOps.map(item=><tr key={item.key}>
+                <td className="master-op">{item.op}</td><td className="master-op-product">{item.product}</td><td>{fmt(item.quantity)}</td>
+                <td>{item.dateStart === item.dateEnd ? brDate(item.dateStart) : brDate(item.dateStart)+' a '+brDate(item.dateEnd)}</td>
+                {item.bySector.map(sector=><td key={sector.sector}><span className={'master-op-sector-status '+sector.state.toLowerCase().replaceAll(' ','-')} title={fmt(sector.done)+' de '+fmt(sector.planned)+' peças'}><b>{sector.state === 'OK' ? '✓' : sector.state === 'EM ANDAMENTO' ? '◷' : '•'}</b>{sector.state}</span><small className="master-op-sector-quantity">{fmt(sector.done)} / {fmt(sector.planned)}</small></td>)}
+                <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
+                <td><span className={'master-op-overall '+(item.overall === 'CONCLUÍDA' ? 'is-done' : item.overall === 'EM PRODUÇÃO' ? 'is-active' : 'is-waiting')}>{item.overall}</span></td>
+              </tr>)}
+              {!masterOps.length && <tr><td colSpan={10} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div className="master-op-progress-legend"><b>Legenda:</b><span className="is-done">✓ OK – setor concluído</span><span className="is-active">◷ Em andamento – produção iniciada</span><span className="is-waiting">• Pendente – aguardando início</span></div>
+        <div className="master-conference-foot">A OP só fica CONCLUÍDA quando Corte Laser, Radiador, Prensa e Bordadeira atingirem suas quantidades programadas. O avanço é calculado pelas quantidades realizadas registradas no banco.</div>
       </section>
 
       <section className="master-chart master-reference-chart">
