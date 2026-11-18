@@ -382,3 +382,39 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-reference-bottom .master-op-sector-status{min-width:78px;font-size:7px;padding:5px 4px}
 .master-reference-bottom .master-op-progress-legend{font-size:8px;gap:8px}
 @media(max-width:850px){.master-reference-bottom .master-op-progress-table-wrap{max-height:330px}}
+
+/* MASTER: foco total no painel consolidado de avanço das OPs */
+.master-op-progress-panel{width:100%;min-width:0;margin:10px 0 14px;padding:16px;background:linear-gradient(145deg,#071e32 0%,#0a2940 55%,#071a2b 100%);border:1px solid #08b9d5;border-radius:12px;box-shadow:0 8px 28px #0005,inset 0 1px #ffffff0a;display:flex;flex-direction:column;gap:12px}
+.master-op-progress-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding-bottom:12px;border-bottom:1px solid #1d526d}
+.master-op-progress-heading h2{font-size:20px;letter-spacing:.1px;margin:3px 0 4px}
+.master-op-progress-heading p{font-size:11px;color:#b8d1e3;margin:0}
+.master-op-progress-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.master-op-progress-filters input,.master-op-progress-filters select{height:36px;min-width:135px;padding:0 10px;border:1px solid #315b76;border-radius:7px;background:#071827;color:#eff8ff;font-size:10px}
+.master-op-progress-filters input{min-width:230px}
+.master-op-progress-filters button{height:36px;padding:0 14px}
+.master-op-progress-summary{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0}
+.master-op-progress-summary span{padding:8px 13px;border:1px solid #31536c;border-radius:8px;background:#0c2a40;color:#d9eafa;font-size:10px}
+.master-op-progress-summary b{font-size:15px;margin-right:5px;color:#fff}
+.master-op-progress-table-wrap{width:100%;max-height:calc(100vh - 390px);min-height:390px;overflow:auto;border:1px solid #315b76;border-radius:9px;background:#061a2a}
+.master-op-progress-table-wrap table{width:100%;min-width:1500px;border-collapse:separate;border-spacing:0;table-layout:auto}
+.master-op-progress-table-wrap th{position:sticky;top:0;z-index:3;background:#153c59;color:#f0f8ff;font-size:10px;font-weight:800;padding:10px 7px;text-align:center;white-space:nowrap;border-bottom:1px solid #32617e}
+.master-op-progress-table-wrap thead tr:nth-child(2) th{top:37px;background:#12334e}
+.master-op-progress-table-wrap thead tr:nth-child(3) th{position:sticky;top:73px;z-index:3;background:#0d2a42}
+.master-op-progress-table-wrap td{padding:10px 7px;font-size:10px;text-align:center;white-space:nowrap;border-bottom:1px solid #1c4058;color:#e4f0f9}
+.master-op-progress-table-wrap tbody tr:nth-child(even) td{background:#0b263b}
+.master-op-progress-table-wrap tbody tr:hover td{background:#123b55}
+.master-op-progress-table-wrap th:first-child,.master-op-progress-table-wrap td:first-child{text-align:left}
+.master-op-progress-table-wrap td.master-op-product{text-align:left;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.master-op-progress-table-wrap th.master-op-process-group{background:#0b604f;border-bottom:1px solid #2be2a6}
+.master-op-progress-table-wrap thead tr:nth-child(2) th:nth-child(1){background:#07556b}
+.master-op-progress-table-wrap thead tr:nth-child(2) th:nth-child(2){background:#49306c}
+.master-op-progress-table-wrap thead tr:nth-child(2) th:nth-child(3){background:#075b4c}
+.master-op-progress-table-wrap thead tr:nth-child(2) th:nth-child(4){background:#69500b}
+.master-op-sector-status{min-width:90px;padding:6px 8px;border-radius:99px;font-size:8px}
+.master-op-progress-cell{min-width:105px;gap:8px}
+.master-op-progress-track{height:10px;background:#24475e}
+.master-op-progress-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:2px 4px;color:#d6e5f1;font-size:10px}
+.master-op-progress-panel .master-conference-foot{margin-top:0;padding:9px 11px;background:#0b2b41;border:1px solid #28516b;border-radius:7px;font-size:9px}
+.master-op-empty{text-align:center!important;padding:32px!important}
+@media(max-width:1050px){.master-op-progress-heading{align-items:flex-start;flex-direction:column}.master-op-progress-filters{width:100%}.master-op-progress-filters input{flex:1}}
+@media(max-width:650px){.master-op-progress-panel{padding:10px}.master-op-progress-filters{display:grid;grid-template-columns:1fr 1fr;width:100%}.master-op-progress-filters input{grid-column:1/-1;min-width:0}.master-op-progress-filters select{min-width:0;width:100%}.master-op-progress-filters button{grid-column:1/-1}}
