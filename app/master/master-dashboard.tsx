@@ -70,17 +70,12 @@ export default function MasterDashboard() {
   // As etapas/subseroes de uma mesma OP representam as mesmas pecas.
   // Somamos dentro de cada etapa, mas contamos a quantidade da OP apenas uma vez.
   const quantitySummary = (items:Schedule[]) => {
-    const stageMap = new Map<string, {planned:number;done:number}>();
-    items.forEach(row => {
-      const stage = String(row.operation_type || 'PROCESSO').trim().toUpperCase();
-      const current = stageMap.get(stage) || {planned:0,done:0};
-      current.planned += Number(row.planned_quantity || 0);
-      current.done += Number(row.reported_quantity || 0);
-      stageMap.set(stage,current);
-    });
-    const stages = Array.from(stageMap.values()).filter(stage => stage.planned > 0);
-    const planned = stages.length ? Math.max(...stages.map(stage => stage.planned)) : 0;
-    const done = stages.length ? Math.min(planned,...stages.map(stage => Math.min(stage.done,stage.planned))) : 0;
+    // Cada registro/suboperação pode repetir a mesma quantidade programada
+    // para a OP no mesmo dia. A quantidade física do grupo é contada uma vez.
+    const planned = Math.max(0,...items.map(row=>Number(row.planned_quantity || 0)));
+    // Para o realizado, não somar suboperações: considerar o maior avanço
+    // registrado entre os registros que representam a mesma quantidade.
+    const done = Math.min(planned,Math.max(0,...items.map(row=>Number(row.reported_quantity || 0))));
     return {planned,done,pending:Math.max(0,planned-done)};
   };
   const sectorOpGroups = (items:Schedule[]) => {
