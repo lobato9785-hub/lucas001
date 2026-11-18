@@ -154,3 +154,10 @@
 .master-reference .master-sketch-table th.sketch-qty{width:64px!important;min-width:64px!important;white-space:nowrap!important}
 .master-reference .master-sketch-table tbody td.sketch-date-value{width:100px!important;min-width:100px!important;font-size:10px!important;letter-spacing:-.15px!important}
 .master-reference .master-sketch-table tbody td.sketch-qty-value{width:64px!important;min-width:64px!important;font-size:10px!important}
+
+/* Ajuste fino do banner: foco no equipamento e tratamento fotográfico mais natural */
+.master-reference .master-heading-background{
+  object-position:68% 50%!important;
+  opacity:.96!important;
+  filter:brightness(.88) contrast(1.06) saturate(.90)!important;
+}
