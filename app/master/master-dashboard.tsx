@@ -162,11 +162,25 @@ export default function MasterDashboard() {
     waiting:masterOps.filter(item => item.overall === 'AGUARDANDO').length
   };
 
-  const plannedTotal = sectors.reduce((sum,s)=>sum+s.planned,0);
-  const doneTotal = sectors.reduce((sum,s)=>sum+s.done,0);
+  // Resumo geral: cada OP/produto/dia representa uma quantidade física única.
+  // Os setores e suboperações são etapas da mesma quantidade, não parcelas para somar.
+  const overallMap = new Map<string, Schedule[]>();
+  monthRows.forEach(row => {
+    const key = [String(row.scheduled_date).slice(0,10),String(row.op_number),String(row.product_reference || row.product_description || '')].join('|');
+    const group = overallMap.get(key) || [];
+    group.push(row);
+    overallMap.set(key,group);
+  });
+  const overallGroups = Array.from(overallMap.entries()).map(([key,items]) => {
+    const bySector = PROCESS_ORDER.map(sector => quantitySummary(items.filter(row=>normalizeProcess(row.process_type)===sector)));
+    const planned = Math.max(0,...bySector.map(value=>value.planned));
+    const done = Math.min(planned,Math.max(0,...bySector.map(value=>value.done)));
+    return {key,planned,done,pending:Math.max(0,planned-done)};
+  });
+  const plannedTotal = overallGroups.reduce((sum,group)=>sum+group.planned,0);
+  const doneTotal = overallGroups.reduce((sum,group)=>sum+group.done,0);
   const pendingTotal = Math.max(0,plannedTotal-doneTotal);
-  const lateGroups = PROCESS_ORDER.flatMap(key => sectorOpGroups(monthRows.filter(row=>normalizeProcess(row.process_type)===key))
-    .filter(group=>group.key.split('|')[0]<today() && group.pending>0));
+  const lateGroups = overallGroups.filter(group=>group.key.split('|')[0]<today() && group.pending>0);
   const latePieces = lateGroups.reduce((sum,group)=>sum+group.pending,0);
   const lateOps = lateGroups.length;
   const percent = plannedTotal ? Math.round(doneTotal/plannedTotal*100) : 0;
