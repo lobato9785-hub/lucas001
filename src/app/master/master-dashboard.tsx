@@ -5,7 +5,7 @@ import React, { useEffect, useState, type CSSProperties } from 'react';
 type Entry = { id:number; quantity:number; operator?:string; note?:string; at?:string };
 type Schedule = {
   id:number; process_type:string; operation_type:string; op_number:string; scheduled_date:string;
-  product_description?:string; product_reference?:string; planned_quantity:number;
+  product_description?:string; product_reference?:string; order_quantity?:number; planned_quantity:number;
   reported_quantity:number; entries:Entry[];
 };
 
@@ -372,7 +372,7 @@ export default function MasterDashboard() {
                 <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
                 <td><span className={'master-op-overall '+(item.overall === 'CONCLUÍDA' ? 'is-done' : item.overall === 'EM PRODUÇÃO' ? 'is-active' : 'is-waiting')}>{item.overall}</span></td>
               </tr>)}
-              {!masterOps.length && <tr><td colSpan={10} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
+              {!masterOps.length && <tr><td colSpan={22} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
             </tbody>
           </table>
         </div>
