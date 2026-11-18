@@ -161,3 +161,15 @@
   opacity:.92!important;
   filter:brightness(.94) contrast(1.03) saturate(.78)!important;
 }
+
+/* Reenquadramento real do banner: amplia a foto e desloca o bico do laser ao centro */
+.master-reference .master-heading-background{
+  left:-30%!important;
+  right:auto!important;
+  width:120%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center 50%!important;
+  opacity:.90!important;
+  filter:brightness(.90) contrast(1.04) saturate(.72)!important;
+}
