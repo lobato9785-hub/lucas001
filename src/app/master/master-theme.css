@@ -173,3 +173,16 @@
   opacity:.90!important;
   filter:brightness(.90) contrast(1.04) saturate(.72)!important;
 }
+
+/* Banner final: mostrar a cena industrial inteira, sem zoom/corte exagerado */
+.master-reference .master-heading-background{
+  left:0!important;
+  right:0!important;
+  top:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:fill!important;
+  object-position:center center!important;
+  opacity:.84!important;
+  filter:brightness(.92) contrast(1.06) saturate(.86)!important;
+}
