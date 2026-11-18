@@ -37,12 +37,15 @@ export default function MasterDashboard() {
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState('');
   const [month,setMonth] = useState(today().slice(0,7));
+  const [dateFrom,setDateFrom] = useState(today().slice(0,7)+'-01');
+  const [dateTo,setDateTo] = useState(today().slice(0,7)+'-'+String(new Date(Number(today().slice(0,4)),Number(today().slice(5,7)),0).getDate()).padStart(2,'0'));
   const [dayFilter,setDayFilter] = useState('');
   const [search,setSearch] = useState('');
   const [status,setStatus] = useState('TODAS');
   const [selectedSector,setSelectedSector] = useState('CORTE LASER');
   const [opSearch,setOpSearch] = useState('');
   const [opStatus,setOpStatus] = useState('TODOS');
+  const [opSituation,setOpSituation] = useState('TODAS');
   const [opSector,setOpSector] = useState('TODOS');
 
   async function load() {
@@ -62,7 +65,7 @@ export default function MasterDashboard() {
 
   useEffect(()=>{ load(); },[]);
 
-  const monthRows = rows.filter(r => PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && String(r.scheduled_date).slice(0,7)===month);
+  const monthRows = rows.filter(r => { const date=String(r.scheduled_date).slice(0,10); return PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && date>=dateFrom && date<=dateTo; });
 
   const sectors = PROCESS_ORDER.map(key => {
     const items = monthRows.filter(r=>normalizeProcess(r.process_type)===key);
@@ -118,9 +121,11 @@ export default function MasterDashboard() {
     const doneAny = bySector.some(sector => sector.stages.some(stage => stage.done > 0));
     const overall = complete ? 'CONCLUÍDA' : doneAny ? `${completeCount} DE ${PROCESS_ORDER.length} SETORES CONCLUÍDOS` : 'AGUARDANDO';
     const quantity = Math.max(0,...bySector.map(sector => sector.planned));
-    return {key, dates, dateLabel:dates.length===1?brDate(dates[0]):dates.length>1?`${brDate(dates[0])} a ${brDate(dates[dates.length-1])}`:'—', op:items[0].op_number, product:items[0].product_description || items[0].product_reference || '—', quantity, bySector, percent, overall, complete, completeCount};
+    const late = !complete && dates.length>0 && dates[dates.length-1]<today();
+    return {key, dates, dateLabel:dates.length?brDate(dates[0]):'—', op:items[0].op_number, product:items[0].product_description || items[0].product_reference || '—', quantity, bySector, percent, overall, complete, completeCount, late};
   }).filter(item => !opSearch || String(item.op).toLowerCase().includes(opSearch.toLowerCase()) || item.product.toLowerCase().includes(opSearch.toLowerCase()))
     .filter(item => opStatus === 'TODOS' || (opStatus === 'CONCLUÍDA' ? item.complete : opStatus === 'EM PRODUÇÃO' ? item.overall !== 'AGUARDANDO' && !item.complete : item.overall === 'AGUARDANDO'))
+    .filter(item => opSituation === 'TODAS' || (opSituation === 'ATRASADA' ? item.late : !item.late))
     .filter(item => opSector === 'TODOS' || item.bySector.some(sector => sector.sector === opSector && sector.hasSchedule))
     .sort((a,b) => String(a.op).localeCompare(String(b.op)));
   const masterOpCounts = {
@@ -253,126 +258,84 @@ export default function MasterDashboard() {
   }));
 
   return (
-    <main className="master-page master-reference">
-      <header className="master-heading">
-        <div>
-          <div className="master-breadcrumb">ITAM　›　MASTER - ESTAMPARIA</div>
-          <h1>▣　Estamparia</h1>
-          <p>Acompanhamento da Produção – Visão Master</p>
+    <main className="master-page master-sketch-page">
+      <header className="master-sketch-header">
+        <div className="master-sketch-brand">
+          <div className="master-sketch-mark">◇</div>
+          <div>
+            <h1>Acompanhamento Geral das Ordens – Avanço das OPs</h1>
+            <p>Acompanhe o avanço de cada Ordem de Produção (OP) em todos os setores da Estamparia.</p>
+          </div>
         </div>
-        <div className="master-head-actions">
-          <label className="master-period">Período <input type="month" value={month} onChange={e=>{setMonth(e.target.value);setDayFilter('');}} /></label>
-          <button onClick={load} disabled={loading}>↻ Atualizar</button>
-          <span className="master-live">● Dados do banco</span>
-          <a href="/">Sair</a>
+        <div className="master-sketch-filters">
+          <input aria-label="Buscar OP, produto ou descrição" value={opSearch} onChange={e=>setOpSearch(e.target.value)} placeholder="⌕  Buscar OP, produto ou descrição..." />
+          <label>Data (De)<input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} /></label>
+          <label>Data (Até)<input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} /></label>
+          <label>Status da OP<select value={opStatus} onChange={e=>setOpStatus(e.target.value)}>
+            <option value="TODOS">Todas</option><option value="CONCLUÍDA">Concluída</option><option value="EM PRODUÇÃO">Em produção</option><option value="AGUARDANDO">Aguardando</option>
+          </select></label>
+          <label>Situação<select value={opSituation} onChange={e=>setOpSituation(e.target.value)}>
+            <option value="TODAS">Todas</option><option value="ATRASADA">Atrasada</option><option value="NO PRAZO">No prazo</option>
+          </select></label>
+          <button type="button" onClick={load} disabled={loading} title="Atualizar">↻</button>
         </div>
       </header>
-
-      <section className="master-overview">
-        <div className="master-overview-main">
-          <div className="master-overview-title">✓　Resumo Geral do Mês <span>{monthName}</span></div>
-          <div className="master-overview-grid">
-            <div><small>PROGRAMADA</small><b>{fmt(plannedTotal)}</b></div>
-            <div><small>REALIZADA</small><b className="master-green">{fmt(doneTotal)}</b></div>
-            <div><small>PENDENTE</small><b className="master-orange">{fmt(pendingTotal)}</b></div>
-            <div className="master-overview-progress">
-              <div className="master-ring" style={{'--progress':percent+'%'} as CSSProperties}><b>{percent}%</b></div>
-              <div><small>Conclusão do Mês</small><div className="master-track"><i style={{width:percent+'%'}} /></div></div>
-            </div>
-          </div>
-        </div>
-        <aside className="master-overview-late">
-          <b>⚑　Peças Atrasadas</b>
-          <strong>{fmt(latePieces)}</strong>
-          <span>{fmt(lateOps)} programações vencidas</span>
-        </aside>
+      <section className="master-sketch-summary">
+        <strong>Resumo das OPs:</strong>
+        <span className="summary-total"><b>{fmt(masterOpCounts.total)}</b> Total de OPs</span>
+        <span className="summary-done"><b>✓ {fmt(masterOpCounts.complete)}</b> Concluídas</span>
+        <span className="summary-active"><b>◉ {fmt(masterOpCounts.active)}</b> Em produção</span>
+        <span className="summary-waiting"><b>⌛ {fmt(masterOpCounts.waiting)}</b> Aguardando</span>
       </section>
-
-      <section className="master-process-grid">
-        {sectors.map((s,i)=>(
-          <article className={'master-process-card process-'+i} key={s.key}>
-            <div className="master-process-title"><b>{s.name.toUpperCase()}</b><span>● PROGRESSO</span></div>
-            <div className="master-process-metrics">
-              <div><small>Programado</small><b>{fmt(s.planned)}</b></div>
-              <div><small>Realizado</small><b className="master-green">{fmt(s.done)}</b></div>
-              <div><small>Pendente</small><b className="master-orange">{fmt(s.pending)}</b></div>
-              <div><small>Em Atraso</small><b className="master-red">{fmt(s.lateOps)}</b></div>
-            </div>
-            <div className="master-process-track"><i style={{width:s.pct+'%'}} /></div>
-            <footer><span>{s.pct}% concluído</span><span>{fmt(s.planned)} peças</span></footer>
-          </article>
-        ))}
+      <section className="master-sketch-table-wrap">
+        <table className="master-sketch-table">
+          <thead>
+            <tr>
+              <th rowSpan={2} className="sketch-op">OP</th>
+              <th rowSpan={2} className="sketch-product">Produto / Descrição</th>
+              <th rowSpan={2} className="sketch-date">Data</th>
+              <th rowSpan={2} className="sketch-qty">Qtd.<br/>OP</th>
+              {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'sketch-sector sketch-'+key.toLowerCase().replaceAll(' ','-')}>{key==='DOBRADEIRA'?'♧  BORDADEIRA / DOBRADEIRA':key==='CORTE LASER'?'⚒  CORTE LASER':key==='RADIADOR'?'▥  RADIADOR':'▣  PRENSA'}</th>)}
+              <th rowSpan={2} className="sketch-progress">Avanço<br/>Geral</th>
+              <th rowSpan={2} className="sketch-status">Status da OP</th>
+            </tr>
+            <tr>
+              {PROCESS_ORDER.flatMap(key=>[
+                <th key={key+'-planned'} className="sketch-subhead">Prog.</th>,
+                <th key={key+'-done'} className="sketch-subhead">Real.</th>,
+                <th key={key+'-pending'} className="sketch-subhead">Saldo</th>,
+                <th key={key+'-status'} className="sketch-subhead">Status</th>
+              ])}
+            </tr>
+          </thead>
+          <tbody>
+            {masterOps.map(item=><tr key={item.key}>
+              <td className="sketch-op-value">{item.op}</td>
+              <td className="sketch-product-value" title={item.product}>{item.product}</td>
+              <td className="sketch-date-value">{item.dateLabel}</td>
+              <td className="sketch-qty-value">{fmt(item.quantity)}</td>
+              {item.bySector.map(sector=><React.Fragment key={sector.sector}>
+                <td className="sketch-number">{sector.hasSchedule?fmt(sector.planned):'—'}</td>
+                <td className="sketch-number sketch-real">{sector.hasSchedule?fmt(sector.done):'—'}</td>
+                <td className="sketch-number sketch-balance">{sector.hasSchedule?fmt(sector.pending):'—'}</td>
+                <td className="sketch-state">{sector.hasSchedule
+                  ? <span className={'sketch-pill '+(sector.state==='OK'?'pill-ok':sector.state==='EM ANDAMENTO'?'pill-active':'pill-pending')}>{sector.state==='OK'?'✓ OK':sector.state==='EM ANDAMENTO'?'◉ EM ANDAMENTO':'◯ PENDENTE'}</span>
+                  : <span className="sketch-no-schedule">—</span>}</td>
+              </React.Fragment>)}
+              <td className="sketch-progress-value"><div className="sketch-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></td>
+              <td className="sketch-overall"><span className={'sketch-pill '+(item.complete?'pill-ok':item.overall==='AGUARDANDO'?'pill-waiting':'pill-active')}>{item.complete?'✓ Concluída':item.overall==='AGUARDANDO'?'⌛ Aguardando':'◉ Em produção'}</span></td>
+            </tr>)}
+            {!masterOps.length && <tr><td colSpan={22} className="master-op-empty">{loading?'Carregando OPs...':'Nenhuma OP encontrada para os filtros selecionados.'}</td></tr>}
+          </tbody>
+        </table>
       </section>
-
-      <div className="master-op-progress-panel">
-        <div className="master-op-progress-heading">
-          <div>
-            <div className="master-section-kicker">ACOMPANHAMENTO GERAL DAS ORDENS</div>
-            <h2>Avanço das OPs por Setor</h2>
-            <p>Visualize a mesma Ordem de Produção passando pelo Corte Laser, Radiador, Prensa e Bordadeira.</p>
-          </div>
-          <div className="master-op-progress-filters">
-            <input aria-label="Buscar OP ou produto" value={opSearch} onChange={e=>setOpSearch(e.target.value)} placeholder="Buscar OP ou produto..." />
-            <select aria-label="Filtrar status" value={opStatus} onChange={e=>setOpStatus(e.target.value)}>
-              <option value="TODOS">Status: Todos</option><option value="CONCLUÍDA">Concluídas</option><option value="EM PRODUÇÃO">Em produção</option><option value="AGUARDANDO">Aguardando</option>
-            </select>
-            <select aria-label="Filtrar setor" value={opSector} onChange={e=>setOpSector(e.target.value)}>
-              <option value="TODOS">Setor: Todos</option>{PROCESS_ORDER.map(key=><option key={key} value={key}>{PROCESS_NAMES[key]}</option>)}
-            </select>
-            <button type="button" onClick={()=>{setOpSearch('');setOpStatus('TODOS');setOpSector('TODOS');}}>Limpar</button>
-          </div>
-        </div>
-        <div className="master-op-progress-summary">
-          <span><b>{fmt(masterOpCounts.total)}</b> OPs no período</span>
-          <span className="is-done"><b>{fmt(masterOpCounts.complete)}</b> Concluídas</span>
-          <span className="is-active"><b>{fmt(masterOpCounts.active)}</b> Em produção</span>
-          <span className="is-waiting"><b>{fmt(masterOpCounts.waiting)}</b> Aguardando</span>
-        </div>
-        <div className="master-op-progress-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th rowSpan={2} className="op-col">OP</th>
-                <th rowSpan={2} className="product-col">Produto / Descrição</th>
-                <th rowSpan={2} className="date-col">Programação</th>
-                <th rowSpan={2} className="qty-col">Qtd. OP</th>
-                {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'master-op-head-'+key.toLowerCase().replaceAll(' ','-')}>{PROCESS_NAMES[key]}</th>)}
-                <th rowSpan={2} className="progress-col">Avanço<br/>Geral</th>
-                <th rowSpan={2} className="overall-col">Situação<br/>Geral</th>
-              </tr>
-              <tr>
-                {PROCESS_ORDER.flatMap(key=>[
-                  <th key={key+'-planned'} className="sector-subhead">Programado</th>,
-                  <th key={key+'-done'} className="sector-subhead">Realizado</th>,
-                  <th key={key+'-pending'} className="sector-subhead">Saldo</th>,
-                  <th key={key+'-status'} className="sector-subhead">Status</th>
-                ])}
-              </tr>
-            </thead>
-            <tbody>
-              {masterOps.map(item=><tr key={item.key}>
-                <td className="master-op">{item.op}</td>
-                <td className="master-op-product">{item.product}</td>
-                <td className="master-op-date">{item.dateLabel}</td>
-                <td className="master-op-qty">{fmt(item.quantity)}</td>
-                {item.bySector.map(sector=><React.Fragment key={sector.sector}>
-                  <td className="master-op-stage-col">{sector.hasSchedule ? fmt(sector.planned) : <span className="master-op-no-schedule">—</span>}</td>
-                  <td className="master-op-number-col master-op-realized">{sector.hasSchedule ? fmt(sector.done) : '—'}</td>
-                  <td className="master-op-number-col master-op-pending">{sector.hasSchedule ? fmt(sector.pending) : '—'}</td>
-                  <td className="master-op-status-col">{sector.hasSchedule ? <span className={'master-op-mini-status '+sector.state.toLowerCase().replaceAll(' ','-')}>{sector.state==='OK'?'✓ CONCLUÍDO':sector.state==='EM ANDAMENTO'?'◷ EM AND.':'● PENDENTE'}</span> : <span className="master-op-no-schedule">Não prog.</span>}</td>
-                </React.Fragment>)}
-                <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
-                <td><span className={'master-op-overall '+(item.complete ? 'is-done' : item.overall === 'AGUARDANDO' ? 'is-waiting' : 'is-active')}>{item.overall}</span></td>
-              </tr>)}
-              {!masterOps.length && <tr><td colSpan={22} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
-            </tbody>
-          </table>
-        </div>
-        <div className="master-op-progress-legend"><b>Legenda:</b><span className="is-done">✓ OK – setor concluído</span><span className="is-active">◷ Em andamento – produção iniciada</span><span className="is-waiting">• Pendente – aguardando início</span></div>
-        <div className="master-conference-foot">Cada linha representa uma OP, reunindo todas as datas programadas. Os quatro setores permanecem lado a lado; a OP só é concluída quando todos os setores programados atingem 100%.</div>
-      </div>
-
-
+      <footer className="master-sketch-legend">
+        <b>Legenda de Status:</b>
+        <span><i className="master-sketch-pill pill-ok">✓ OK</i> – Etapa concluída</span>
+        <span><i className="master-sketch-pill pill-active">◉ EM ANDAMENTO</i> – Produção em execução</span>
+        <span><i className="master-sketch-pill pill-pending">◯ PENDENTE</i> – Etapa não iniciada</span>
+        <span><i className="master-sketch-pill pill-waiting">⌛ AGUARDANDO</i> – Aguardando início / liberação</span>
+      </footer>
       {loading && <div className="master-loading">Carregando produção...</div>}
       {error && <div className="master-error" role="alert">{error}</div>}
     </main>
