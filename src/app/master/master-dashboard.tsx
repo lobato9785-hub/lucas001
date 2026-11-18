@@ -258,7 +258,58 @@ export default function MasterDashboard() {
   }));
 
   return (
-    <main className="master-page master-sketch-page">
+    <main className="master-page master-reference">
+      <header className="master-heading">
+        <div>
+          <div className="master-breadcrumb">ITAM　›　MASTER - ESTAMPARIA</div>
+          <h1>▣　Estamparia</h1>
+          <p>Acompanhamento da Produção – Visão Master</p>
+        </div>
+        <div className="master-head-actions">
+          <label className="master-period">Período <input type="month" value={month} onChange={e=>{setMonth(e.target.value);setDayFilter('');}} /></label>
+          <button onClick={load} disabled={loading}>↻ Atualizar</button>
+          <span className="master-live">● Dados do banco</span>
+          <a href="/">Sair</a>
+        </div>
+      </header>
+
+      <section className="master-overview">
+        <div className="master-overview-main">
+          <div className="master-overview-title">✓　Resumo Geral do Mês <span>{monthName}</span></div>
+          <div className="master-overview-grid">
+            <div><small>PROGRAMADA</small><b>{fmt(plannedTotal)}</b></div>
+            <div><small>REALIZADA</small><b className="master-green">{fmt(doneTotal)}</b></div>
+            <div><small>PENDENTE</small><b className="master-orange">{fmt(pendingTotal)}</b></div>
+            <div className="master-overview-progress">
+              <div className="master-ring" style={{'--progress':percent+'%'} as CSSProperties}><b>{percent}%</b></div>
+              <div><small>Conclusão do Mês</small><div className="master-track"><i style={{width:percent+'%'}} /></div></div>
+            </div>
+          </div>
+        </div>
+        <aside className="master-overview-late">
+          <b>⚑　Peças Atrasadas</b>
+          <strong>{fmt(latePieces)}</strong>
+          <span>{fmt(lateOps)} programações vencidas</span>
+        </aside>
+      </section>
+
+      <section className="master-process-grid">
+        {sectors.map((s,i)=>(
+          <article className={'master-process-card process-'+i} key={s.key}>
+            <div className="master-process-title"><b>{s.name.toUpperCase()}</b><span>● PROGRESSO</span></div>
+            <div className="master-process-metrics">
+              <div><small>Programado</small><b>{fmt(s.planned)}</b></div>
+              <div><small>Realizado</small><b className="master-green">{fmt(s.done)}</b></div>
+              <div><small>Pendente</small><b className="master-orange">{fmt(s.pending)}</b></div>
+              <div><small>Em Atraso</small><b className="master-red">{fmt(s.lateOps)}</b></div>
+            </div>
+            <div className="master-process-track"><i style={{width:s.pct+'%'}} /></div>
+            <footer><span>{s.pct}% concluído</span><span>{fmt(s.planned)} peças</span></footer>
+          </article>
+        ))}
+      </section>
+
+      <section className="master-op-progress-panel master-sketch-panel">
       <header className="master-sketch-header">
         <div className="master-sketch-brand">
           <div className="master-sketch-mark">◇</div>
@@ -336,6 +387,7 @@ export default function MasterDashboard() {
         <span><i className="master-sketch-pill pill-pending">◯ PENDENTE</i> – Etapa não iniciada</span>
         <span><i className="master-sketch-pill pill-waiting">⌛ AGUARDANDO</i> – Aguardando início / liberação</span>
       </footer>
+      </section>
       {loading && <div className="master-loading">Carregando produção...</div>}
       {error && <div className="master-error" role="alert">{error}</div>}
     </main>
