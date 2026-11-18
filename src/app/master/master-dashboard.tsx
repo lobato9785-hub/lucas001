@@ -67,13 +67,30 @@ export default function MasterDashboard() {
 
   const monthRows = rows.filter(r => { const date=String(r.scheduled_date).slice(0,10); return PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && date>=dateFrom && date<=dateTo; });
 
+  // Consolida cada OP uma única vez por dia. CORPO/FUNDO/TAMPA e
+  // os setores seguintes são etapas da mesma quantidade, não novas peças.
+  const summarizeUniqueOps = (items:Schedule[]) => {
+    const grouped = new Map<string,Schedule[]>();
+    items.forEach(row => {
+      const key = String(row.scheduled_date).slice(0,10)+'|'+String(row.op_number);
+      const group = grouped.get(key) || [];
+      group.push(row);
+      grouped.set(key,group);
+    });
+    return Array.from(grouped.entries()).map(([key,group]) => {
+      const planned = Math.max(0,...group.map(row=>Number(row.planned_quantity||0)));
+      const done = Math.min(planned,Math.max(0,...group.map(row=>Number(row.reported_quantity||0))));
+      return {key,planned,done,pending:Math.max(0,planned-done)};
+    });
+  };
+
   const sectors = PROCESS_ORDER.map(key => {
     const items = monthRows.filter(r=>normalizeProcess(r.process_type)===key);
-    const planned = items.reduce((sum,r)=>sum+Number(r.planned_quantity||0),0);
-    const done = items.reduce((sum,r)=>sum+Math.min(Number(r.reported_quantity||0),Number(r.planned_quantity||0)),0);
-    const late = items.filter(r=>String(r.scheduled_date).slice(0,10)<today() && Number(r.reported_quantity||0)<Number(r.planned_quantity||0));
-    const lateOps = new Set(late.map(r=>String(r.scheduled_date).slice(0,10)+'|'+r.op_number)).size;
-    return {key,name:PROCESS_NAMES[key],planned,done,pending:Math.max(0,planned-done),lateOps,pct:planned?Math.round(done/planned*100):0};
+    const groups = summarizeUniqueOps(items);
+    const planned = groups.reduce((sum,group)=>sum+group.planned,0);
+    const done = groups.reduce((sum,group)=>sum+group.done,0);
+    const late = groups.filter(group=>group.key.split('|')[0]<today() && group.pending>0);
+    return {key,name:PROCESS_NAMES[key],planned,done,pending:Math.max(0,planned-done),lateOps:late.length,pct:planned?Math.round(done/planned*100):0};
   });
 
 
@@ -82,7 +99,7 @@ export default function MasterDashboard() {
   const masterOpMap = new Map<string, Schedule[]>();
   monthRows.forEach(row => {
     const dateKey = String(row.scheduled_date).slice(0,10);
-    const identity = [String(row.op_number), String(row.product_reference || row.product_description || ''), dateKey].join('|');
+    const identity = [String(row.op_number), dateKey].join('|');
     const group = masterOpMap.get(identity) || [];
     group.push(row);
     masterOpMap.set(identity, group);
@@ -134,12 +151,14 @@ export default function MasterDashboard() {
     waiting:masterOps.filter(item => item.overall === 'AGUARDANDO').length
   };
 
-  const plannedTotal = sectors.reduce((sum,s)=>sum+s.planned,0);
-  const doneTotal = sectors.reduce((sum,s)=>sum+s.done,0);
+  // O resumo geral também conta a OP/dia uma única vez entre todos os setores.
+  const overallGroups = summarizeUniqueOps(monthRows);
+  const plannedTotal = overallGroups.reduce((sum,group)=>sum+group.planned,0);
+  const doneTotal = overallGroups.reduce((sum,group)=>sum+group.done,0);
   const pendingTotal = Math.max(0,plannedTotal-doneTotal);
-  const lateRows = monthRows.filter(r=>String(r.scheduled_date).slice(0,10)<today() && Number(r.reported_quantity||0)<Number(r.planned_quantity||0));
-  const latePieces = lateRows.reduce((sum,r)=>sum+Math.max(0,Number(r.planned_quantity||0)-Number(r.reported_quantity||0)),0);
-  const lateOps = new Set(lateRows.map(r=>r.process_type+'|'+String(r.scheduled_date).slice(0,10)+'|'+r.op_number)).size;
+  const lateGroups = overallGroups.filter(group=>group.key.split('|')[0]<today() && group.pending>0);
+  const latePieces = lateGroups.reduce((sum,group)=>sum+group.pending,0);
+  const lateOps = lateGroups.length;
   const percent = plannedTotal ? Math.round(doneTotal/plannedTotal*100) : 0;
 
   const dailyMap = new Map<string,{first:number;second:number}>();
