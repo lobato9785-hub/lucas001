@@ -296,48 +296,11 @@ export default function MasterDashboard() {
         ))}
       </section>
 
-      <section className="master-chart master-reference-chart">
-        <div className="master-section-kicker">PRODUÇÃO POR DIA E TURNO</div>
-        <div className="master-reference-chart-head">
-          <h2>Produção por Dia e Turno – Estamparia</h2>
-          <div className="master-legend"><span><i className="shift-one" />1º Turno (07:00–17:15)</span><span><i className="shift-two" />2º Turno (17:20–02:48)</span></div>
-        </div>
-        {daily.length ? (
-          <div className="master-reference-bars">
-            {daily.map(d=>(
-              <div className="master-reference-bar-day" key={d.date}>
-                <div className="master-reference-bar-label"><b>{fmt(d.first)}</b><b>{fmt(d.second)}</b></div>
-                <div className="master-reference-bar-columns"><i className="shift-one" style={{height:Math.max(2,d.first/maxDaily*100)+'%'}} /><i className="shift-two" style={{height:Math.max(2,d.second/maxDaily*100)+'%'}} /></div>
-                <small>{brDate(d.date)}</small>
-              </div>
-            ))}
-          </div>
-        ) : <div className="master-empty">Sem apontamentos registrados neste mês.</div>}
-      </section>
-
-      <section className="master-reference-bottom">
-        <div className="master-daily-summary">
-          <div className="master-section-kicker">ACOMPANHAMENTO DIÁRIO</div>
-          <div className="master-reference-subhead">
-            <h2>Resumo Diário – Estamparia</h2>
-            <span>◷　A fábrica opera em 2 turnos:<br/>1º Turno: 07:00–17:15　 2º Turno: 17:20–02:48</span>
-          </div>
-          <div className="master-reference-table-wrap">
-            <table>
-              <thead><tr><th>Data</th><th>1º Turno (07:00–17:15)</th><th>2º Turno (17:20–02:48)</th><th>Total do Dia</th></tr></thead>
-              <tbody>
-                {dailyDescending.map(d=><tr key={d.date}><td>{brDate(d.date)}</td><td>{fmt(d.first)}</td><td>{fmt(d.second)}</td><td className="master-green">{fmt(d.total)}</td></tr>)}
-                {!dailyDescending.length && <tr><td colSpan={4}>Sem produção registrada no período.</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      <div className="master-laser-conference master-op-progress-panel">
+      <div className="master-op-progress-panel">
         <div className="master-op-progress-heading">
           <div>
             <div className="master-section-kicker">ACOMPANHAMENTO GERAL DAS ORDENS</div>
-            <h2>Avanço das OPs – Master</h2>
+            <h2>Avanço das OPs por Setor</h2>
             <p>Visualize a mesma Ordem de Produção passando pelo Corte Laser, Radiador, Prensa e Bordadeira.</p>
           </div>
           <div className="master-op-progress-filters">
@@ -377,42 +340,9 @@ export default function MasterDashboard() {
           </table>
         </div>
         <div className="master-op-progress-legend"><b>Legenda:</b><span className="is-done">✓ OK – setor concluído</span><span className="is-active">◷ Em andamento – produção iniciada</span><span className="is-waiting">• Pendente – aguardando início</span></div>
-        <div className="master-conference-foot">A OP só fica CONCLUÍDA quando Corte Laser, Radiador, Prensa e Bordadeira atingirem suas quantidades programadas. Cada setor permanece visível lado a lado com Programado, Realizado, Saldo e Status. A OP só conclui quando os quatro setores atingem a programação.</div>
+        <div className="master-conference-foot">A OP só fica CONCLUÍDA quando Corte Laser, Radiador, Prensa e Bordadeira atingirem suas quantidades programadas. Acompanhe a programação, o realizado, o saldo e o status de cada setor na mesma linha da OP.</div>
       </div>
 
-        <aside className="master-completed-panel">
-          <div className="master-section-kicker">✓　OPs FINALIZADAS</div>
-          <h2>Concluídas por Dia e Setor</h2>
-          <p>{dayFilter ? 'Finalizações em '+brDate(dayFilter) : 'Finalizações no mês – '+monthName}</p>
-          <div className="master-completed-counts">
-            {completedBySector.map(item=><div key={item.sector}><span>{item.name}</span><b>{fmt(item.count)}</b></div>)}
-          </div>
-          <div className="master-reference-table-wrap master-completed-table-wrap">
-            <table>
-              <thead><tr><th>Data</th><th>Setor</th><th>OP</th><th>Peças</th></tr></thead>
-              <tbody>
-                {completedOps.map(item=><tr key={item.key}><td>{brDate(item.date)}</td><td>{PROCESS_NAMES[item.sector]}</td><td className="master-op">{item.op}</td><td className="master-green">{fmt(item.done)}</td></tr>)}
-                {!completedOps.length && <tr><td colSpan={4}>Nenhuma OP finalizada neste período.</td></tr>}
-              </tbody>
-            </table>
-          </div>
-          <div className="master-conference-foot">Corte Laser: Corpo, Fundo e Tampa concluídos. Demais setores: quantidade realizada igual ou superior à programada.</div>
-        </aside>
-      </section>
-
-      <section className="master-stage-summary">
-        <div className="master-section-kicker">{selectedSector === 'CORTE LASER' ? 'RESUMO POR ETAPA – CORTE LASER' : 'RESUMO DE PRODUÇÃO – ' + PROCESS_NAMES[selectedSector].toUpperCase()} · {brDate(selectedDate)}</div>
-        <div className="master-stage-summary-grid">
-          {stageSummary.map(s=>(
-            <article key={s.name}>
-              <b>{s.name}</b><span>Programado<strong>{fmt(s.planned)}</strong></span>
-              <span>Realizado<strong className="master-green">{fmt(s.done)}</strong></span>
-              <span>Pendente<strong className="master-orange">{fmt(s.pending)}</strong></span>
-              <span>Aderência<strong>{s.pct}%</strong></span>
-            </article>
-          ))}
-        </div>
-      </section>
 
       {loading && <div className="master-loading">Carregando produção...</div>}
       {error && <div className="master-error" role="alert">{error}</div>}
