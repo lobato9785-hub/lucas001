@@ -484,3 +484,41 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-op-progress-table-wrap td.master-op-empty{padding:30px!important;text-align:center!important}
 .master-op-progress-legend{padding-top:8px!important;font-size:9px!important}
 @media(max-width:1100px){.master-op-progress-table-wrap{max-height:65vh!important}.master-op-progress-table-wrap table{min-width:1780px!important}}
+
+/* MASTER: grade final por OP e dia, com setores fixos e quantidades individuais */
+.master-op-progress-table-wrap table{width:100%!important;min-width:1740px!important;table-layout:fixed!important}
+.master-op-progress-table-wrap thead tr:first-child th{height:42px!important;top:0!important}
+.master-op-progress-table-wrap thead tr:nth-child(2) th{height:32px!important;top:42px!important;background:#102e47!important;font-size:9px!important}
+.master-op-progress-table-wrap thead th.master-op-head-corte-laser{background:#07546a!important;border-top:3px solid #05d9ed!important}
+.master-op-progress-table-wrap thead th.master-op-head-radiador{background:#48316b!important;border-top:3px solid #ad79ff!important}
+.master-op-progress-table-wrap thead th.master-op-head-prensa{background:#075a4d!important;border-top:3px solid #20dca4!important}
+.master-op-progress-table-wrap thead th.master-op-head-dobradeira{background:#66500d!important;border-top:3px solid #ffc54c!important}
+.master-op-progress-table-wrap thead th.sector-subhead{height:32px!important;min-width:0!important;padding:6px 3px!important;font-size:8px!important;background:#102d45!important}
+.master-op-progress-table-wrap thead th.op-col{width:74px!important}
+.master-op-progress-table-wrap thead th.product-col{width:190px!important}
+.master-op-progress-table-wrap thead th.date-col{width:105px!important}
+.master-op-progress-table-wrap thead th.qty-col{width:68px!important}
+.master-op-progress-table-wrap thead th.progress-col{width:116px!important}
+.master-op-progress-table-wrap thead th.overall-col{width:130px!important}
+.master-op-progress-table-wrap tbody td{padding:7px 4px!important;vertical-align:middle!important;font-size:9px!important;border-right:1px solid #1d4058!important}
+.master-op-progress-table-wrap tbody td.master-op-date{font-weight:800;color:#d9efff;white-space:nowrap!important}
+.master-op-progress-table-wrap tbody td.master-op-qty{font-weight:900;color:#f4f9ff;font-variant-numeric:tabular-nums}
+.master-op-progress-table-wrap tbody td.master-op-stage-col{width:94px!important;min-width:94px!important;text-align:left!important;padding:5px 5px!important}
+.master-op-progress-table-wrap tbody td.master-op-number-col{width:48px!important;min-width:48px!important;text-align:center!important;font-weight:800;font-variant-numeric:tabular-nums}
+.master-op-progress-table-wrap tbody td.master-op-status-col{width:84px!important;min-width:84px!important;text-align:center!important;padding:4px 2px!important}
+.master-op-stage-line{height:27px;min-height:27px;display:flex;align-items:center;justify-content:center;gap:3px;border-bottom:1px solid #24445a;white-space:nowrap;line-height:1}
+.master-op-stage-line:last-child{border-bottom:0}
+.master-op-stage-col .master-op-stage-line{justify-content:space-between;gap:2px}
+.master-op-stage-col .master-op-stage-line>b{font-size:8px;color:#e7f3fb;overflow:hidden;text-overflow:ellipsis}
+.master-op-stage-col .master-op-stage-line small{font-size:7px;color:#91b3c9;white-space:nowrap}
+.master-op-number-col .master-op-stage-line{font-size:10px;font-weight:900}
+.master-op-status-col .master-op-stage-line{height:27px}
+.master-op-status-col .master-op-mini-status{font-size:7px!important;padding:4px 3px!important;min-width:70px}
+.master-op-progress-table-wrap tbody td.master-op-sector-cell{min-width:0!important}
+.master-op-no-schedule{font-size:9px;color:#68869b}
+.master-op-progress-table-wrap tbody tr{height:auto!important}
+.master-op-progress-table-wrap tbody tr td{background-clip:padding-box}
+.master-op-progress-table-wrap .master-op-progress-cell{min-width:0!important;display:flex;align-items:center;gap:5px}
+.master-op-progress-table-wrap .master-op-progress-track{flex:1;min-width:45px;height:9px}
+.master-op-progress-table-wrap .master-op-progress-cell>b{min-width:28px;font-size:9px}
+@media(max-width:1100px){.master-op-progress-table-wrap{max-height:68vh!important}.master-op-progress-table-wrap table{min-width:1740px!important}}
