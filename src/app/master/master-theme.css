@@ -1,0 +1,122 @@
+/* Identidade visual industrial aprovada — MASTER Estamparia */
+.master-page.master-reference{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(0,92,66,.30) 0%,transparent 46%),
+    linear-gradient(180deg,#041713 0%,#061b17 48%,#020b0a 100%)!important;
+  color:#effaf5!important;
+}
+.master-reference .master-heading{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  min-height:76px!important;padding:10px 14px!important;margin-bottom:10px!important;
+  border:1px solid #087c60!important;border-radius:10px!important;
+  background-image:
+    linear-gradient(90deg,rgba(2,18,15,.97) 0%,rgba(2,24,19,.90) 31%,rgba(2,25,20,.55) 61%,rgba(2,14,13,.84) 100%),
+    url('/estamparia-laser-header.jpg')!important;
+  background-size:cover!important;background-position:center 54%!important;
+  box-shadow:0 5px 22px #0007,inset 0 1px #70ffce12!important;
+}
+.master-reference .master-breadcrumb{color:#20e8b1!important;text-shadow:0 0 12px #00d99b55}
+.master-reference .master-heading h1{color:#f4fff9!important;text-shadow:0 2px 12px #000}
+.master-reference .master-heading p{color:#d0e8dd!important}
+.master-reference .master-head-actions button{
+  background:linear-gradient(135deg,#00a978,#00d69a)!important;border-color:#18edb2!important;
+  color:#03251b!important;box-shadow:0 0 14px #00d69a22!important
+}
+.master-reference .master-head-actions button:hover{background:#16edb1!important}
+.master-reference .master-head-actions a{border-color:#27745e!important;background:#061d17aa!important;color:#e8fff5!important}
+.master-reference .master-live{color:#38e6a9!important}
+.master-period{color:#e2f4eb!important}
+.master-period input{background:#061c16!important;border-color:#28715b!important;color:#f2fff8!important}
+.master-overview-main{
+  border-color:#0aa981!important;
+  background:linear-gradient(110deg,#062c22ed,#08241eed)!important;
+  box-shadow:inset 0 0 24px #00c58a0b!important
+}
+.master-overview-title{border-color:#176b54!important;color:#f2fff9!important}
+.master-overview-title span{color:#a5d8c2!important}
+.master-overview-grid>div:not(:last-child){border-color:#246b55!important}
+.master-overview-grid small{color:#b8e1d0!important}
+.master-overview .master-ring{background:conic-gradient(#00e0a2 var(--progress),#214b3d 0)!important}
+.master-overview .master-ring:before{background:#08271e!important}
+.master-overview .master-track{background:#1d5140!important}
+.master-overview .master-track i{background:linear-gradient(90deg,#00bb83,#32f0b4)!important}
+.master-overview-late{border-color:#d69b19!important;background:linear-gradient(135deg,#302510,#1b1c13)!important}
+.master-process-card{
+  border-color:#00bfa4!important;background:linear-gradient(135deg,#07342d,#09231f)!important;
+  box-shadow:inset 0 0 22px #00e0b015,0 3px 12px #0004!important
+}
+.master-process-card.process-0{border-color:#00d9cf!important;background:linear-gradient(130deg,#073b3a,#09241f)!important}
+.master-process-card.process-1{border-color:#21bde9!important;background:linear-gradient(130deg,#082f3b,#09221f)!important}
+.master-process-card.process-2{border-color:#00d69a!important;background:linear-gradient(130deg,#07382b,#09251d)!important}
+.master-process-card.process-3{border-color:#e0aa22!important;background:linear-gradient(130deg,#352a0d,#1b2117)!important}
+.master-process-title b{color:#f2fff8!important}
+.master-process-title span{color:#3df2c0!important;border-color:#079d78!important;background:#06392c!important}
+.master-process-card.process-1 .master-process-title span{color:#6ee4ff!important;border-color:#168cb5!important;background:#073344!important}
+.master-process-card.process-3 .master-process-title span{color:#ffd45c!important;border-color:#b88713!important;background:#3b2d0a!important}
+.master-process-metrics>div{border-color:#286653!important}
+.master-process-metrics small{color:#b8d7c9!important}
+.master-process-track{background:#245242!important}
+.master-process-track i{background:linear-gradient(90deg,#00b982,#35f0b1)!important}
+.master-process-card.process-0 .master-process-track i{background:linear-gradient(90deg,#00a99f,#26eee0)!important}
+.master-process-card.process-1 .master-process-track i{background:linear-gradient(90deg,#078ebd,#32d7ff)!important}
+.master-process-card.process-2 .master-process-track i{background:linear-gradient(90deg,#00a878,#28e6a0)!important}
+.master-process-card.process-3 .master-process-track i{background:linear-gradient(90deg,#bd8512,#ffd34d)!important}
+.master-process-card footer{color:#d2e9de!important}
+.master-op-progress-panel.master-sketch-panel{
+  border-color:#08b98f!important;
+  background:linear-gradient(145deg,#05271f 0%,#062018 58%,#03130f 100%)!important;
+  box-shadow:0 8px 28px #0006,inset 0 1px #ffffff08!important
+}
+.master-sketch-panel .master-sketch-header{border-color:#17684f!important}
+.master-sketch-mark{color:#28e8b2!important;text-shadow:0 0 14px #00d99b55!important}
+.master-sketch-brand h1{color:#f1fff8!important}
+.master-sketch-brand p{color:#b9d9cb!important}
+.master-sketch-filters>input,.master-sketch-filters label input,.master-sketch-filters label select{
+  background:#041b15!important;border-color:#286b54!important;color:#f0fff8!important
+}
+.master-sketch-filters button{background:#073b2b!important;border-color:#0da879!important;color:#eafff5!important}
+.master-sketch-summary>span{background:#092b21!important;border-color:#28634e!important;color:#e3f7ed!important}
+.master-sketch-summary .summary-done{background:#075236!important;border-color:#0c9c66!important}
+.master-sketch-summary .summary-active{background:#073d59!important;border-color:#168bb6!important}
+.master-sketch-summary .summary-waiting{background:#55400b!important;border-color:#b88b17!important}
+.master-sketch-table-wrap{background:#031710!important;border-color:#17664f!important}
+.master-sketch-table th{background:#0d3a2c!important;border-color:#27654f!important;color:#effff7!important}
+.master-sketch-table thead tr:first-child th{background:#0b3529!important}
+.master-sketch-table th.sketch-corte-laser{background:#07534e!important;border-top-color:#00e1d2!important}
+.master-sketch-table th.sketch-radiador{background:#07415a!important;border-top-color:#27c9f3!important}
+.master-sketch-table th.sketch-prensa{background:#07563d!important;border-top-color:#1be59d!important}
+.master-sketch-table th.sketch-bordadeira{background:#60490b!important;border-top-color:#ffd04a!important}
+.master-sketch-table th.sketch-subhead{background:#0b3025!important}
+.master-sketch-table tbody td{background:#05231a!important;border-color:#164d3b!important;color:#e8f8ef!important}
+.master-sketch-table tbody tr:nth-child(even) td{background:#082a20!important}
+.master-sketch-table tbody tr:hover td{background:#104331!important}
+.master-sketch-table tbody td.sketch-real{color:#35eab1!important}
+.master-sketch-table tbody td.sketch-balance{color:#ffd04a!important}
+.master-sketch-table tbody td:nth-child(n+5):nth-child(-n+8){background:#07352f!important;border-right-color:#12675a!important}
+.master-sketch-table tbody tr:nth-child(even) td:nth-child(n+5):nth-child(-n+8){background:#094139!important}
+.master-sketch-table tbody td:nth-child(n+9):nth-child(-n+12){background:#082f3d!important;border-right-color:#155b70!important}
+.master-sketch-table tbody tr:nth-child(even) td:nth-child(n+9):nth-child(-n+12){background:#0a3948!important}
+.master-sketch-table tbody td:nth-child(n+13):nth-child(-n+16){background:#07382a!important;border-right-color:#176447!important}
+.master-sketch-table tbody tr:nth-child(even) td:nth-child(n+13):nth-child(-n+16){background:#094331!important}
+.master-sketch-table tbody td:nth-child(n+17):nth-child(-n+20){background:#382d0d!important;border-right-color:#70591b!important}
+.master-sketch-table tbody tr:nth-child(even) td:nth-child(n+17):nth-child(-n+20){background:#453710!important}
+.master-sketch-table tbody tr:hover td:nth-child(n+5):nth-child(-n+8){background:#0d5148!important}
+.master-sketch-table tbody tr:hover td:nth-child(n+9):nth-child(-n+12){background:#0d4b60!important}
+.master-sketch-table tbody tr:hover td:nth-child(n+13):nth-child(-n+16){background:#0e5a3d!important}
+.master-sketch-table tbody tr:hover td:nth-child(n+17):nth-child(-n+20){background:#5b4817!important}
+.master-sketch-table .sketch-progress-track{background:#1b4d3b!important}
+.master-sketch-table .sketch-progress-track i{background:linear-gradient(90deg,#00c78b,#38f2b6)!important}
+.master-sketch-pill.pill-ok{background:#087b49!important;color:#e4fff1!important}
+.master-sketch-pill.pill-active{background:#075d83!important;color:#e4faff!important}
+.master-sketch-pill.pill-pending{background:#344a42!important;color:#e7f3ec!important}
+.master-sketch-pill.pill-waiting{background:#89640a!important;color:#fff5ca!important}
+.master-sketch-legend{border-color:#0b8b6c!important;background:linear-gradient(110deg,#06291f,#082219)!important;color:#e2f7ed!important}
+.master-sketch-legend>b{color:#f4fff9!important}
+.master-sketch-table-wrap::-webkit-scrollbar{width:11px;height:11px}
+.master-sketch-table-wrap::-webkit-scrollbar-track{background:#061a13}
+.master-sketch-table-wrap::-webkit-scrollbar-thumb{background:#23664d;border:2px solid #061a13;border-radius:99px}
+@media(max-width:700px){
+  .master-reference .master-heading{background-position:center!important;padding:10px!important}
+  .master-reference .master-head-actions{gap:6px}
+  .master-overview{grid-template-columns:1fr}
+}
