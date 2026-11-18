@@ -1,4 +1,5 @@
 import './globals.css';
+import './laser/laser-theme.css';
 
 export const metadata = {
   title: 'Estamparia | Produção',
