@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import React, { useEffect, useState, type CSSProperties } from 'react';
 
 type Entry = { id:number; quantity:number; operator?:string; note?:string; at?:string };
 type Schedule = {
@@ -296,52 +296,6 @@ export default function MasterDashboard() {
         ))}
       </section>
 
-      <section className="master-op-progress-panel">
-        <div className="master-op-progress-heading">
-          <div>
-            <div className="master-section-kicker">ACOMPANHAMENTO GERAL DAS ORDENS</div>
-            <h2>Avanço das OPs – Master</h2>
-            <p>Visualize a mesma Ordem de Produção passando pelo Corte Laser, Radiador, Prensa e Bordadeira.</p>
-          </div>
-          <div className="master-op-progress-filters">
-            <input aria-label="Buscar OP ou produto" value={opSearch} onChange={e=>setOpSearch(e.target.value)} placeholder="Buscar OP ou produto..." />
-            <select aria-label="Filtrar status" value={opStatus} onChange={e=>setOpStatus(e.target.value)}>
-              <option value="TODOS">Status: Todos</option><option value="CONCLUÍDA">Concluídas</option><option value="EM PRODUÇÃO">Em produção</option><option value="AGUARDANDO">Aguardando</option>
-            </select>
-            <select aria-label="Filtrar setor" value={opSector} onChange={e=>setOpSector(e.target.value)}>
-              <option value="TODOS">Setor: Todos</option>{PROCESS_ORDER.map(key=><option key={key} value={key}>{PROCESS_NAMES[key]}</option>)}
-            </select>
-            <button type="button" onClick={()=>{setOpSearch('');setOpStatus('TODOS');setOpSector('TODOS');}}>Limpar</button>
-          </div>
-        </div>
-        <div className="master-op-progress-summary">
-          <span><b>{fmt(masterOpCounts.total)}</b> OPs no período</span>
-          <span className="is-done"><b>{fmt(masterOpCounts.complete)}</b> Concluídas</span>
-          <span className="is-active"><b>{fmt(masterOpCounts.active)}</b> Em produção</span>
-          <span className="is-waiting"><b>{fmt(masterOpCounts.waiting)}</b> Aguardando</span>
-        </div>
-        <div className="master-op-progress-table-wrap">
-          <table>
-            <thead>
-              <tr><th rowSpan={2}>OP</th><th rowSpan={2}>Produto</th><th rowSpan={2}>Qtd. OP</th><th rowSpan={2}>Programação</th><th colSpan={4} className="master-op-process-group">Avanço por Processo</th><th rowSpan={2}>Avanço da OP</th><th rowSpan={2}>Status geral</th></tr>
-              <tr>{PROCESS_ORDER.map(key=><th key={key}>{PROCESS_NAMES[key]}</th>)}</tr>
-            </thead>
-            <tbody>
-              {masterOps.map(item=><tr key={item.key}>
-                <td className="master-op">{item.op}</td><td className="master-op-product">{item.product}</td><td>{fmt(item.quantity)}</td>
-                <td>{item.dateStart === item.dateEnd ? brDate(item.dateStart) : brDate(item.dateStart)+' a '+brDate(item.dateEnd)}</td>
-                {item.bySector.map(sector=><td key={sector.sector}><span className={'master-op-sector-status '+sector.state.toLowerCase().replaceAll(' ','-')} title={fmt(sector.done)+' de '+fmt(sector.planned)+' peças'}><b>{sector.state === 'OK' ? '✓' : sector.state === 'EM ANDAMENTO' ? '◷' : '•'}</b>{sector.state}</span><small className="master-op-sector-quantity">{fmt(sector.done)} / {fmt(sector.planned)}</small></td>)}
-                <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
-                <td><span className={'master-op-overall '+(item.overall === 'CONCLUÍDA' ? 'is-done' : item.overall === 'EM PRODUÇÃO' ? 'is-active' : 'is-waiting')}>{item.overall}</span></td>
-              </tr>)}
-              {!masterOps.length && <tr><td colSpan={10} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
-            </tbody>
-          </table>
-        </div>
-        <div className="master-op-progress-legend"><b>Legenda:</b><span className="is-done">✓ OK – setor concluído</span><span className="is-active">◷ Em andamento – produção iniciada</span><span className="is-waiting">• Pendente – aguardando início</span></div>
-        <div className="master-conference-foot">A OP só fica CONCLUÍDA quando Corte Laser, Radiador, Prensa e Bordadeira atingirem suas quantidades programadas. O avanço é calculado pelas quantidades realizadas registradas no banco.</div>
-      </section>
-
       <section className="master-chart master-reference-chart">
         <div className="master-section-kicker">PRODUÇÃO POR DIA E TURNO</div>
         <div className="master-reference-chart-head">
@@ -379,33 +333,53 @@ export default function MasterDashboard() {
           </div>
         </div>
 
-        <div className="master-laser-conference">
-          <div className="master-section-kicker">☀　CONFERÊNCIA DE OPs – {PROCESS_NAMES[selectedSector].toUpperCase()}</div>
-          <p>{selectedSector === 'CORTE LASER' ? 'Verificação diária da OP por etapa (Corpo, Fundo e Tampa) – Conclusão no dia' : 'Acompanhamento das OPs programadas, realizadas e pendentes – Conclusão no dia'}</p>
-          <div className="master-sector-tabs">{PROCESS_ORDER.map(key => <button type="button" key={key} className={selectedSector === key ? 'active' : ''} onClick={() => {setSelectedSector(key);setDayFilter('');setSearch('');setStatus('TODAS');}}>{PROCESS_NAMES[key]}</button>)}</div>
-          <div className="master-conference-tools">
-            <label>Data<input type="date" value={dayFilter} onChange={e=>setDayFilter(e.target.value)} /></label>
-            <label>Buscar OP<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Número da OP" /></label>
-            <label>Situação<select value={status} onChange={e=>setStatus(e.target.value)}><option value="TODAS">Todas</option><option>CONCLUÍDA</option><option>PARCIAL</option><option>ATRASADA</option><option>NÃO INICIADA</option></select></label>
-            <button onClick={()=>{setDayFilter('');setSearch('');setStatus('TODAS');}}>Limpar</button>
+      <div className="master-laser-conference master-op-progress-panel">
+        <div className="master-op-progress-heading">
+          <div>
+            <div className="master-section-kicker">ACOMPANHAMENTO GERAL DAS ORDENS</div>
+            <h2>Avanço das OPs – Master</h2>
+            <p>Visualize a mesma Ordem de Produção passando pelo Corte Laser, Radiador, Prensa e Bordadeira.</p>
           </div>
-          <div className="master-reference-table-wrap master-conference-table-wrap">
-            <table>
-              <thead><tr><th>OP</th><th>Data</th><th>Produto</th>{(selectedSector === 'CORTE LASER' ? STAGES : ['Programado','Realizado','Pendente']).map(col => <th key={col}>{col === 'CORPO' ? 'Corpo' : col === 'FUNDO' ? 'Fundo' : col === 'TAMPA' ? 'Tampa' : col}</th>)}<th>Resultado</th></tr></thead>
-              <tbody>
-                {audit.map(a=>(
-                  <tr key={a.key}>
-                    <td className="master-op">{a.op}</td><td>{brDate(a.date)}</td><td>{a.product}</td>
-                    {selectedSector === 'CORTE LASER' ? a.stages.map(s => <td key={s.name}><b className={s.planned > 0 && s.done >= s.planned ? 'master-green' : 'master-orange'}>{fmt(s.done)}/{fmt(s.planned)}</b></td>) : <><td>{fmt(a.planned)}</td><td><b className={a.done >= a.planned ? 'master-green' : 'master-orange'}>{fmt(a.done)}</b></td><td className="master-orange">{fmt(a.pending)}</td></>}
-                    <td><span className={'master-status '+a.state.toLowerCase().replaceAll(' ','-')}>{a.state}</span></td>
-                  </tr>
-                ))}
-                {!audit.length && <tr><td colSpan={7}>Nenhuma OP encontrada para os filtros.</td></tr>}
-              </tbody>
-            </table>
+          <div className="master-op-progress-filters">
+            <input aria-label="Buscar OP ou produto" value={opSearch} onChange={e=>setOpSearch(e.target.value)} placeholder="Buscar OP ou produto..." />
+            <select aria-label="Filtrar status" value={opStatus} onChange={e=>setOpStatus(e.target.value)}>
+              <option value="TODOS">Status: Todos</option><option value="CONCLUÍDA">Concluídas</option><option value="EM PRODUÇÃO">Em produção</option><option value="AGUARDANDO">Aguardando</option>
+            </select>
+            <select aria-label="Filtrar setor" value={opSector} onChange={e=>setOpSector(e.target.value)}>
+              <option value="TODOS">Setor: Todos</option>{PROCESS_ORDER.map(key=><option key={key} value={key}>{PROCESS_NAMES[key]}</option>)}
+            </select>
+            <button type="button" onClick={()=>{setOpSearch('');setOpStatus('TODOS');setOpSector('TODOS');}}>Limpar</button>
           </div>
-          <div className="master-conference-foot">{selectedSector === 'CORTE LASER' ? 'A OP só é considerada concluída quando Corpo, Fundo e Tampa atingem a quantidade programada na mesma data.' : 'A OP é considerada concluída quando a quantidade realizada atinge a quantidade programada.'}</div>
         </div>
+        <div className="master-op-progress-summary">
+          <span><b>{fmt(masterOpCounts.total)}</b> OPs no período</span>
+          <span className="is-done"><b>{fmt(masterOpCounts.complete)}</b> Concluídas</span>
+          <span className="is-active"><b>{fmt(masterOpCounts.active)}</b> Em produção</span>
+          <span className="is-waiting"><b>{fmt(masterOpCounts.waiting)}</b> Aguardando</span>
+        </div>
+        <div className="master-op-progress-table-wrap">
+          <table>
+            <thead>
+              <tr><th rowSpan={3}>OP</th><th rowSpan={3}>Produto</th><th rowSpan={3}>Qtd. OP</th><th rowSpan={3}>Programação</th><th colSpan={16} className="master-op-process-group">Programação e avanço fixo por setor</th><th rowSpan={3}>Avanço da OP</th><th rowSpan={3}>Status geral</th></tr>
+              <tr>{PROCESS_ORDER.map(key=><th key={key} colSpan={4}>{PROCESS_NAMES[key]}</th>)}</tr>
+              <tr>{PROCESS_ORDER.flatMap(key=>[<th key={key+'p'}>Prog.</th>,<th key={key+'r'}>Real.</th>,<th key={key+'s'}>Saldo</th>,<th key={key+'st'}>Status</th>])}</tr>
+            </thead>
+            <tbody>
+              {masterOps.map(item=><tr key={item.key}>
+                <td className="master-op">{item.op}</td><td className="master-op-product">{item.product}</td><td>{fmt(item.quantity)}</td>
+                <td>{item.dateStart === item.dateEnd ? brDate(item.dateStart) : brDate(item.dateStart)+' a '+brDate(item.dateEnd)}</td>
+                {item.bySector.map(sector=><React.Fragment key={sector.sector}><td>{fmt(sector.planned)}</td><td className="master-op-realized">{fmt(sector.done)}</td><td className="master-op-pending">{fmt(Math.max(0,sector.planned-sector.done))}</td><td><span className={'master-op-sector-status '+sector.state.toLowerCase().replaceAll(' ','-')}><b>{sector.state === 'OK' ? '✓' : sector.state === 'EM ANDAMENTO' ? '◷' : '•'}</b>{sector.state}</span></td></React.Fragment>)}
+                <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
+                <td><span className={'master-op-overall '+(item.overall === 'CONCLUÍDA' ? 'is-done' : item.overall === 'EM PRODUÇÃO' ? 'is-active' : 'is-waiting')}>{item.overall}</span></td>
+              </tr>)}
+              {!masterOps.length && <tr><td colSpan={10} className="master-op-empty">{loading ? 'Carregando OPs...' : 'Nenhuma OP encontrada para os filtros deste período.'}</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div className="master-op-progress-legend"><b>Legenda:</b><span className="is-done">✓ OK – setor concluído</span><span className="is-active">◷ Em andamento – produção iniciada</span><span className="is-waiting">• Pendente – aguardando início</span></div>
+        <div className="master-conference-foot">A OP só fica CONCLUÍDA quando Corte Laser, Radiador, Prensa e Bordadeira atingirem suas quantidades programadas. Cada setor permanece visível lado a lado com Programado, Realizado, Saldo e Status. A OP só conclui quando os quatro setores atingem a programação.</div>
+      </div>
+
         <aside className="master-completed-panel">
           <div className="master-section-kicker">✓　OPs FINALIZADAS</div>
           <h2>Concluídas por Dia e Setor</h2>
