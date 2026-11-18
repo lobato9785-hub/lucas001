@@ -713,3 +713,202 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-sketch-table tbody td:nth-child(n+17):nth-child(-n+20){background:#3a3015!important;border-right-color:#6a5720!important}
 .master-sketch-table tbody tr:nth-child(even) td:nth-child(n+17):nth-child(-n+20){background:#44381a!important}
 .master-sketch-table tbody tr:hover td:nth-child(n+17):nth-child(-n+20){background:#5a491e!important}
+
+
+/* Tema claro de alto contraste — produção (Laser, Radiador, Bordeadeira e Prensa) */
+.app.production-theme{
+  color:#14251e;
+  background:#f4f7f5;
+}
+.app.production-theme .topbar{
+  background:#003d2e;
+  border-bottom:1px solid #0b6b50;
+}
+.app.production-theme .searchbox{
+  background:#07513e;
+  border-color:#21866a;
+  color:#dff7ed;
+}
+.app.production-theme .searchbox input{color:#fff}
+.app.production-theme .searchbox input::placeholder{color:#c0e2d5}
+.app.production-theme .topbar button,
+.app.production-theme .topbar .access-link{
+  background:#075b43;
+  border-color:#27896c;
+  color:#fff;
+}
+.app.production-theme .workspace{background:#f4f7f5}
+.app.production-theme .sidebar{
+  background:#fff;
+  border-right:1px solid #d5e1db;
+}
+.app.production-theme .sidebrand{border-bottom-color:#dbe6e0}
+.app.production-theme .sidebrand b{color:#14251e}
+.app.production-theme .sidebrand small,
+.app.production-theme .sidetitle{color:#60736a}
+.app.production-theme .brandmark{background:linear-gradient(145deg,#00a879,#087451)}
+.app.production-theme .sector-nav button{
+  background:#f0f4f2;
+  border-color:#cbd9d2;
+  color:#20352b;
+}
+.app.production-theme .sector-nav button.active{
+  background:#087451;
+  border-color:#00a879;
+  color:#fff;
+}
+.app.production-theme .sidebar-foot{
+  border-top-color:#dbe6e0;
+  color:#60736a;
+}
+.app.production-theme .mainpanel{background:#f4f7f5}
+.app.production-theme .content{color:#14251e}
+.app.production-theme .eyebrow{color:#087451}
+.app.production-theme .eyebrow b{color:#82938b}
+.app.production-theme .eyebrow>i,
+.app.production-theme .connection i{background:#00a879}
+.app.production-theme .connection{color:#087451}
+.app.production-theme .heading h1{color:#10251b}
+.app.production-theme .heading p{color:#52665c}
+.app.production-theme .current-sector{
+  background:#e8f4ef;
+  border-color:#9bcab7;
+  color:#075b43;
+}
+.app.production-theme .monthbar{
+  background:#fff;
+  border-color:#cbd9d2;
+  color:#14251e;
+}
+.app.production-theme .monthbar>strong{color:#14251e}
+.app.production-theme .monthbar button{
+  background:#fff;
+  border-color:#b9ccc2;
+  color:#075b43;
+}
+.app.production-theme .monthbar .outlined{
+  background:#087451;
+  border-color:#087451;
+  color:#fff;
+}
+.app.production-theme .cards article{
+  background:#fff;
+  border-color:#cbd9d2;
+  color:#14251e;
+  box-shadow:0 2px 8px #183b2a0a;
+}
+.app.production-theme .cards article small{color:#34483e}
+.app.production-theme .cards article strong{color:#075b43}
+.app.production-theme .cards article em{color:#60736a}
+.app.production-theme .cards article>b{color:#60736a}
+.app.production-theme .cards article>b.blue{color:#087451}
+.app.production-theme .cards article>b.green{color:#00a879}
+.app.production-theme .cards article.latecard{
+  background:linear-gradient(135deg,#d90020,#a90018);
+  border:2px solid #ff334f;
+  box-shadow:0 0 12px #e0003050;
+}
+.app.production-theme .cards article.latecard small,
+.app.production-theme .cards article.latecard>b,
+.app.production-theme .cards article.latecard strong,
+.app.production-theme .cards article.latecard em{color:#fff}
+.app.production-theme .cards article[role="button"]:hover{border-color:#087451}
+.app.production-theme .cards article[role="button"].selected{
+  border-color:#087451;
+  box-shadow:0 0 0 2px #08745125;
+}
+.app.production-theme .cards article.latecard.alert-pulse{
+  animation:productionLatePulse 1s ease-in-out infinite;
+}
+@keyframes productionLatePulse{
+  0%,100%{box-shadow:0 0 7px #df002b66,0 0 0 0 #ff254855;filter:saturate(1)}
+  50%{box-shadow:0 0 24px #ff173eaa,0 0 0 5px #ff254833;filter:saturate(1.2)}
+}
+.app.production-theme .filters{
+  background:#fff;
+  border-color:#cbd9d2;
+  color:#14251e;
+}
+.app.production-theme .filterhead b{color:#14251e}
+.app.production-theme .filterhead span{
+  background:#087451;
+  color:#fff;
+}
+.app.production-theme .filterhead button{color:#087451}
+.app.production-theme .filtergrid label,
+.app.production-theme .dialog label{color:#34483e}
+.app.production-theme .filtergrid input,
+.app.production-theme .filtergrid select{
+  background:#fff;
+  border-color:#b9ccc2;
+  color:#14251e;
+}
+.app.production-theme .filtergrid input::placeholder{color:#7b8d84}
+.app.production-theme .filtergrid input:focus,
+.app.production-theme .filtergrid select:focus{border-color:#087451}
+.app.production-theme .toolbar{color:#52665c}
+.app.production-theme .toolbar b{color:#14251e}
+.app.production-theme .toolbar small{color:#71837a}
+.app.production-theme .toolbar select{
+  background:#fff;
+  border-color:#b9ccc2;
+  color:#14251e;
+}
+.app.production-theme .tablewrap{
+  background:#fff;
+  border-color:#cbd9d2;
+}
+.app.production-theme table{background:#fff}
+.app.production-theme thead th{
+  background:#075b43;
+  color:#fff;
+}
+.app.production-theme tbody td{
+  border-top-color:#dce6e1;
+  color:#14251e;
+}
+.app.production-theme tbody tr:nth-child(even){background:#f1f5f3}
+.app.production-theme tbody tr:hover{background:#e5f2ec}
+.app.production-theme tbody td small{color:#5e7067}
+.app.production-theme .date{color:#20392d}
+.app.production-theme .op{color:#008451}
+.app.production-theme .plan{color:#008451}
+.app.production-theme .stagecell b{color:#14251e}
+.app.production-theme .progress{background:#d8e0dc}
+.app.production-theme .progress i{background:#00a879}
+.app.production-theme .pill.concluída{
+  background:#d9f5e9;
+  border-color:#91d7b8;
+  color:#075b43;
+}
+.app.production-theme .pill.atrasada{
+  background:#ffe1e5;
+  border-color:#f2a1ad;
+  color:#a90020;
+}
+.app.production-theme .pill.não-iniciada{
+  background:#edf1ef;
+  border-color:#cbd5d0;
+  color:#4e6057;
+}
+.app.production-theme .point{
+  background:#00885e;
+  border-color:#00a879;
+  color:#fff;
+}
+.app.production-theme .edit-action,
+.app.production-theme .row-actions .edit-action{
+  background:#fff;
+  border-color:#b9ccc2;
+  color:#075b43;
+}
+.app.production-theme .pagination{color:#52665c}
+.app.production-theme .pagination button{
+  background:#fff;
+  border-color:#b9ccc2;
+  color:#075b43;
+}
+.app.production-theme .empty{color:#60736a}
+@media(prefers-reduced-motion:reduce){
+  .app.production-theme .cards article.latecard.alert-pulse{animation:none}
+}
