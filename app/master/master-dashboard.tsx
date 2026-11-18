@@ -81,7 +81,8 @@ export default function MasterDashboard() {
   const sectorOpGroups = (items:Schedule[]) => {
     const groups = new Map<string,Schedule[]>();
     items.forEach(row => {
-      const key = [String(row.scheduled_date).slice(0,10),String(row.op_number),String(row.product_reference || row.product_description || '')].join('|');
+      // Suboperações da mesma OP no mesmo dia não podem criar grupos separados.
+      const key = [String(row.scheduled_date).slice(0,10),String(row.op_number)].join('|');
       const group = groups.get(key) || [];
       group.push(row);
       groups.set(key,group);
@@ -105,7 +106,7 @@ export default function MasterDashboard() {
   const masterOpMap = new Map<string, Schedule[]>();
   monthRows.forEach(row => {
     const dateKey = String(row.scheduled_date).slice(0,10);
-    const identity = [String(row.op_number), String(row.product_reference || row.product_description || ''), dateKey].join('|');
+    const identity = [String(row.op_number), dateKey].join('|');
     const group = masterOpMap.get(identity) || [];
     group.push(row);
     masterOpMap.set(identity, group);
@@ -161,7 +162,8 @@ export default function MasterDashboard() {
   // Os setores e suboperações são etapas da mesma quantidade, não parcelas para somar.
   const overallMap = new Map<string, Schedule[]>();
   monthRows.forEach(row => {
-    const key = [String(row.scheduled_date).slice(0,10),String(row.op_number),String(row.product_reference || row.product_description || '')].join('|');
+    // Uma OP/dia é uma única quantidade física, mesmo com vários subitens.
+    const key = [String(row.scheduled_date).slice(0,10),String(row.op_number)].join('|');
     const group = overallMap.get(key) || [];
     group.push(row);
     overallMap.set(key,group);
