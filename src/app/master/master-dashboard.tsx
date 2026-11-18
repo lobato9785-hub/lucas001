@@ -336,13 +336,23 @@ export default function MasterDashboard() {
         <div className="master-op-progress-table-wrap">
           <table>
             <thead>
-              <tr><th>OP</th><th>Produto / Descrição</th><th>Qtd. OP</th><th>Programação</th>{PROCESS_ORDER.map(key=><th key={key} className={'master-op-head-'+key.toLowerCase().replaceAll(' ','-')}>{PROCESS_NAMES[key]}<small>Subsetores programados</small></th>)}<th>Avanço da OP</th><th>Status geral</th></tr>
+              <tr>
+                <th className="op-col">OP</th><th className="product-col">Produto / Descrição</th><th className="qty-col">Qtd. OP</th><th className="date-col">Programação</th>
+                {PROCESS_ORDER.map(key=><th key={key} className={'master-op-head-'+key.toLowerCase().replaceAll(' ','-')}>{PROCESS_NAMES[key]}</th>)}
+                <th className="progress-col">Avanço da OP</th><th className="overall-col">Status geral</th>
+              </tr>
             </thead>
             <tbody>
               {masterOps.map(item=><tr key={item.key}>
                 <td className="master-op">{item.op}</td><td className="master-op-product">{item.product}</td><td>{fmt(item.quantity)}</td>
                 <td>{item.dateStart === item.dateEnd ? brDate(item.dateStart) : brDate(item.dateStart)+' a '+brDate(item.dateEnd)}</td>
-                {item.bySector.map(sector=><td key={sector.sector} className="master-op-sector-cell">{sector.stages.length ? <div className="master-op-substage-list">{sector.stages.map(stage=><div className="master-op-substage" key={stage.name}><div className="master-op-substage-title"><b>{stage.name}</b><span className={'master-op-mini-status '+stage.state.toLowerCase().replaceAll(' ','-')}>{stage.state==='OK'?'✓':stage.state==='EM ANDAMENTO'?'◷':'•'} {stage.state}</span></div><div className="master-op-substage-values"><span>Prog. <b>{fmt(stage.planned)}</b></span><span>Real. <b className="master-op-realized">{fmt(stage.done)}</b></span><span>Saldo <b className="master-op-pending">{fmt(stage.pending)}</b></span></div></div>)}</div> : <span className="master-op-no-schedule">Sem programação</span>}</td>)}
+                {item.bySector.map(sector=><td key={sector.sector} className="master-op-sector-cell">{sector.stages.length ? <div className="master-op-stage-grid">
+                  <div className="master-op-stage-grid-head"><span>Etapa</span><span>Prog.</span><span>Real.</span><span>Saldo</span><span>Status</span></div>
+                  {sector.stages.map(stage=><div className="master-op-stage-grid-row" key={stage.name}>
+                    <b className="stage-name">{stage.name}</b><b>{fmt(stage.planned)}</b><b className="master-op-realized">{fmt(stage.done)}</b><b className="master-op-pending">{fmt(stage.pending)}</b>
+                    <span className={'master-op-mini-status '+stage.state.toLowerCase().replaceAll(' ','-')}>{stage.state==='OK'?'✓ OK':stage.state==='EM ANDAMENTO'?'◷ Parcial':'• Pendente'}</span>
+                  </div>)}
+                </div> : <span className="master-op-no-schedule">Sem programação</span>}</td>)}
                 <td><div className="master-op-progress-cell"><div className="master-op-progress-track"><i style={{width:item.percent+'%'}} /></div><b>{item.percent}%</b></div></td>
                 <td><span className={'master-op-overall '+(item.overall === 'CONCLUÍDA' ? 'is-done' : item.overall === 'EM PRODUÇÃO' ? 'is-active' : 'is-waiting')}>{item.overall}</span></td>
               </tr>)}
