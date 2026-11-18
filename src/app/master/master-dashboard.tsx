@@ -345,7 +345,7 @@ export default function MasterDashboard() {
               <th rowSpan={2} className="sketch-product">Produto / Descrição</th>
               <th rowSpan={2} className="sketch-date">Data</th>
               <th rowSpan={2} className="sketch-qty">Qtd.<br/>OP</th>
-              {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'sketch-sector sketch-'+key.toLowerCase().replaceAll(' ','-')}>{key==='DOBRADEIRA'?'♧  BORDADEIRA / DOBRADEIRA':key==='CORTE LASER'?'⚒  CORTE LASER':key==='RADIADOR'?'▥  RADIADOR':'▣  PRENSA'}</th>)}
+              {PROCESS_ORDER.map(key=><th key={key} colSpan={4} className={'sketch-sector sketch-'+key.toLowerCase().replaceAll(' ','-')}>{key==='DOBRADEIRA'?'♧  BORDADEIRA':key==='CORTE LASER'?'⚒  CORTE LASER':key==='RADIADOR'?'▥  RADIADOR':'▣  PRENSA'}</th>)}
               <th rowSpan={2} className="sketch-progress">Avanço<br/>Geral</th>
               <th rowSpan={2} className="sketch-status">Status da OP</th>
             </tr>
