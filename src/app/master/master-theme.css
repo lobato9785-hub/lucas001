@@ -7,8 +7,8 @@
 .master-reference .master-heading{
   min-height:88px!important;margin-bottom:10px!important;padding:11px 14px!important;
   border:1px solid #0a9b70!important;border-radius:11px!important;
-  background-image:linear-gradient(90deg,rgba(1,17,12,.96) 0%,rgba(2,23,16,.85) 40%,rgba(2,20,15,.22) 78%,rgba(2,13,10,.55) 100%),url('/estamparia-laser-header.svg')!important;
-  background-size:100% 100%!important;background-position:center center!important;
+  background-image:linear-gradient(90deg,rgba(1,17,12,.42) 0%,rgba(2,23,16,.20) 42%,rgba(2,20,15,.08) 78%,rgba(2,13,10,.28) 100%)!important;
+  background-size:cover!important;background-position:center center!important;position:relative!important;isolation:isolate!important;overflow:hidden!important;
   box-shadow:0 7px 22px #0008,inset 0 1px #7dffce14!important;
 }
 .master-reference .master-breadcrumb{color:#24efb4!important;letter-spacing:1.8px!important}
@@ -125,3 +125,32 @@
  .master-reference .master-sketch-filters{width:100%!important;justify-content:flex-start!important;flex-wrap:wrap!important}
  .master-reference .master-sketch-table-wrap{max-height:60vh!important}
 }
+
+/* Foto industrial real no cabeçalho — camada própria para não depender do background shorthand */
+.master-reference .master-heading-background{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  display:block!important;object-fit:cover!important;object-position:center 62%!important;
+  opacity:.92!important;filter:brightness(.78) saturate(1.12)!important;
+  z-index:0!important;pointer-events:none!important;
+}
+.master-reference .master-heading>div{
+  position:relative!important;z-index:2!important;
+}
+.master-reference .master-heading{
+  min-height:96px!important;
+  background-color:#03130e!important;
+}
+.master-reference .master-heading h1,
+.master-reference .master-heading p,
+.master-reference .master-breadcrumb,
+.master-reference .master-head-actions{
+  text-shadow:0 1px 5px #00110b!important;
+}
+.master-reference .master-head-actions{z-index:3!important}
+.master-reference .master-sketch-table{min-width:1450px!important}
+.master-reference .master-sketch-table th.sketch-op{width:60px!important;min-width:60px!important}
+.master-reference .master-sketch-table th.sketch-product{width:210px!important;min-width:210px!important}
+.master-reference .master-sketch-table th.sketch-date{width:100px!important;min-width:100px!important;white-space:nowrap!important}
+.master-reference .master-sketch-table th.sketch-qty{width:64px!important;min-width:64px!important;white-space:nowrap!important}
+.master-reference .master-sketch-table tbody td.sketch-date-value{width:100px!important;min-width:100px!important;font-size:10px!important;letter-spacing:-.15px!important}
+.master-reference .master-sketch-table tbody td.sketch-qty-value{width:64px!important;min-width:64px!important;font-size:10px!important}
