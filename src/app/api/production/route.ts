@@ -42,10 +42,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const entries = Array.isArray(body.entries) ? body.entries : [];
-    if (!entries.length || entries.length > 3 || entries.some((e:any) =>
+    if (!entries.length || entries.length > 4 || entries.some((e:any) =>
       !Number.isSafeInteger(Number(e.scheduleId)) || Number(e.scheduleId) < 1 ||
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
-    )) return NextResponse.json({ error: 'Informe quantidades válidas para até três etapas.' }, { status: 400 });
+    )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
     const sql = db();
     const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
     for (const entry of entries) {
