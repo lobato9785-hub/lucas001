@@ -278,7 +278,7 @@ export default function MasterDashboard() {
   return (
     <main className="master-page master-reference">
       <header className="master-heading">
-        <img className="master-heading-background" src="/estamparia-laser-header.webp" alt="" aria-hidden="true" />
+        <img className="master-heading-background" src="https://raw.githubusercontent.com/lobato9785-hub/lucas001/main/public/estamparia-laser-header.webp" alt="" aria-hidden="true" />
         <div>
           <div className="master-breadcrumb">ITAM　›　MASTER - ESTAMPARIA</div>
           <h1>▣　Estamparia</h1>
