@@ -145,12 +145,23 @@ export default function TurnosDashboard() {
       .map(item=>({...item,total:item.first+item.second})));
   },[rows,dateFrom,dateTo,sector]);
 
-  const stageGroups=useMemo(()=>PROCESS_ORDER.map(process=>{
-    const stages=stageRows.filter(item=>item.process===process);
-    const first=stages.reduce((sum,item)=>sum+item.first,0);
-    const second=stages.reduce((sum,item)=>sum+item.second,0);
-    return {key:process,name:PROCESS_NAMES[process],stages,first,second,total:first+second};
-  }).filter(group=>group.stages.length>0),[stageRows]);
+  const stageGroups=useMemo(() => {
+    return PROCESS_ORDER.reduce((groups, process) => {
+      const stages = stageRows.filter(item => item.process === process);
+      if (stages.length === 0) return groups;
+      const first = stages.reduce((sum, item) => sum + item.first, 0);
+      const second = stages.reduce((sum, item) => sum + item.second, 0);
+      groups.push({
+        key: process,
+        name: PROCESS_NAMES[process],
+        stages,
+        first,
+        second,
+        total: first + second
+      });
+      return groups;
+    }, [] as Array<{key:string;name:string;stages:typeof stageRows;first:number;second:number;total:number}>);
+  }, [stageRows]);
 
   const totals=useMemo(()=>{
     const byShift:ShiftTotals={first:0,second:0};
