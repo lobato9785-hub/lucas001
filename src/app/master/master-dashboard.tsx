@@ -63,7 +63,14 @@ export default function MasterDashboard() {
     }
   }
 
-  useEffect(()=>{\n    void load();\n    const refresh = () => { if (document.visibilityState === 'visible') void load(); };\n    const timer = window.setInterval(refresh, 15000);\n    window.addEventListener('focus', refresh);\n    document.addEventListener('visibilitychange', refresh);\n    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };\n  },[]);
+  useEffect(()=>{
+    void load();
+    const refresh = () => { if (document.visibilityState === 'visible') void load(); };
+    const timer = window.setInterval(refresh, 15000);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
+  },[]);
 
   const monthRows = rows.filter(r => { const date=String(r.scheduled_date).slice(0,10); return PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && date>=dateFrom && date<=dateTo; });
 
