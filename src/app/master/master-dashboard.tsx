@@ -349,6 +349,11 @@ export default function MasterDashboard() {
         </div>
       </header>
 
+      <nav className="master-tabs" aria-label="Navegação MASTER">
+        <a className="active" href="/master">▦　Visão Master</a>
+        <a href="/master/produtividade">▥　Produtividade dos Turnos</a>
+      </nav>
+
       <section className="master-overview">
         <div className="master-overview-main">
           <div className="master-overview-title">✓　Resumo Geral do Mês <span>{monthName}</span></div>
