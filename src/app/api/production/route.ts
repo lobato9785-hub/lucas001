@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       const seed = e.createSchedule || {};
       const canCreate = validCreateStages.includes(stage) &&
         String(seed.opNumber || '').trim() &&
-        /^\\d{4}-\\d{2}-\\d{2}$/.test(String(seed.scheduledDate || ''));
+        /^\d{4}-\d{2}-\d{2}$/.test(String(seed.scheduledDate || ''));
       const quantity = Number(e.quantity);
       return (!hasSchedule && !canCreate) || !Number.isSafeInteger(quantity) || quantity < 1;
     });
