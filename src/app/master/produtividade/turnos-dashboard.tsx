@@ -298,7 +298,7 @@ export default function TurnosDashboard() {
             <div className="shift-bars">
               {daily.map(item=><div className="shift-bar-group" key={item.day} title={dayLabel(item.day)+': '+fmt(item.total)+' peças'}>
                 <div className="shift-bar-stack" style={{height:Math.max(4,item.total/maxDaily*100)+'%'}}>
-                  <i className="second" style={{height:item.second/item.total*100+'%'}></i><i className="first" style={{height:item.first/item.total*100+'%'}}></i>
+                  <i className="second" style={{height:item.second/item.total*100+'%'}}></i><i className="first" style={{height:item.first/item.total*100+'%'}}></i>
                 </div><small>{dayLabel(item.day)}</small><b>{fmt(item.total)}</b>
               </div>)}
             </div>
