@@ -33,6 +33,10 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
    const planned=Math.max(0,...Object.values(r.stages).map(x=>x.planned||0));
    return {id:0,planned,reported:0,entries:[]};
   }
+  if(sector==='PLASMA + DOBRADEIRA'&&['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(stage)){
+   const planned=Math.max(0,...Object.values(r.stages).map(x=>x.planned||0));
+   return {id:0,planned,reported:0,entries:[]};
+  }
   return undefined;
  }
  const pageSize=12,shown=filtered.slice((page-1)*pageSize,page*pageSize);
