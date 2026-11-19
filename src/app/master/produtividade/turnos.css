@@ -92,3 +92,49 @@
 .shift-detail-table .shift-share span{display:block;height:100%;border-radius:10px}
 .shift-detail-table .shift-empty{padding:28px;text-align:center}
 @media(max-width:650px){.shift-detail-table{min-width:850px}}
+
+/* Layout refinado: tabela principal + resumos laterais, conforme referência aprovada */
+.shift-detail-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(320px,.95fr);gap:12px;align-items:stretch;margin:0 0 10px}
+.shift-detail-main{min-width:0}
+.shift-detail-main .shift-table-wrap{max-height:680px;overflow:auto;border:1px solid #15543f;border-radius:7px}
+.shift-detail-table{width:100%;min-width:790px;table-layout:fixed}
+.shift-detail-table th,.shift-detail-table td{padding:8px 7px;text-align:left}
+.shift-detail-table th{text-align:center;vertical-align:middle}
+.shift-detail-table th:first-child,.shift-detail-table th:nth-child(2){text-align:left}
+.shift-detail-table th:nth-child(1){width:15%}
+.shift-detail-table th:nth-child(2){width:20%}
+.shift-detail-table th:nth-child(n+3){width:10.8%}
+.shift-detail-table thead tr:first-child th{height:37px;font-size:10px;letter-spacing:.15px}
+.shift-detail-table thead tr:nth-child(2) th{height:25px;padding:5px;font-size:9px;color:#bce8d4}
+.shift-detail-table .shift-first-head{background:#07513b;border-color:#16875f;color:#52f1b7}
+.shift-detail-table .shift-second-head{background:#073d55;border-color:#147aa5;color:#64ceff}
+.shift-detail-table .shift-process-cell{background:#062e22!important;vertical-align:middle;white-space:normal;min-width:100px}
+.shift-detail-table .shift-process-cell b{font-size:10px}
+.shift-detail-table .shift-stage-name{font-weight:700;color:#d6f2e3;font-size:10px}
+.shift-detail-table td{font-size:10px}
+.shift-detail-table .shift-percent{font-size:9px;color:#b8d8c8;text-align:center;white-space:nowrap}
+.shift-detail-table .shift-subtotal-row td{background:#0a4935!important;color:#effff6;font-weight:900;border-top:1px solid #19a878;font-size:10px}
+.shift-detail-table .shift-subtotal-row td:first-child{color:#dffff0}
+.shift-detail-table .shift-empty{padding:28px;text-align:center}
+.shift-detail-main .shift-filter-note{line-height:1.5}
+.shift-detail-side{display:grid;grid-template-rows:auto 1fr;gap:12px;min-width:0}
+.shift-process-summary{min-width:0}
+.shift-process-summary-row{display:grid;grid-template-columns:minmax(90px,1fr) auto;gap:6px 12px;align-items:center;padding:9px 2px;border-bottom:1px solid #164a37;color:#e9fff3;font-size:11px}
+.shift-process-summary-row strong{font-size:11px;font-variant-numeric:tabular-nums}
+.shift-process-summary-row>div{grid-column:1/-1;height:8px;background:#153c30;border-radius:20px;overflow:hidden}
+.shift-process-summary-row>div i{display:block;height:100%;background:linear-gradient(90deg,#0acb91,#36edb2);border-radius:20px}
+.shift-process-summary-total{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:9px 10px;border:1px solid #0a9b6a;border-radius:8px;background:#075039;color:#fff;font-size:11px}
+.shift-process-summary-total strong{font-size:13px}
+.shift-detail-side .shift-summary-panel{min-height:0}
+.shift-detail-side .shift-donut-wrap{gap:12px;padding:14px 2px}
+.shift-detail-side .shift-donut{width:128px;height:128px;flex:0 0 128px}
+.shift-detail-side .shift-donut>div{width:86px;height:86px}
+.shift-detail-side .shift-donut strong{font-size:20px}
+.shift-detail-side .shift-donut-legend{min-width:110px}
+.shift-lower-grid{grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);margin-top:0}
+.shift-period-summary{min-width:0}
+.shift-period-lines p{display:flex;justify-content:space-between;gap:12px;margin:0;padding:11px 4px;border-bottom:1px solid #18533d;color:#cce9d9;font-size:10px}
+.shift-period-lines p:last-child{border-bottom:0}
+.shift-period-lines b{color:#f3fff8;text-align:right;font-size:10px}
+@media(max-width:1150px){.shift-detail-layout{grid-template-columns:1fr}.shift-detail-side{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}.shift-lower-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.shift-detail-side,.shift-lower-grid{grid-template-columns:1fr}.shift-detail-main .shift-table-wrap{max-height:none}.shift-detail-table{min-width:790px}}
