@@ -44,7 +44,10 @@ export async function POST(req: NextRequest) {
     const entries = Array.isArray(body.entries) ? body.entries : [];
     if (!entries.length || entries.length > 4 || entries.some((e:any) =>
       ((!Number.isSafeInteger(Number(e.scheduleId)) || Number(e.scheduleId) < 1) &&
-       !(e.createSchedule?.operationType === 'RADIADOR SOLDADO' && String(e.createSchedule?.opNumber||'').trim() && /^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||'')))) ||
+       !((e.createSchedule?.operationType === 'RADIADOR SOLDADO' && e.createSchedule?.processType === 'RADIADOR') ||
+         (['FERRAGEM SUPERIOR','FERRAGEM INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'PLASMA') ||
+         (['DOBRA SUPERIOR','DOBRA INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'DOBRADEIRA')) ||
+         !String(e.createSchedule?.opNumber||'').trim() || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||'')))) ||
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
     const sql = db();
@@ -61,6 +64,37 @@ export async function POST(req: NextRequest) {
     for (const entry of entries) {
       let scheduleId = Number(entry.scheduleId)||0;
       const quantity = Number(entry.quantity);
+      if (!scheduleId && ['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(entry.createSchedule?.operationType)) {
+        if (role !== 'ferragem') return NextResponse.json({ error: 'Acesso Ferragem necessário.' }, { status: 401 });
+        const seed=entry.createSchedule;
+        const created=await sql.query(`
+          INSERT INTO process_schedule (
+            process_type, operation_type, op_number, parent_op, scheduled_date,
+            series_start, series_end, client_name, client_code, product_reference,
+            product_description, production_line, power_pa, order_quantity,
+            planned_quantity, source_status, updated_at
+          )
+          SELECT
+            $1, $2, sibling.op_number, sibling.parent_op, sibling.scheduled_date,
+            sibling.series_start, sibling.series_end, sibling.client_name, sibling.client_code, sibling.product_reference,
+            sibling.product_description, sibling.production_line, sibling.power_pa, sibling.order_quantity,
+            sibling.planned_quantity, '__ACTIVE__', NOW()
+          FROM process_schedule sibling
+          WHERE sibling.process_type IN ('PLASMA','DOBRADEIRA')
+            AND sibling.op_number=$3 AND sibling.scheduled_date=$4
+            AND COALESCE(sibling.series_start,'')=COALESCE($5,'')
+            AND COALESCE(sibling.series_end,'')=COALESCE($6,'')
+            AND sibling.operation_type <> $2
+            AND COALESCE(sibling.source_status,'') <> '__ARCHIVED__'
+          ORDER BY (sibling.process_type=$1) DESC, sibling.id
+          LIMIT 1
+          ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
+          DO UPDATE SET source_status='__ACTIVE__', planned_quantity=EXCLUDED.planned_quantity, updated_at=NOW()
+          RETURNING id
+        `,[String(seed.processType),String(seed.operationType),String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]);
+        if(!created.length) return NextResponse.json({ error: 'Não encontrei a programação de Ferragem desta OP e deste dia para criar a etapa.' }, { status: 400 });
+        scheduleId=Number(created[0].id);
+      }
       if (!scheduleId && entry.createSchedule?.operationType === 'RADIADOR SOLDADO') {
         if (role !== 'laser') return NextResponse.json({ error: 'Acesso Laser necessário.' }, { status: 401 });
         const seed=entry.createSchedule;
