@@ -42,19 +42,25 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const entries = Array.isArray(body.entries) ? body.entries : [];
-    if (!entries.length || entries.length > 4 || entries.some((e:any) =>
-      ((!Number.isSafeInteger(Number(e.scheduleId)) || Number(e.scheduleId) < 1) &&
-       !(
-         (
-           (e.createSchedule?.operationType === 'RADIADOR SOLDADO' && e.createSchedule?.processType === 'RADIADOR') ||
-           (['FERRAGEM SUPERIOR','FERRAGEM INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'PLASMA') ||
-           (['DOBRA SUPERIOR','DOBRA INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'DOBRADEIRA')
-         ) &&
-         String(e.createSchedule?.opNumber||'').trim() &&
-         /^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||''))
-       )) ||
-      !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
-    )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
+    const validCreateStages = ['RADIADOR SOLDADO','FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'];
+    const invalidEntry = entries.find((e:any) => {
+      const scheduleId = Number(e.scheduleId);
+      const hasSchedule = Number.isSafeInteger(scheduleId) && scheduleId > 0;
+      const stage = String(e.createSchedule?.operationType || '').trim().toUpperCase();
+      const seed = e.createSchedule || {};
+      const canCreate = validCreateStages.includes(stage) &&
+        String(seed.opNumber || '').trim() &&
+        /^\\d{4}-\\d{2}-\\d{2}$/.test(String(seed.scheduledDate || ''));
+      const quantity = Number(e.quantity);
+      return (!hasSchedule && !canCreate) || !Number.isSafeInteger(quantity) || quantity < 1;
+    });
+    if (!entries.length || entries.length > 4 || invalidEntry) {
+      return NextResponse.json({
+        error: invalidEntry
+          ? 'Uma das etapas está sem programação válida ou possui quantidade inválida. Confira os campos e tente novamente.'
+          : 'Informe quantidades válidas para até quatro etapas.'
+      }, { status: 400 });
+    }
     const sql = db();
     const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
     for (const entry of entries) {
@@ -69,9 +75,11 @@ export async function POST(req: NextRequest) {
     for (const entry of entries) {
       let scheduleId = Number(entry.scheduleId)||0;
       const quantity = Number(entry.quantity);
-      if (!scheduleId && ['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(entry.createSchedule?.operationType)) {
+      if (!scheduleId && ['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(String(entry.createSchedule?.operationType||'').trim().toUpperCase())) {
         if (role !== 'ferragem') return NextResponse.json({ error: 'Acesso Ferragem necessário.' }, { status: 401 });
         const seed=entry.createSchedule;
+        const stage=String(seed.operationType).trim().toUpperCase();
+        const processType=stage.startsWith('FERRAGEM')?'PLASMA':'DOBRADEIRA';
         const created=await sql.query(`
           INSERT INTO process_schedule (
             process_type, operation_type, op_number, parent_op, scheduled_date,
@@ -96,11 +104,11 @@ export async function POST(req: NextRequest) {
           ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
           DO UPDATE SET source_status='__ACTIVE__', planned_quantity=EXCLUDED.planned_quantity, updated_at=NOW()
           RETURNING id
-        `,[String(seed.processType),String(seed.operationType),String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]);
+        `,[processType,stage,String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]);
         if(!created.length) return NextResponse.json({ error: 'Não encontrei a programação de Ferragem desta OP e deste dia para criar a etapa.' }, { status: 400 });
         scheduleId=Number(created[0].id);
       }
-      if (!scheduleId && entry.createSchedule?.operationType === 'RADIADOR SOLDADO') {
+      if (!scheduleId && String(entry.createSchedule?.operationType||'').trim().toUpperCase() === 'RADIADOR SOLDADO') {
         if (role !== 'laser') return NextResponse.json({ error: 'Acesso Laser necessário.' }, { status: 401 });
         const seed=entry.createSchedule;
         const created=await sql.query(`
