@@ -189,3 +189,31 @@
 .shift-period-lines .shift-productivity-pill{display:inline-block;min-width:54px;padding:4px 12px;border:1px solid #0ca879;border-radius:18px;background:#075137;color:#effff6;text-align:center}
 @media(max-width:1250px){.shift-kpis-reference{grid-template-columns:repeat(3,minmax(0,1fr))}.shift-reference-grid,.shift-reference-lower{grid-template-columns:1fr}}
 @media(max-width:760px){.shift-kpis-reference{grid-template-columns:repeat(2,minmax(0,1fr))}.shift-kpis-reference .shift-kpi{padding-left:48px}.shift-kpis-reference .shift-kpi:before{left:12px}.shift-kpis-reference .shift-kpi.first,.shift-kpis-reference .shift-kpi.second{padding-left:10px}.shift-reference-grid .shift-panel{min-width:0}.shift-reference-donut .shift-donut-wrap{flex-wrap:wrap}.shift-reference-donut .shift-donut-legend{min-width:0}.shift-reference-lower{grid-template-columns:1fr}}
+
+
+/* Acabamento tipográfico e ícones iguais à referência aprovada */
+.shift-page{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:0!important;font-stretch:normal}
+.shift-heading h2{font-size:20px!important;font-weight:800!important;letter-spacing:-.35px!important}
+.shift-heading p{font-size:11px!important}
+.shift-filters label{font-size:10px!important;font-weight:600!important}
+.shift-kpis-reference .shift-kpi span{display:flex;align-items:center;gap:9px;font-size:12px!important;font-weight:700!important;line-height:1.2}
+.shift-kpis-reference .shift-kpi span svg{display:block;flex:0 0 32px;width:32px;height:32px;fill:none;stroke:#4cebb6;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.shift-kpis-reference .shift-kpi.first span,.shift-kpis-reference .shift-kpi.second span{justify-content:center;font-size:13px!important}
+.shift-kpis-reference .shift-kpi.first span svg{stroke:#ffd447}
+.shift-kpis-reference .shift-kpi.second span svg{stroke:#20aaff}
+.shift-kpis-reference .shift-kpi strong{font-size:29px!important;font-weight:800!important;letter-spacing:-.5px!important}
+.shift-kpis-reference .shift-kpi strong small{font-size:13px!important;font-weight:700!important}
+.shift-kpis-reference .shift-kpi small{font-size:11px!important}
+.shift-panel>header>div>span.shift-title-icon{display:flex;align-items:center;justify-content:center;width:27px;height:27px;flex:0 0 27px;font-size:0!important;color:#38eeb6}
+.shift-panel>header>div>span.shift-title-icon svg{display:block;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.shift-panel h3{font-size:16px!important;font-weight:800!important;letter-spacing:-.25px!important}
+.shift-panel header p{font-size:10px!important}
+.shift-reference-table th{font-size:11px!important;font-weight:700!important}
+.shift-reference-table td{font-size:11px!important;font-weight:600!important}
+.shift-reference-table td:first-child{font-weight:700!important}
+.shift-reference-donut .shift-donut-legend p{font-size:11px!important;font-weight:600!important}
+.shift-period-lines p{font-size:12px!important}
+.shift-period-lines b{font-size:13px!important}
+.shift-chart-legend{font-size:10px!important}
+.shift-bar-group small{font-size:10px!important;font-weight:600!important}
+@media(max-width:760px){.shift-kpis-reference .shift-kpi span svg{width:26px;height:26px;flex-basis:26px}.shift-panel h3{font-size:14px!important}}
