@@ -24,7 +24,7 @@ const normalizeProcess = (value:string) => {
 };
 const reportedQty = (row:Schedule) => {
   const entries = Array.isArray(row.entries) ? row.entries : [];
-  return entries.length ? entries.reduce((sum,entry)=>sum+Number(entry.quantity||0),0) : reportedQty(row);
+  return entries.length ? entries.reduce((sum,entry)=>sum+Number(entry.quantity||0),0) : Number(row.reported_quantity||0);
 };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
