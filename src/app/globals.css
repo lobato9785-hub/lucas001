@@ -923,3 +923,63 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 @media(prefers-reduced-motion:reduce){
   .app.production-theme .cards article.latecard.alert-pulse{animation:none}
 }
+
+
+/* MASTER — mesma identidade visual azul do Corte Laser e da Ferragem */
+.master-page.master-reference{
+  background:radial-gradient(ellipse at 48% 0%,#10263a 0%,#080d12 58%,#05090e 100%);
+  color:#eaf2fc;
+}
+.master-reference .master-breadcrumb{color:#53b1ff}
+.master-reference .master-live{color:#77d8ba}
+.master-reference .master-overview-main{
+  border-color:#1d5d92;
+  background:linear-gradient(110deg,#102a42,#101b27);
+}
+.master-reference .master-overview-title{border-bottom-color:#294b68}
+.master-reference .master-overview-grid>div:not(:last-child){border-right-color:#294b68}
+.master-reference .master-overview-grid small{color:#a9c4df}
+.master-reference .master-overview .master-ring{
+  background:conic-gradient(#1688ff var(--progress),#263e53 0);
+}
+.master-reference .master-overview .master-track i{
+  background:linear-gradient(90deg,#0878ec,#53b1ff);
+}
+.master-reference .master-process-card,
+.master-reference .master-process-card.process-1,
+.master-reference .master-process-card.process-2,
+.master-reference .master-process-card.process-3{
+  border-color:#2b5276;
+  background:linear-gradient(130deg,#12375a,#101d2b);
+  box-shadow:inset 0 0 22px #1688ff08;
+}
+.master-reference .master-process-title span{
+  color:#78c2ff;
+  border-color:#1d5d92;
+  background:#102a42;
+}
+.master-reference .master-process-track i,
+.master-reference .process-1 .master-process-track i,
+.master-reference .process-2 .master-process-track i,
+.master-reference .process-3 .master-process-track i{
+  background:linear-gradient(90deg,#0878ec,#53b1ff);
+}
+.master-reference .master-process-metrics>div{border-right-color:#34536a}
+.master-reference .master-process-card footer{color:#c6d8eb}
+.master-reference .master-sketch-panel{
+  border-color:#2b5276;
+  background:linear-gradient(145deg,#102a42,#0b1724);
+}
+.master-reference .master-sketch-header{border-bottom-color:#294b68}
+.master-reference .master-sketch-mark{color:#53b1ff}
+.master-reference .master-sketch-summary .summary-total,
+.master-reference .master-sketch-summary .summary-active{
+  border-color:#1d5d92;
+  background:#102a42;
+}
+.master-reference .master-sketch-table-wrap{border-color:#294b68}
+.master-reference .master-sketch-table th{background:#12375a}
+.master-reference .master-sketch-table td{border-color:#29445f}
+.master-reference .master-sketch-table tr:hover td{background:#142b42}
+.master-reference .sketch-progress-track{background:#29445f}
+.master-reference .sketch-progress-track i{background:linear-gradient(90deg,#0878ec,#53b1ff)}
