@@ -52,7 +52,7 @@ export default function MasterDashboard() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/master/production',{cache:'no-store'});
+      const response = await fetch('/api/master/production?refresh='+Date.now(),{cache:'no-store'});
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Falha ao carregar os dados.');
       setRows(data.rows || []);
@@ -63,7 +63,7 @@ export default function MasterDashboard() {
     }
   }
 
-  useEffect(()=>{ load(); },[]);
+  useEffect(()=>{\n    void load();\n    const refresh = () => { if (document.visibilityState === 'visible') void load(); };\n    const timer = window.setInterval(refresh, 15000);\n    window.addEventListener('focus', refresh);\n    document.addEventListener('visibilitychange', refresh);\n    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };\n  },[]);
 
   const monthRows = rows.filter(r => { const date=String(r.scheduled_date).slice(0,10); return PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && date>=dateFrom && date<=dateTo; });
 
