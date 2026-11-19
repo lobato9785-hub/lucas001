@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 type Entry = {id:number;quantity:number;operator?:string;note?:string;at?:string};
 type Stage = {id:number;planned:number;reported:number;entries:Entry[]};
 type Row = {key:string;date:string;op:string;parentOp:string;client:string;reference:string;line:string;power:string;orderQty:number;series:string;stages:Record<string,Stage>};
-const STAGES_BY_SECTOR:Record<string,string[]>={'CORTE LASER':['CORPO','FUNDO','TAMPA'],'RADIADOR':['CORTE','DOBRA','ESTAMPAGEM'],'BORDEADEIRA':['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'],'PRENSA':['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE','CORPO NÚMERO DE SÉRIE'],'PLASMA + DOBRADEIRA':['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR']};
+const STAGES_BY_SECTOR:Record<string,string[]>={'CORTE LASER':['CORPO','FUNDO','TAMPA'],'RADIADOR':['CORTE','DOBRA','ESTAMPAGEM','RADIADOR SOLDADO'],'BORDEADEIRA':['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'],'PRENSA':['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE','CORPO NÚMERO DE SÉRIE'],'PLASMA + DOBRADEIRA':['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR']};
 const SECTORS=['CORTE LASER','RADIADOR','BORDEADEIRA','PRENSA'];
 const fmt=(n:number)=>new Intl.NumberFormat('pt-BR').format(n||0);
 const todayKey=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
@@ -45,7 +45,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
     'ESTAMP. TANQUE/TAMPA':{process_type:'BORDEADEIRA',operation_type:'ESTAMPAGEM'},
     'ESTAMPAGEM TANQUE/TAMPA':{process_type:'BORDEADEIRA',operation_type:'ESTAMPAGEM'},
     'CORPO':{process_type:'CORTE LASER',operation_type:'CORPO'},'FUNDO':{process_type:'CORTE LASER',operation_type:'FUNDO'},'TAMPA':{process_type:'CORTE LASER',operation_type:'TAMPA'},
-    'CORTE':{process_type:'RADIADOR',operation_type:'CORTE'},'DOBRA':{process_type:'RADIADOR',operation_type:'DOBRA'},'ESTAMPAGEM':{process_type:'RADIADOR',operation_type:'ESTAMPAGEM'},
+    'CORTE':{process_type:'RADIADOR',operation_type:'CORTE'},'DOBRA':{process_type:'RADIADOR',operation_type:'DOBRA'},'ESTAMPAGEM':{process_type:'RADIADOR',operation_type:'ESTAMPAGEM'},'RADIADOR SOLDADO':{process_type:'RADIADOR',operation_type:'RADIADOR SOLDADO'},'RADIADOR SOLDADO ': {process_type:'RADIADOR',operation_type:'RADIADOR SOLDADO'},
     'BORDA':{process_type:'BORDEADEIRA',operation_type:'BORDA'},'NÚMERO DE SÉRIE':{process_type:'BORDEADEIRA',operation_type:'NÚMERO DE SÉRIE'},
     'PARA RAIO':{process_type:'PRENSA',operation_type:'PARA RAIO'},'SUPORTE DE PLACA':{process_type:'PRENSA',operation_type:'SUPORTE DE PLACA'},'SUPORTE DE POSTE':{process_type:'PRENSA',operation_type:'SUPORTE DE POSTE'},
     'CORPO NÚMERO DE SÉRIE':{process_type:'PRENSA',operation_type:'CORPO NÚMERO DE SÉRIE'},'CORPO NUMERO DE SERIE':{process_type:'PRENSA',operation_type:'CORPO NÚMERO DE SÉRIE'},
