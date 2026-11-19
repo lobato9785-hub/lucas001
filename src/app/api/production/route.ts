@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
     const allowedStageProcesses:Record<string,string> = {
       'CORTE':'RADIADOR','DOBRA':'RADIADOR','ESTAMPAGEM':'RADIADOR','RADIADOR SOLDADO':'RADIADOR',
       'FERRAGEM SUPERIOR':'PLASMA','FERRAGEM INFERIOR':'PLASMA',
-      'DOBRA SUPERIOR':'DOBRADEIRA','DOBRA INFERIOR':'DOBRADEIRA'
+      'DOBRA SUPERIOR':'DOBRADEIRA','DOBRA INFERIOR':'DOBRADEIRA',
+      'PARA RAIO':'PRENSA','SUPORTE DE PLACA':'PRENSA','SUPORTE DE POSTE':'PRENSA','CORPO NÚMERO DE SÉRIE':'PRENSA'
     };
     const invalidEntry = entries.find((e:any) => {
       const scheduleId = Number(e.scheduleId);
@@ -126,6 +127,38 @@ export async function POST(req: NextRequest) {
           RETURNING id
         `,[processType,stage,String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]);
         if(!created.length) return NextResponse.json({ error: 'Não encontrei a programação de Ferragem desta OP e deste dia para criar a etapa.' }, { status: 400 });
+        scheduleId=Number(created[0].id);
+      }
+      if (!scheduleId && ['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE','CORPO NÚMERO DE SÉRIE'].includes(String(entry.createSchedule?.operationType||'').trim().toUpperCase())) {
+        if (role !== 'laser') return NextResponse.json({ error: 'Acesso Prensa necessário.' }, { status: 401 });
+        const seed=entry.createSchedule;
+        const stage=String(seed.operationType).trim().toUpperCase();
+        const created=await sql.query(`
+          INSERT INTO process_schedule (
+            process_type, operation_type, op_number, parent_op, scheduled_date,
+            series_start, series_end, client_name, client_code, product_reference,
+            product_description, production_line, power_pa, order_quantity,
+            planned_quantity, source_status, updated_at
+          )
+          SELECT
+            'PRENSA', $1, sibling.op_number, sibling.parent_op, sibling.scheduled_date,
+            sibling.series_start, sibling.series_end, sibling.client_name, sibling.client_code, sibling.product_reference,
+            sibling.product_description, sibling.production_line, sibling.power_pa, sibling.order_quantity,
+            sibling.planned_quantity, '__ACTIVE__', NOW()
+          FROM process_schedule sibling
+          WHERE sibling.process_type='PRENSA'
+            AND sibling.op_number=$2 AND sibling.scheduled_date=$3
+            AND COALESCE(sibling.series_start,'')=COALESCE($4,'')
+            AND COALESCE(sibling.series_end,'')=COALESCE($5,'')
+            AND sibling.operation_type <> $1
+            AND COALESCE(sibling.source_status,'') <> '__ARCHIVED__'
+          ORDER BY sibling.id
+          LIMIT 1
+          ON CONFLICT (process_type, operation_type, op_number, scheduled_date, series_start, series_end)
+          DO UPDATE SET source_status='__ACTIVE__', planned_quantity=EXCLUDED.planned_quantity, updated_at=NOW()
+          RETURNING id
+        `,[stage,String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]);
+        if(!created.length) return NextResponse.json({ error: 'Não encontrei outra etapa da Prensa desta OP e deste dia para criar o Corpo Número de Série.' }, { status: 400 });
         scheduleId=Number(created[0].id);
       }
       if (!scheduleId && String(entry.createSchedule?.operationType||'').trim().toUpperCase() === 'RADIADOR SOLDADO') {
