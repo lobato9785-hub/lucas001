@@ -6,14 +6,15 @@ type Entry = { id:number; quantity:number; operator?:string; note?:string; at?:s
 type Schedule = { id:number; process_type:string; operation_type:string; op_number:string; parent_op?:string|null; scheduled_date:string; planned_quantity:number; entries:Entry[] };
 type Shift = 'first' | 'second';
 type ShiftTotals = { first:number; second:number };
-const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','BORDADEIRA'];
+const PROCESS_ORDER = ['CORTE LASER','PLASMA','DOBRADEIRA','RADIADOR','PRENSA','BORDADEIRA'];
 const PROCESS_NAMES:Record<string,string> = {
-  'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', BORDADEIRA:'Bordadeira'
+  'CORTE LASER':'Corte Laser', PLASMA:'Plasma', DOBRADEIRA:'Dobradeira', RADIADOR:'Radiador', PRENSA:'Prensa', BORDADEIRA:'Bordadeira'
 };
 const normalizeProcess = (value:string) => {
   const key=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' ');
   if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
   if (key==='CORTE LASER' || key==='LASER') return 'CORTE LASER';
+  if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
   return key;
 };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
@@ -119,6 +120,37 @@ export default function TurnosDashboard() {
     return result;
   },[rows,dateFrom,dateTo,sector]);
 
+  const stageRows=useMemo(()=>{
+    const grouped=new Map<string,{process:string;stage:string;first:number;second:number}>();
+    rows.forEach(row=>{
+      const process=normalizeProcess(row.process_type);
+      if (!PROCESS_ORDER.includes(process) || (sector!=='TODOS' && process!==sector)) return;
+      const stage=String(row.operation_type||'').trim()||'Etapa não informada';
+      const key=process+'|'+stage;
+      const value=grouped.get(key)||{process,stage,first:0,second:0};
+      (Array.isArray(row.entries)?row.entries:[]).forEach(entry=>{
+        if (!entry.at) return;
+        const info=shiftInfo(entry.at);
+        if (!info || info.day<dateFrom || info.day>dateTo) return;
+        const quantity=Number(entry.quantity||0);
+        if (!Number.isFinite(quantity)||quantity<=0) return;
+        value[info.shift]+=quantity;
+      });
+      grouped.set(key,value);
+    });
+    return PROCESS_ORDER.flatMap(process=>Array.from(grouped.values())
+      .filter(item=>item.process===process)
+      .sort((a,b)=>a.stage.localeCompare(b.stage,'pt-BR'))
+      .map(item=>({...item,total:item.first+item.second})));
+  },[rows,dateFrom,dateTo,sector]);
+
+  const stageGroups=useMemo(()=>PROCESS_ORDER.map(process=>{
+    const stages=stageRows.filter(item=>item.process===process);
+    const first=stages.reduce((sum,item)=>sum+item.first,0);
+    const second=stages.reduce((sum,item)=>sum+item.second,0);
+    return {key:process,name:PROCESS_NAMES[process],stages,first,second,total:first+second};
+  }).filter(group=>group.stages.length>0),[stageRows]);
+
   const totals=useMemo(()=>{
     const byShift:ShiftTotals={first:0,second:0};
     const bySector=new Map<string,ShiftTotals>();
@@ -207,23 +239,27 @@ export default function TurnosDashboard() {
       </section>
 
       <section className="shift-panel shift-sector-panel">
-        <header><div><span>▰</span><div><h3>Produtividade por Setor e Turno</h3><p>Peças apontadas em cada setor durante o período</p></div></div><small>{fmt(totals.total)} peças apontadas</small></header>
+        <header><div><span>▰</span><div><h3>Produção Detalhada por Processo e Etapa</h3><p>Quantidade apontada por etapa, separada por turno · inclui apontamentos parciais</p></div></div><small>{fmt(stageRows.reduce((sum,item)=>sum+item.total,0))} peças apontadas nas etapas</small></header>
         <div className="shift-table-wrap">
-          <table className="shift-table">
-            <thead><tr><th>Setor</th><th>1º Turno<br/><small>07:00 – 17:15</small></th><th>2º Turno<br/><small>17:20 – 02:48</small></th><th>Total Apontado</th><th>Participação 1º / 2º</th></tr></thead>
+          <table className="shift-table shift-detail-table">
+            <thead><tr><th>Processo</th><th>Etapa</th><th>1º Turno<br/><small>07:00 – 17:15</small></th><th>2º Turno<br/><small>17:20 – 02:48</small></th><th>Total apontado</th><th>% do processo</th></tr></thead>
             <tbody>
-              {totals.sectors.map(item=><tr key={item.key}>
-                <td><span className={'shift-dot '+item.key.toLowerCase().replaceAll(' ','-')}></span><b>{item.name}</b></td>
-                <td className="first-value">{fmt(item.first)}</td>
-                <td className="second-value">{fmt(item.second)}</td>
-                <td className="total-value">{fmt(item.total)}</td>
-                <td><div className="shift-share"><span style={{width:pct(item.first,item.total)+'%'}}></span><i style={{width:pct(item.second,item.total)+'%'}}></i></div><small>{pct(item.first,item.total)}% / {pct(item.second,item.total)}%</small></td>
-              </tr>)}
-              <tr className="shift-total-row"><td>Total Geral</td><td>{fmt(totals.byShift.first)}</td><td>{fmt(totals.byShift.second)}</td><td>{fmt(totals.total)}</td><td>{firstShare}% / {secondShare}%</td></tr>
+              {stageGroups.map(group=><React.Fragment key={group.key}>
+                {group.stages.map((item,index)=><tr key={group.key+'-'+item.stage}>
+                  {index===0&&<td rowSpan={group.stages.length+1} className="shift-process-cell"><span className={'shift-dot '+group.key.toLowerCase().replaceAll(' ','-')}></span><b>{group.name}</b></td>}
+                  <td className="shift-stage-name">{item.stage}</td>
+                  <td className="first-value">{fmt(item.first)}</td>
+                  <td className="second-value">{fmt(item.second)}</td>
+                  <td className="total-value">{fmt(item.total)}</td>
+                  <td><div className="shift-share"><span style={{width:pct(item.total,group.total)+'%'}}></span></div><small>{pct(item.total,group.total)}%</small></td>
+                </tr>)}
+                <tr className="shift-subtotal-row"><td>Subtotal {group.name}</td><td className="first-value">{fmt(group.first)}</td><td className="second-value">{fmt(group.second)}</td><td>{fmt(group.total)}</td><td>100%</td></tr>
+              </React.Fragment>)}
+              {!stageGroups.length&&<tr><td colSpan={6} className="shift-empty">Não há apontamentos nas etapas para o período selecionado.</td></tr>}
             </tbody>
           </table>
         </div>
-        {sector!=='TODOS'&&<p className="shift-filter-note">Exibindo somente {PROCESS_NAMES[sector]}.</p>}
+        <p className="shift-filter-note">A tabela detalha cada apontamento, mesmo que a OP esteja incompleta. Os indicadores e gráficos acima/abaixo contam a OP uma única vez, somente após todas as etapas previstas serem concluídas.</p>
       </section>
 
       <section className="shift-lower-grid">
