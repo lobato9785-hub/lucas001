@@ -26,9 +26,9 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  const monthRows=useMemo(()=>rows.filter(r=>r.date.startsWith(monthKey(month))),[rows,month]);
  const counts=useMemo(()=>{let c={doing:0,late:0,done:0,waiting:0};monthRows.forEach(r=>{const st=getStatus(r),total=stages.reduce((n,s)=>n+(r.stages[s]?.reported||0),0),isLate=r.date<todayKey();if(st==='Concluída')c.done++;else{if(total>0)c.doing++;if(isLate)c.late++;if(total===0&&!isLate)c.waiting++}});return c},[monthRows,stages]);
  function stageFor(r:Row,stage:string):Stage|undefined {
-  const existing=r.stages[stage];if(existing)return existing;
+  const existing=r.stages[stage];if(existing&&!(sector==='PRENSA'&&existing.planned<=0))return existing;
   const source=raw.find(x=>String(x.operation_type||'').trim().toUpperCase()===stage&&String(x.op_number||'')===r.op&&String(x.scheduled_date||'').slice(0,10)===r.date&&String(x.series_start||'')===(r.series.split('–')[0]||'')&&String(x.series_end||'')===(r.series.split('–')[1]||''));
-  if(source)return {id:Number(source.id),planned:Number(source.planned_quantity||0),reported:Number(source.reported_quantity||0),entries:source.entries||[]};
+  if(source&&!(sector==='PRENSA'&&Number(source.planned_quantity||0)<=0))return {id:Number(source.id),planned:Number(source.planned_quantity||0),reported:Number(source.reported_quantity||0),entries:source.entries||[]};
   if(sector==='PRENSA'&&['PARA RAIO','SUPORTE DE PLACA','SUPORTE DE POSTE','CORPO NÚMERO DE SÉRIE'].includes(stage)){
    const planned=Math.max(0,...Object.values(r.stages).map(x=>x.planned||0));
    return {id:0,planned,reported:0,entries:[]};
