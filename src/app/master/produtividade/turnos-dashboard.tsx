@@ -14,7 +14,6 @@ const normalizeProcess = (value:string) => {
   const key=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' ');
   if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
   if (key==='CORTE LASER' || key==='LASER') return 'CORTE LASER';
-  if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
   return key;
 };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
@@ -107,7 +106,9 @@ export default function TurnosDashboard() {
       // Uma OP só entra na produtividade quando todas as partes/etapas
       // programadas para aquele dia atingirem suas respectivas quantidades.
       if (!completedStages.length || completedStages.some(value=>!value)) return;
-      const completionAt=completedStages.map(value=>String(value)).sort().at(-1)!;
+      const completionTimes=completedStages.map(value=>String(value)).sort();
+      const completionAt=completionTimes[completionTimes.length-1];
+      if (!completionAt) return;
       const info=shiftInfo(completionAt);
       if (!info || info.day<dateFrom || info.day>dateTo) return;
       const normalized=normalizeProcess(schedules[0].process_type);
