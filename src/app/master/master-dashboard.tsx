@@ -130,7 +130,9 @@ export default function MasterDashboard() {
       const planned=Math.max(0,...bySector.map(sector=>sector.planned));
       // O avanço geral acompanha o setor que já produziu peças.
       // A conclusão total da OP continua dependendo de todos os setores programados.
-      const done=bySector.length ? Math.min(planned,...[Math.max(...bySector.map(sector=>sector.done))]) : 0;
+      // Média do realizado entre os setores programados: cada setor representa
+      // uma etapa do fluxo; assim, um setor concluído não mascara os demais zerados.
+      const done=bySector.length ? Math.min(planned, bySector.reduce((sum,sector)=>sum+sector.done,0)/bySector.length) : 0;
       return {key,planned,done,pending:Math.max(0,planned-done)};
     });
   };
@@ -186,7 +188,7 @@ export default function MasterDashboard() {
     const scheduledSectors = bySector.filter(sector=>sector.hasSchedule);
     // O avanço geral deve refletir o maior avanço já alcançado entre os setores;
     // a OP só recebe status Concluída quando todos os quatro setores finalizarem.
-    const percent = scheduledSectors.length ? Math.max(...scheduledSectors.map(sector=>sector.percent)) : 0;
+    const percent = scheduledSectors.length ? Math.round(scheduledSectors.reduce((sum,sector)=>sum+sector.percent,0)/scheduledSectors.length) : 0;
     const complete = bySector.length === PROCESS_ORDER.length && bySector.every(sector => sector.complete);
     const doneAny = bySector.some(sector => sector.stages.some(stage => stage.done > 0));
     const overall = complete ? 'CONCLUÍDA' : doneAny ? completeCount + ' DE ' + PROCESS_ORDER.length + ' SETORES CONCLUÍDOS' : 'AGUARDANDO';
