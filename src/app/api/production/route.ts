@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     const entries = Array.isArray(body.entries) ? body.entries : [];
     const allowedStageProcesses:Record<string,string> = {
       'CORTE':'RADIADOR','DOBRA':'RADIADOR','ESTAMPAGEM':'RADIADOR','RADIADOR SOLDADO':'RADIADOR',
-      'BORDA':'BORDEADEIRA','ESTAMPAGEM':'BORDEADEIRA','NÚMERO DE SÉRIE':'BORDEADEIRA',
       'FERRAGEM SUPERIOR':'PLASMA','FERRAGEM INFERIOR':'PLASMA',
       'DOBRA SUPERIOR':'DOBRADEIRA','DOBRA INFERIOR':'DOBRADEIRA',
       'PARA RAIO':'PRENSA','SUPORTE DE PLACA':'PRENSA','SUPORTE DE POSTE':'PRENSA','CORPO NÚMERO DE SÉRIE':'PRENSA'
@@ -55,7 +54,7 @@ export async function POST(req: NextRequest) {
       const seed = e.createSchedule || {};
       const stage = String(seed.operationType || '').trim().toUpperCase();
       const processType = String(seed.processType || '').trim().toUpperCase();
-      const canResolve = allowedStageProcesses[stage] === processType &&
+      const canResolve = (allowedStageProcesses[stage] === processType || (processType === 'BORDEADEIRA' && ['BORDA','ESTAMPAGEM','NÚMERO DE SÉRIE'].includes(stage))) &&
         String(seed.opNumber || '').trim() &&
         /^\d{4}-\d{2}-\d{2}$/.test(String(seed.scheduledDate || ''));
       const quantity = Number(e.quantity);
