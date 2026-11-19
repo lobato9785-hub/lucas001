@@ -1093,3 +1093,40 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-page.master-reference .master-overview .master-track i{
   background:linear-gradient(90deg,#0878ec,#53b1ff)!important;
 }
+
+
+/* MASTER — cabeçalho azul único e fixo durante a rolagem da tabela */
+.master-page.master-reference .master-sketch-table thead th,
+.master-page.master-reference .master-sketch-table thead tr:first-child th,
+.master-page.master-reference .master-sketch-table thead tr:nth-child(2) th,
+.master-page.master-reference .master-sketch-table thead th.sketch-sector,
+.master-page.master-reference .master-sketch-table thead th.sketch-corte-laser,
+.master-page.master-reference .master-sketch-table thead th.sketch-radiador,
+.master-page.master-reference .master-sketch-table thead th.sketch-prensa,
+.master-page.master-reference .master-sketch-table thead th.sketch-bordadeira{
+  background:#12375a!important;
+  color:#f2f8ff!important;
+  border-top:2px solid #53b1ff!important;
+  border-bottom:1px solid #2b75b8!important;
+}
+.master-page.master-reference .master-sketch-table thead tr:first-child th{
+  position:sticky!important;top:0!important;z-index:12!important;height:32px!important;
+}
+.master-page.master-reference .master-sketch-table thead tr:nth-child(2) th{
+  position:sticky!important;top:32px!important;z-index:11!important;height:25px!important;
+}
+.master-page.master-reference .master-sketch-table thead tr:first-child th[rowspan="2"]{
+  z-index:14!important;
+}
+.master-page.master-reference .master-sketch-table tbody td:nth-child(n+5):nth-child(-n+20),
+.master-page.master-reference .master-sketch-table tbody tr:nth-child(even) td:nth-child(n+5):nth-child(-n+20){
+  background:#102a42!important;
+  border-right-color:#294b68!important;
+}
+.master-page.master-reference .master-sketch-table tbody tr:hover td:nth-child(n+5):nth-child(-n+20){
+  background:#173b5c!important;
+}
+.master-page.master-reference .master-sketch-table-wrap{
+  overflow:auto!important;
+  isolation:isolate;
+}
