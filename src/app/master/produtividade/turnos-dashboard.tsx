@@ -177,6 +177,7 @@ export default function TurnosDashboard() {
   const firstShare=pct(totals.byShift.first,totals.total);
   const secondShare=pct(totals.byShift.second,totals.total);
   const periodLabel=dateFrom===dateTo?dayLabel(dateFrom):dayLabel(dateFrom)+' a '+dayLabel(dateTo);
+  const maxProcessTotal=Math.max(1,...stageGroups.map(group=>group.total));
 
   return (
     <main className="master-page master-reference shift-page">
@@ -267,7 +268,7 @@ export default function TurnosDashboard() {
         <aside className="shift-detail-side">
           <article className="shift-panel shift-process-summary">
             <header><div><span>▤</span><div><h3>Resumo por Processo</h3><p>Soma dos apontamentos de cada etapa</p></div></div></header>
-            {stageGroups.map(group=><div className="shift-process-summary-row" key={group.key}><b>{group.name}</b><strong>{fmt(group.total)}</strong><div><i style={{width:(group.total/Math.max(1,...stageGroups.map(g=>g.total))*100)+'%'}}/></div></div>)}
+            {stageGroups.map(group=><div className="shift-process-summary-row" key={group.key}><b>{group.name}</b><strong>{fmt(group.total)}</strong><div><i style={{width:(group.total/maxProcessTotal*100)+'%'}}/></div></div>)}
             <div className="shift-process-summary-total"><b>Total de etapas</b><strong>{fmt(stageRows.reduce((sum,item)=>sum+item.total,0))}</strong></div>
           </article>
           <article className="shift-panel shift-summary-panel">
