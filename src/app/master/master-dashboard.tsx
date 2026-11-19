@@ -76,19 +76,43 @@ export default function MasterDashboard() {
 
   const monthRows = rows.filter(r => { const date=String(r.scheduled_date).slice(0,10); return PROCESS_ORDER.includes(normalizeProcess(r.process_type)) && date>=dateFrom && date<=dateTo; });
 
-  // Consolida cada OP uma única vez por dia. CORPO/FUNDO/TAMPA e
-  // os setores seguintes são etapas da mesma quantidade, não novas peças.
+  // Esta visão considera SOMENTE os quatro setores da Master:
+  // Corte Laser, Radiador, Prensa e Bordadeira. Plasma e Dobradeira
+  // não participam dos totais nem do avanço geral das OPs.
+  // Etapas do mesmo setor são sucessivas; o realizado do setor é o
+  // menor realizado entre suas etapas, limitado à quantidade programada.
   const summarizeUniqueOps = (items:Schedule[]) => {
     const grouped = new Map<string,Schedule[]>();
-    items.forEach(row => {
+    items.filter(row=>PROCESS_ORDER.includes(normalizeProcess(row.process_type))).forEach(row => {
       const key = String(row.scheduled_date).slice(0,10)+'|'+String(row.op_number);
       const group = grouped.get(key) || [];
       group.push(row);
       grouped.set(key,group);
     });
     return Array.from(grouped.entries()).map(([key,group]) => {
-      const planned = Math.max(0,...group.map(row=>Number(row.planned_quantity||0)));
-      const done = Math.min(planned,Math.max(0,...group.map(row=>Number(row.reported_quantity||0))));
+      const bySector = PROCESS_ORDER.map(sector => {
+        const sectorRows = group.filter(row=>normalizeProcess(row.process_type)===sector);
+        if (!sectorRows.length) return null;
+        const byStage = new Map<string,Schedule[]>();
+        sectorRows.forEach(row=>{
+          const stage=String(row.operation_type||'PROCESSO').trim().toUpperCase();
+          const stageRows=byStage.get(stage)||[];
+          stageRows.push(row);
+          byStage.set(stage,stageRows);
+        });
+        const stages=Array.from(byStage.values()).map(stageRows=>{
+          const planned=Math.max(0,...stageRows.map(row=>Number(row.planned_quantity||0)));
+          const reported=stageRows.reduce((sum,row)=>sum+Number(row.reported_quantity||0),0);
+          return {planned,done:Math.min(planned,Math.max(0,reported))};
+        }).filter(stage=>stage.planned>0);
+        if (!stages.length) return null;
+        return {
+          planned:Math.max(...stages.map(stage=>stage.planned)),
+          done:Math.min(...stages.map(stage=>stage.done))
+        };
+      }).filter((sector):sector is {planned:number;done:number}=>sector!==null);
+      const planned=Math.max(0,...bySector.map(sector=>sector.planned));
+      const done=bySector.length ? Math.min(planned,...bySector.map(sector=>sector.done)) : 0;
       return {key,planned,done,pending:Math.max(0,planned-done)};
     });
   };
@@ -123,7 +147,8 @@ export default function MasterDashboard() {
       const stages = stageNames.map(name => {
         const matches = sectorRows.filter(row => String(row.operation_type || 'PROCESSO').trim().toUpperCase() === name);
         const planned = matches.reduce((sum,row) => sum + Number(row.planned_quantity || 0),0);
-        const done = matches.reduce((sum,row) => sum + Number(row.reported_quantity || 0),0);
+        const reported = matches.reduce((sum,row) => sum + Number(row.reported_quantity || 0),0);
+        const done = Math.min(planned,Math.max(0,reported));
         const pending = Math.max(0,planned-done);
         const state = planned > 0 && done >= planned ? 'OK' : done > 0 ? 'EM ANDAMENTO' : 'PENDENTE';
         return {name, planned, done, pending, state, percent:planned>0?Math.min(100,done/planned*100):0};
@@ -140,7 +165,8 @@ export default function MasterDashboard() {
       return {sector, stages, planned, done, pending, state, complete, percent, hasSchedule:programmed.length>0};
     });
     const completeCount = bySector.filter(sector => sector.complete).length;
-    const percent = Math.round(bySector.reduce((sum,sector) => sum + sector.percent,0) / PROCESS_ORDER.length);
+    const scheduledSectors = bySector.filter(sector=>sector.hasSchedule);
+    const percent = scheduledSectors.length ? Math.min(...scheduledSectors.map(sector=>sector.percent)) : 0;
     const complete = bySector.length === PROCESS_ORDER.length && bySector.every(sector => sector.complete);
     const doneAny = bySector.some(sector => sector.stages.some(stage => stage.done > 0));
     const overall = complete ? 'CONCLUÍDA' : doneAny ? completeCount + ' DE ' + PROCESS_ORDER.length + ' SETORES CONCLUÍDOS' : 'AGUARDANDO';
