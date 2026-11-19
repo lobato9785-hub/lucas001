@@ -238,55 +238,71 @@ export default function TurnosDashboard() {
         </article>
       </section>
 
-      <section className="shift-panel shift-sector-panel">
-        <header><div><span>▰</span><div><h3>Produção Detalhada por Processo e Etapa</h3><p>Quantidade apontada por etapa, separada por turno · inclui apontamentos parciais</p></div></div><small>{fmt(stageRows.reduce((sum,item)=>sum+item.total,0))} peças apontadas nas etapas</small></header>
-        <div className="shift-table-wrap">
-          <table className="shift-table shift-detail-table">
-            <thead><tr><th>Processo</th><th>Etapa</th><th>1º Turno<br/><small>07:00 – 17:15</small></th><th>2º Turno<br/><small>17:20 – 02:48</small></th><th>Total apontado</th><th>% do processo</th></tr></thead>
-            <tbody>
-              {stageGroups.map(group=><React.Fragment key={group.key}>
-                {group.stages.map((item,index)=><tr key={group.key+'-'+item.stage}>
-                  {index===0&&<td rowSpan={group.stages.length+1} className="shift-process-cell"><span className={'shift-dot '+group.key.toLowerCase().replaceAll(' ','-')}></span><b>{group.name}</b></td>}
-                  <td className="shift-stage-name">{item.stage}</td>
-                  <td className="first-value">{fmt(item.first)}</td>
-                  <td className="second-value">{fmt(item.second)}</td>
-                  <td className="total-value">{fmt(item.total)}</td>
-                  <td><div className="shift-share"><span style={{width:pct(item.total,group.total)+'%'}}></span></div><small>{pct(item.total,group.total)}%</small></td>
-                </tr>)}
-                <tr className="shift-subtotal-row"><td>Subtotal {group.name}</td><td className="first-value">{fmt(group.first)}</td><td className="second-value">{fmt(group.second)}</td><td>{fmt(group.total)}</td><td>100%</td></tr>
-              </React.Fragment>)}
-              {!stageGroups.length&&<tr><td colSpan={6} className="shift-empty">Não há apontamentos nas etapas para o período selecionado.</td></tr>}
-            </tbody>
-          </table>
-        </div>
-        <p className="shift-filter-note">A tabela detalha cada apontamento, mesmo que a OP esteja incompleta. Os indicadores e gráficos acima/abaixo contam a OP uma única vez, somente após todas as etapas previstas serem concluídas.</p>
+      <section className="shift-detail-layout">
+        <article className="shift-panel shift-sector-panel shift-detail-main">
+          <header><div><span>▰</span><div><h3>Produção Detalhada por Processo e Etapa</h3><p>Apontamentos de cada etapa por turno, inclusive OPs em andamento</p></div></div><small>{fmt(stageRows.reduce((sum,item)=>sum+item.total,0))} apontamentos de etapa</small></header>
+          <div className="shift-table-wrap">
+            <table className="shift-table shift-detail-table">
+              <thead>
+                <tr><th rowSpan={2}>Processo</th><th rowSpan={2}>Etapa</th><th colSpan={2} className="shift-first-head">1º Turno · 07:00–17:15</th><th colSpan={2} className="shift-second-head">2º Turno · 17:20–02:48</th><th colSpan={2}>Total</th></tr>
+                <tr><th>Qtde</th><th>%</th><th>Qtde</th><th>%</th><th>Qtde</th><th>%</th></tr>
+              </thead>
+              <tbody>
+                {stageGroups.map(group=><React.Fragment key={group.key}>
+                  {group.stages.map((item,index)=><tr key={group.key+'-'+item.stage}>
+                    {index===0&&<td rowSpan={group.stages.length+1} className="shift-process-cell"><span className={'shift-dot '+group.key.toLowerCase().replaceAll(' ','-')}></span><b>{group.name}</b></td>}
+                    <td className="shift-stage-name">{item.stage}</td>
+                    <td className="first-value">{fmt(item.first)}</td><td className="shift-percent">{pct(item.first,group.first)}%</td>
+                    <td className="second-value">{fmt(item.second)}</td><td className="shift-percent">{pct(item.second,group.second)}%</td>
+                    <td className="total-value">{fmt(item.total)}</td><td className="shift-percent">{pct(item.total,group.total)}%</td>
+                  </tr>)}
+                  <tr className="shift-subtotal-row"><td>Subtotal {group.name}</td><td className="first-value">{fmt(group.first)}</td><td>{group.first?'100%':'0%'}</td><td className="second-value">{fmt(group.second)}</td><td>{group.second?'100%':'0%'}</td><td>{fmt(group.total)}</td><td>100%</td></tr>
+                </React.Fragment>)}
+                {!stageGroups.length&&<tr><td colSpan={8} className="shift-empty">Não há apontamentos nas etapas para o período selecionado.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          <p className="shift-filter-note">As quantidades por etapa incluem apontamentos parciais. Os indicadores de produtividade contam cada OP uma única vez, somente quando todas as etapas previstas forem concluídas.</p>
+        </article>
+        <aside className="shift-detail-side">
+          <article className="shift-panel shift-process-summary">
+            <header><div><span>▤</span><div><h3>Resumo por Processo</h3><p>Soma dos apontamentos de cada etapa</p></div></div></header>
+            {stageGroups.map(group=><div className="shift-process-summary-row" key={group.key}><b>{group.name}</b><strong>{fmt(group.total)}</strong><div><i style={{width:(group.total/Math.max(1,...stageGroups.map(g=>g.total))*100)+'%'}}/></div></div>)}
+            <div className="shift-process-summary-total"><b>Total de etapas</b><strong>{fmt(stageRows.reduce((sum,item)=>sum+item.total,0))}</strong></div>
+          </article>
+          <article className="shift-panel shift-summary-panel">
+            <header><div><span>◔</span><div><h3>Participação por Turno</h3><p>Total de OPs concluídas</p></div></div></header>
+            <div className="shift-donut-wrap">
+              <div className="shift-donut" style={{'--first-share':firstShare+'%'} as React.CSSProperties}><div><strong>{fmt(totals.total)}</strong><small>peças</small></div></div>
+              <div className="shift-donut-legend"><p><i className="first"></i><span>1º Turno</span><b>{fmt(totals.byShift.first)}</b><small>{firstShare}%</small></p><p><i className="second"></i><span>2º Turno</span><b>{fmt(totals.byShift.second)}</b><small>{secondShare}%</small></p></div>
+            </div>
+          </article>
+        </aside>
       </section>
 
       <section className="shift-lower-grid">
         <article className="shift-panel shift-chart-panel">
-          <header><div><span>▥</span><div><h3>Evolução Diária da Produção</h3><p>Quantidade apontada por turno · últimos 14 dias com produção</p></div></div></header>
+          <header><div><span>▥</span><div><h3>Evolução Diária da Produção</h3><p>Quantidade de OPs concluídas por turno · últimos 14 dias</p></div></div></header>
           {daily.length? <div className="shift-chart">
             <div className="shift-chart-legend"><span><i className="first"></i>1º Turno</span><span><i className="second"></i>2º Turno</span></div>
             <div className="shift-bars">
               {daily.map(item=><div className="shift-bar-group" key={item.day} title={dayLabel(item.day)+': '+fmt(item.total)+' peças'}>
                 <div className="shift-bar-stack" style={{height:Math.max(4,item.total/maxDaily*100)+'%'}}>
-                  <i className="second" style={{height:item.second/item.total*100+'%'}}></i>
-                  <i className="first" style={{height:item.first/item.total*100+'%'}}></i>
-                </div>
-                <small>{dayLabel(item.day)}</small>
-                <b>{fmt(item.total)}</b>
+                  <i className="second" style={{height:item.second/item.total*100+'%'}></i><i className="first" style={{height:item.first/item.total*100+'%'}}></i>
+                </div><small>{dayLabel(item.day)}</small><b>{fmt(item.total)}</b>
               </div>)}
             </div>
           </div>:<div className="shift-empty">{loading?'Carregando apontamentos...':'Não há apontamentos nos turnos e período selecionados.'}</div>}
         </article>
-
-        <article className="shift-panel shift-summary-panel">
-          <header><div><span>▤</span><div><h3>Resumo do Período</h3><p>Participação de cada turno</p></div></div></header>
-          <div className="shift-donut-wrap">
-            <div className="shift-donut" style={{'--first-share':firstShare+'%'} as React.CSSProperties}><div><strong>{fmt(totals.total)}</strong><small>peças</small></div></div>
-            <div className="shift-donut-legend"><p><i className="first"></i><span>1º Turno</span><b>{fmt(totals.byShift.first)}</b><small>{firstShare}%</small></p><p><i className="second"></i><span>2º Turno</span><b>{fmt(totals.byShift.second)}</b><small>{secondShare}%</small></p></div>
+        <article className="shift-panel shift-period-summary">
+          <header><div><span>▦</span><div><h3>Resumo do Período</h3><p>Indicadores consolidados</p></div></div></header>
+          <div className="shift-period-lines">
+            <p><span>Produção total concluída</span><b>{fmt(totals.total)} peças</b></p>
+            <p><span>Produção do 1º turno</span><b>{fmt(totals.byShift.first)} peças</b></p>
+            <p><span>Produção do 2º turno</span><b>{fmt(totals.byShift.second)} peças</b></p>
+            <p><span>Dias com produção</span><b>{fmt(totals.daily.length)}</b></p>
+            <p><span>Período consultado</span><b>{periodLabel}</b></p>
           </div>
-          <div className="shift-summary-foot"><span>Período consultado</span><b>{periodLabel}</b></div>
         </article>
       </section>
 
