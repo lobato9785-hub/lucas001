@@ -23,8 +23,12 @@ const normalizeProcess = (value:string) => {
   return key;
 };
 const reportedQty = (row:Schedule) => {
+  // A API já entrega reported_quantity agregado no banco por schedule_id.
+  // Priorizar esse total evita que um JSON de detalhes incompleto zere o realizado.
+  const aggregate = Number(row.reported_quantity);
+  if (Number.isFinite(aggregate)) return Math.max(0,aggregate);
   const entries = Array.isArray(row.entries) ? row.entries : [];
-  return entries.length ? entries.reduce((sum,entry)=>sum+Number(entry.quantity||0),0) : Number(row.reported_quantity||0);
+  return entries.reduce((sum,entry)=>sum+Number(entry.quantity||0),0);
 };
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
