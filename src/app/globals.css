@@ -1043,3 +1043,53 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
   background:#102a42!important;border-color:#1d5d92!important;
 }
 .master-reference .sketch-progress-track i{background:linear-gradient(90deg,#0878ec,#53b1ff)!important}
+
+
+/* MASTER FINAL — azul uniforme, igual ao padrão visual Corte Laser/Ferragem */
+.master-page.master-reference .master-process-grid .master-process-card,
+.master-page.master-reference .master-process-grid .master-process-card:nth-child(n),
+.master-page.master-reference .master-process-grid .master-process-card.process-0,
+.master-page.master-reference .master-process-grid .master-process-card.process-1,
+.master-page.master-reference .master-process-grid .master-process-card.process-2,
+.master-page.master-reference .master-process-grid .master-process-card.process-3{
+  background:linear-gradient(130deg,#12375a,#101d2b)!important;
+  border:1px solid #2b5276!important;
+  box-shadow:inset 0 0 22px #1688ff08!important;
+}
+.master-page.master-reference .master-process-title span{
+  color:#78c2ff!important;background:#102a42!important;border-color:#1d5d92!important;
+}
+.master-page.master-reference .master-process-track{background:#29445f!important}
+.master-page.master-reference .master-process-track i{
+  background:linear-gradient(90deg,#0878ec,#53b1ff)!important;
+}
+.master-page.master-reference .master-sketch-panel{
+  background:linear-gradient(145deg,#102a42,#0b1724)!important;border-color:#2b5276!important;
+}
+.master-page.master-reference .master-sketch-table th,
+.master-page.master-reference .master-sketch-table th.sketch-sector,
+.master-page.master-reference .master-sketch-table th.sketch-corte-laser,
+.master-page.master-reference .master-sketch-table th.sketch-radiador,
+.master-page.master-reference .master-sketch-table th.sketch-prensa,
+.master-page.master-reference .master-sketch-table th.sketch-bordadeira{
+  background:#12375a!important;border-top-color:#53b1ff!important;border-bottom-color:#2b75b8!important;
+}
+.master-page.master-reference .master-sketch-table tbody td:nth-child(n+5):nth-child(-n+20),
+.master-page.master-reference .master-sketch-table tbody tr:nth-child(even) td:nth-child(n+5):nth-child(-n+20){
+  background:#102a42!important;border-right-color:#294b68!important;
+}
+.master-page.master-reference .master-sketch-table tbody tr:hover td{
+  background:#173b5c!important;
+}
+.master-page.master-reference .master-sketch-table tbody td{
+  border-color:#29445f!important;
+}
+.master-page.master-reference .master-overview-main{
+  background:linear-gradient(110deg,#102a42,#101b27)!important;border-color:#1d5d92!important;
+}
+.master-page.master-reference .master-overview .master-ring{
+  background:conic-gradient(#1688ff var(--progress),#263e53 0)!important;
+}
+.master-page.master-reference .master-overview .master-track i{
+  background:linear-gradient(90deg,#0878ec,#53b1ff)!important;
+}
