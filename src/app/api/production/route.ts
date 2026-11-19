@@ -44,13 +44,15 @@ export async function POST(req: NextRequest) {
     const entries = Array.isArray(body.entries) ? body.entries : [];
     if (!entries.length || entries.length > 4 || entries.some((e:any) =>
       ((!Number.isSafeInteger(Number(e.scheduleId)) || Number(e.scheduleId) < 1) &&
-       !(e.createSchedule?.operationType === 'RADIADOR SOLDADO' && String(e.createSchedule?.opNumber||'').trim() && /^\\d{4}-\\d{2}-\\d{2}$/.test(String(e.createSchedule?.scheduledDate||'')))) ||
+       !(e.createSchedule?.operationType === 'RADIADOR SOLDADO' && String(e.createSchedule?.opNumber||'').trim() && /^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||'')))) ||
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
     const sql = db();
     const role = getSectorRole(req.cookies.get(SECTOR_COOKIE)?.value);
     for (const entry of entries) {
-      const schedule = scheduleId?await sql.query('SELECT process_type FROM process_schedule WHERE id = $1 LIMIT 1', [scheduleId]):[];
+      const existingScheduleId = Number(entry.scheduleId)||0;
+      if (!existingScheduleId) continue;
+      const schedule = await sql.query('SELECT process_type FROM process_schedule WHERE id = $1 LIMIT 1', [existingScheduleId]);
       if (schedule[0] && ['PLASMA','DOBRADEIRA'].includes(String(schedule[0].process_type)) && role !== 'ferragem') {
         return NextResponse.json({ error: 'Acesso Ferragem necessário. Entre pelo acesso Ferragem.' }, { status: 401 });
       }
