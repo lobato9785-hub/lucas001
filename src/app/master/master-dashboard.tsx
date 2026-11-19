@@ -15,7 +15,7 @@ const PROCESS_NAMES:Record<string,string> = {
 };
 const STAGES = ['CORPO','FUNDO','TAMPA'];
 const normalizeProcess = (value:string) => {
-  const key=String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').trim().toUpperCase().replace(/\\s+/g,' ');
+  const key=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' ');
   if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
   if (key==='CORTE LASER' || key==='LASER') return 'CORTE LASER';
   if (key==='RADIADOR') return 'RADIADOR';
