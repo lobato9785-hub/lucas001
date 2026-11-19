@@ -44,10 +44,15 @@ export async function POST(req: NextRequest) {
     const entries = Array.isArray(body.entries) ? body.entries : [];
     if (!entries.length || entries.length > 4 || entries.some((e:any) =>
       ((!Number.isSafeInteger(Number(e.scheduleId)) || Number(e.scheduleId) < 1) &&
-       !((e.createSchedule?.operationType === 'RADIADOR SOLDADO' && e.createSchedule?.processType === 'RADIADOR') ||
-         (['FERRAGEM SUPERIOR','FERRAGEM INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'PLASMA') ||
-         (['DOBRA SUPERIOR','DOBRA INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'DOBRADEIRA')) ||
-         !String(e.createSchedule?.opNumber||'').trim() || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||'')))) ||
+       !(
+         (
+           (e.createSchedule?.operationType === 'RADIADOR SOLDADO' && e.createSchedule?.processType === 'RADIADOR') ||
+           (['FERRAGEM SUPERIOR','FERRAGEM INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'PLASMA') ||
+           (['DOBRA SUPERIOR','DOBRA INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'DOBRADEIRA')
+         ) &&
+         String(e.createSchedule?.opNumber||'').trim() &&
+         /^\\d{4}-\\d{2}-\\d{2}$/.test(String(e.createSchedule?.scheduledDate||''))
+       )) ||
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
     const sql = db();
