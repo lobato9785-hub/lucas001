@@ -371,7 +371,7 @@ export default function MasterDashboard() {
 
       <section className="master-process-grid">
         {sectors.map((s,i)=>(
-          <article className={'master-process-card process-'+i} key={s.key}>
+          <article className="master-process-card" key={s.key}>
             <div className="master-process-title"><b>{s.name.toUpperCase()}</b><span>● PROGRESSO</span></div>
             <div className="master-process-metrics">
               <div><small>Programado</small><b>{fmt(s.planned)}</b></div>
