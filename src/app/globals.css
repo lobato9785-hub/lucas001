@@ -803,15 +803,26 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .app.production-theme .cards article>b{color:#60736a}
 .app.production-theme .cards article>b.blue{color:#087451}
 .app.production-theme .cards article>b.green{color:#00a879}
+/* O cartão de atrasos fica neutro quando não há OPs atrasadas. */
 .app.production-theme .cards article.latecard{
+  background:#fff;
+  border:1px solid #cbd9d2;
+  box-shadow:0 2px 8px #183b2a0a;
+}
+.app.production-theme .cards article.latecard small{color:#34483e}
+.app.production-theme .cards article.latecard>b{color:#60736a}
+.app.production-theme .cards article.latecard strong{color:#075b43}
+.app.production-theme .cards article.latecard em{color:#60736a}
+/* Vermelho e pulsante somente enquanto houver atrasos. */
+.app.production-theme .cards article.latecard.alert-pulse{
   background:linear-gradient(135deg,#d90020,#a90018);
   border:2px solid #ff334f;
   box-shadow:0 0 12px #e0003050;
 }
-.app.production-theme .cards article.latecard small,
-.app.production-theme .cards article.latecard>b,
-.app.production-theme .cards article.latecard strong,
-.app.production-theme .cards article.latecard em{color:#fff}
+.app.production-theme .cards article.latecard.alert-pulse small,
+.app.production-theme .cards article.latecard.alert-pulse>b,
+.app.production-theme .cards article.latecard.alert-pulse strong,
+.app.production-theme .cards article.latecard.alert-pulse em{color:#fff}
 .app.production-theme .cards article[role="button"]:hover{border-color:#087451}
 .app.production-theme .cards article[role="button"].selected{
   border-color:#087451;
