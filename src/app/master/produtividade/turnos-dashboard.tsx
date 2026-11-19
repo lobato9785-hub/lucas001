@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 type Entry = { id:number; quantity:number; operator?:string; note?:string; at?:string };
-type Schedule = { process_type:string; entries:Entry[] };
+type Schedule = { id:number; process_type:string; operation_type:string; op_number:string; parent_op?:string|null; scheduled_date:string; planned_quantity:number; entries:Entry[] };
 type Shift = 'first' | 'second';
 type ShiftTotals = { first:number; second:number };
 const PROCESS_ORDER = ['CORTE LASER','RADIADOR','PRENSA','BORDADEIRA'];
@@ -73,19 +73,48 @@ export default function TurnosDashboard() {
   },[load]);
 
   const entries=useMemo(()=>{
-    const result:{sector:string;day:string;shift:Shift;quantity:number;op?:string;at:string}[]=[];
+    const grouped=new Map<string,Schedule[]>();
     rows.forEach(row=>{
       const normalized=normalizeProcess(row.process_type);
       if (!PROCESS_ORDER.includes(normalized)) return;
-      if (sector!=='TODOS' && normalized!==sector) return;
-      (Array.isArray(row.entries)?row.entries:[]).forEach(entry=>{
-        if (!entry.at) return;
-        const info=shiftInfo(entry.at);
-        if (!info || info.day<dateFrom || info.day>dateTo) return;
-        const quantity=Number(entry.quantity||0);
-        if (!Number.isFinite(quantity)||quantity<=0) return;
-        result.push({sector:normalized,day:info.day,shift:info.shift,quantity,at:String(entry.at)});
+      const op=String(row.op_number||'').trim();
+      if (!op) return;
+      const scheduledDay=String(row.scheduled_date||'').slice(0,10);
+      const key=[normalized,op,String(row.parent_op||''),scheduledDay].join('|');
+      const list=grouped.get(key)||[];
+      list.push(row);
+      grouped.set(key,list);
+    });
+
+    const result:{sector:string;day:string;shift:Shift;quantity:number;at:string}[]=[];
+    grouped.forEach(schedules=>{
+      const completedStages=schedules.map(schedule=>{
+        const target=Number(schedule.planned_quantity||0);
+        if (!(target>0)) return null;
+        const ordered=(Array.isArray(schedule.entries)?schedule.entries:[])
+          .filter(entry=>entry.at && Number(entry.quantity||0)>0)
+          .slice()
+          .sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+        let accumulated=0;
+        let completedAt:string|null=null;
+        for (const entry of ordered) {
+          accumulated+=Number(entry.quantity||0);
+          if (accumulated>=target) { completedAt=String(entry.at); break; }
+        }
+        return completedAt;
       });
+      // Uma OP só entra na produtividade quando todas as partes/etapas
+      // programadas para aquele dia atingirem suas respectivas quantidades.
+      if (!completedStages.length || completedStages.some(value=>!value)) return;
+      const completionAt=completedStages.map(value=>String(value)).sort().at(-1)!;
+      const info=shiftInfo(completionAt);
+      if (!info || info.day<dateFrom || info.day>dateTo) return;
+      const normalized=normalizeProcess(schedules[0].process_type);
+      if (sector!=='TODOS' && normalized!==sector) return;
+      // Corpo, tampa e fundo representam a mesma quantidade da OP:
+      // contabiliza uma única vez, nunca soma as partes entre si.
+      const quantity=Math.min(...schedules.map(schedule=>Number(schedule.planned_quantity||0)));
+      if (quantity>0) result.push({sector:normalized,day:info.day,shift:info.shift,quantity,at:completionAt});
     });
     return result;
   },[rows,dateFrom,dateTo,sector]);
