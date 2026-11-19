@@ -14,7 +14,18 @@ const PROCESS_NAMES:Record<string,string> = {
   'CORTE LASER':'Corte Laser', RADIADOR:'Radiador', PRENSA:'Prensa', BORDADEIRA:'Bordadeira'
 };
 const STAGES = ['CORPO','FUNDO','TAMPA'];
-const normalizeProcess = (value:string) => { const key=String(value||'').toUpperCase(); return key==='BORDEADEIRA'?'BORDADEIRA':key; };
+const normalizeProcess = (value:string) => {
+  const key=String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').trim().toUpperCase().replace(/\\s+/g,' ');
+  if (key==='BORDEADEIRA' || key==='BORDADEIRA') return 'BORDADEIRA';
+  if (key==='CORTE LASER' || key==='LASER') return 'CORTE LASER';
+  if (key==='RADIADOR') return 'RADIADOR';
+  if (key==='PRENSA') return 'PRENSA';
+  return key;
+};
+const reportedQty = (row:Schedule) => {
+  const entries = Array.isArray(row.entries) ? row.entries : [];
+  return entries.length ? entries.reduce((sum,entry)=>sum+Number(entry.quantity||0),0) : reportedQty(row);
+};
 const fmt = (n:number) => new Intl.NumberFormat('pt-BR').format(n || 0);
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Manaus',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const brDate = (s:string) => { const p=s.split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : s; };
@@ -102,7 +113,7 @@ export default function MasterDashboard() {
         });
         const stages=Array.from(byStage.values()).map(stageRows=>{
           const planned=Math.max(0,...stageRows.map(row=>Number(row.planned_quantity||0)));
-          const reported=stageRows.reduce((sum,row)=>sum+Number(row.reported_quantity||0),0);
+          const reported=stageRows.reduce((sum,row)=>sum+reportedQty(row),0);
           return {planned,done:Math.min(planned,Math.max(0,reported))};
         }).filter(stage=>stage.planned>0);
         if (!stages.length) return null;
@@ -147,7 +158,7 @@ export default function MasterDashboard() {
       const stages = stageNames.map(name => {
         const matches = sectorRows.filter(row => String(row.operation_type || 'PROCESSO').trim().toUpperCase() === name);
         const planned = matches.reduce((sum,row) => sum + Number(row.planned_quantity || 0),0);
-        const reported = matches.reduce((sum,row) => sum + Number(row.reported_quantity || 0),0);
+        const reported = matches.reduce((sum,row) => sum + reportedQty(row),0);
         const done = Math.min(planned,Math.max(0,reported));
         const pending = Math.max(0,planned-done);
         const state = planned > 0 && done >= planned ? 'OK' : done > 0 ? 'EM ANDAMENTO' : 'PENDENTE';
@@ -226,7 +237,7 @@ export default function MasterDashboard() {
       return {
         name,
         planned: matching.reduce((sum,i) => sum + Number(i.planned_quantity || 0), 0),
-        done: matching.reduce((sum,i) => sum + Number(i.reported_quantity || 0), 0)
+        done: matching.reduce((sum,i) => sum + reportedQty(i), 0)
       };
     });
     const planned = stages.reduce((sum,s) => sum + s.planned, 0);
@@ -283,7 +294,7 @@ export default function MasterDashboard() {
       const stageCompletions = STAGES.map(name => {
         const matches = items.filter(item => item.operation_type.toUpperCase() === name);
         const stagePlanned = matches.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
-        const stageDone = matches.reduce((sum,item) => sum + Number(item.reported_quantity || 0),0);
+        const stageDone = matches.reduce((sum,item) => sum + reportedQty(item),0);
         return {planned:stagePlanned,done:stageDone,finished:stagePlanned>0 && stageDone>=stagePlanned ? completionDay(matches,stagePlanned) : ''};
       });
       planned = stageCompletions.reduce((sum,item) => sum + item.planned,0);
@@ -293,7 +304,7 @@ export default function MasterDashboard() {
       finishedAt = finishedDays[finishedDays.length-1] || '';
     } else {
       planned = items.reduce((sum,item) => sum + Number(item.planned_quantity || 0),0);
-      done = items.reduce((sum,item) => sum + Math.min(Number(item.reported_quantity || 0),Number(item.planned_quantity || 0)),0);
+      done = items.reduce((sum,item) => sum + Math.min(reportedQty(item),Number(item.planned_quantity || 0)),0);
       if (planned<=0 || done<planned) return [];
       finishedAt = completionDay(items,planned);
     }
