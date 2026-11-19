@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
            (['DOBRA SUPERIOR','DOBRA INFERIOR'].includes(e.createSchedule?.operationType) && e.createSchedule?.processType === 'DOBRADEIRA')
          ) &&
          String(e.createSchedule?.opNumber||'').trim() &&
-         /^\\d{4}-\\d{2}-\\d{2}$/.test(String(e.createSchedule?.scheduledDate||''))
+         /^\d{4}-\d{2}-\d{2}$/.test(String(e.createSchedule?.scheduledDate||''))
        )) ||
       !Number.isSafeInteger(Number(e.quantity)) || Number(e.quantity) < 1
     )) return NextResponse.json({ error: 'Informe quantidades válidas para até quatro etapas.' }, { status: 400 });
