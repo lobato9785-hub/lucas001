@@ -250,16 +250,16 @@ export default function TurnosDashboard() {
       {error&&<div className="shift-error" role="alert">{error}</div>}
 
       <section className="shift-kpis shift-kpis-reference">
-        <article className="shift-kpi total"><span>▱　Produção Total (Apontada)</span><strong>{fmt(totals.total)} <small>peças</small></strong></article>
-        <article className="shift-kpi programmed"><span>◎　Programado no Período</span><strong>{fmt(programmedTotal)} <small>peças</small></strong></article>
-        <article className="shift-kpi productivity"><span>▥　Produtividade Geral</span><strong>{overallProductivity}%</strong></article>
-        <article className="shift-kpi first"><span>☀　1º Turno</span><strong>{fmt(totals.byShift.first)} <small>peças</small></strong><small>{firstShare}% do realizado</small></article>
-        <article className="shift-kpi second"><span>☾　2º Turno</span><strong>{fmt(totals.byShift.second)} <small>peças</small></strong><small>{secondShare}% do realizado</small></article>
+        <article className="shift-kpi total"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10 16 4l12 6-12 6L4 10Zm0 7 12 6 12-6M4 24l12 6 12-6" /></svg>Produção Total (Apontada)</span><strong>{fmt(totals.total)} <small>peças</small></strong></article>
+        <article className="shift-kpi programmed"><span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="15" cy="16" r="12"/><circle cx="15" cy="16" r="7"/><circle cx="15" cy="16" r="2"/><path d="m17 14 11-10m-6 0h6v6"/></svg>Programado no Período</span><strong>{fmt(programmedTotal)} <small>peças</small></strong></article>
+        <article className="shift-kpi productivity"><span><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="17" width="6" height="12" rx="1"/><rect x="13" y="10" width="6" height="19" rx="1"/><rect x="23" y="3" width="6" height="26" rx="1"/></svg>Produtividade Geral</span><strong>{overallProductivity}%</strong></article>
+        <article className="shift-kpi first"><span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="6"/><path d="M16 1v5m0 20v5M1 16h5m20 0h5M5.4 5.4 9 9m14 14 3.6 3.6m0-21.2L23 9M9 23l-3.6 3.6"/></svg>1º Turno</span><strong>{fmt(totals.byShift.first)} <small>peças</small></strong><small>{firstShare}% do realizado</small></article>
+        <article className="shift-kpi second"><span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M25 21A12 12 0 0 1 11 5a12 12 0 1 0 14 16Z"/></svg>2º Turno</span><strong>{fmt(totals.byShift.second)} <small>peças</small></strong><small>{secondShare}% do realizado</small></article>
       </section>
 
       <section className="shift-reference-grid">
         <article className="shift-panel shift-sector-panel">
-          <header><div><span>▦</span><div><h3>Produtividade por Setor e Turno</h3><p>Quantidade apontada e produtividade em relação ao programado</p></div></div></header>
+          <header><div><span className="shift-title-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 27V14h6v13M13 27V8h6v19M22 27V3h6v24M2 29h28"/></svg></span><div><h3>Produtividade por Setor e Turno</h3><p>Quantidade apontada e produtividade em relação ao programado</p></div></div></header>
           <div className="shift-table-wrap">
             <table className="shift-table shift-reference-table">
               <thead>
@@ -284,7 +284,7 @@ export default function TurnosDashboard() {
         </article>
 
         <article className="shift-panel shift-reference-donut">
-          <header><div><span>▥</span><div><h3>Participação da Produção por Turno</h3><p>Distribuição do total apontado</p></div></div></header>
+          <header><div><span className="shift-title-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="16" width="6" height="13" rx="1"/><rect x="13" y="9" width="6" height="20" rx="1"/><rect x="23" y="2" width="6" height="27" rx="1"/></svg></span><div><h3>Participação da Produção por Turno</h3><p>Distribuição do total apontado</p></div></div></header>
           <div className="shift-donut-wrap">
             <div className="shift-donut" style={{'--first-share':firstShare+'%'} as React.CSSProperties}><div><strong>{fmt(totals.total)}</strong><small>peças</small></div></div>
             <div className="shift-donut-legend">
@@ -297,7 +297,7 @@ export default function TurnosDashboard() {
 
       <section className="shift-lower-grid shift-reference-lower">
         <article className="shift-panel shift-chart-panel">
-          <header><div><span>▥</span><div><h3>Evolução da Produção por Turno (Diária)</h3><p>Quantidade apontada por dia e por turno</p></div></div></header>
+          <header><div><span className="shift-title-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="18" width="6" height="11" rx="1"/><rect x="13" y="10" width="6" height="19" rx="1"/><rect x="23" y="3" width="6" height="26" rx="1"/></svg></span><div><h3>Evolução da Produção por Turno (Diária)</h3><p>Quantidade apontada por dia e por turno</p></div></div></header>
           {daily.length ? <div className="shift-chart">
             <div className="shift-chart-legend"><span><i className="first"></i>1º Turno</span><span><i className="second"></i>2º Turno</span></div>
             <div className="shift-bars">
@@ -311,7 +311,7 @@ export default function TurnosDashboard() {
           </div> : <div className="shift-empty">{loading?'Carregando apontamentos...':'Não há apontamentos nos turnos e período selecionados.'}</div>}
         </article>
         <article className="shift-panel shift-period-summary">
-          <header><div><span>▦</span><div><h3>Resumo do Período</h3><p>Indicadores consolidados</p></div></div></header>
+          <header><div><span className="shift-title-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="5" width="18" height="24" rx="2"/><path d="M12 3h8v5h-8zM11 14h10M11 19h10M11 24h7"/></svg></span><div><h3>Resumo do Período</h3><p>Indicadores consolidados</p></div></div></header>
           <div className="shift-period-lines">
             <p><span>Programado</span><b>{fmt(programmedTotal)} peças</b></p>
             <p><span>Total Apontado</span><b>{fmt(totals.total)} peças</b></p>
