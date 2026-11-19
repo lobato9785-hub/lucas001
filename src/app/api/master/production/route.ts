@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       ORDER BY ps.scheduled_date, ps.process_type, ps.operation_type, ps.id
       LIMIT 20000
     `);
-    return NextResponse.json({ rows });
+    return NextResponse.json({ rows, generatedAt: new Date().toISOString() }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate', 'Pragma': 'no-cache', 'Expires': '0', 'Surrogate-Control': 'no-store' } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Falha ao consultar a produção para o MASTER.' }, { status: 500 });
