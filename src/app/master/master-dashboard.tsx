@@ -36,6 +36,7 @@ export default function MasterDashboard() {
   const [rows,setRows] = useState<Schedule[]>([]);
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState('');
+  const [lastUpdated,setLastUpdated] = useState('');
   const [month,setMonth] = useState(today().slice(0,7));
   const [dateFrom,setDateFrom] = useState(today().slice(0,7)+'-01');
   const [dateTo,setDateTo] = useState(today().slice(0,7)+'-'+String(new Date(Number(today().slice(0,4)),Number(today().slice(5,7)),0).getDate()).padStart(2,'0'));
@@ -56,6 +57,7 @@ export default function MasterDashboard() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Falha ao carregar os dados.');
       setRows(data.rows || []);
+      setLastUpdated(data.generatedAt || new Date().toISOString());
     } catch (e:any) {
       setError(e.message || 'Falha ao carregar os dados.');
     } finally {
@@ -294,7 +296,7 @@ export default function MasterDashboard() {
         <div className="master-head-actions">
           <label className="master-period">Período <input type="month" value={month} onChange={e=>{setMonth(e.target.value);setDayFilter('');}} /></label>
           <button onClick={load} disabled={loading}>↻ Atualizar</button>
-          <span className="master-live">● Dados do banco</span>
+          <span className="master-live">● Dados do banco{lastUpdated ? ' • '+new Date(lastUpdated).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : ''}</span>
           <a href="/">Sair</a>
         </div>
       </header>
