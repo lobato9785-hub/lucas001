@@ -983,3 +983,63 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .master-reference .master-sketch-table tr:hover td{background:#142b42}
 .master-reference .sketch-progress-track{background:#29445f}
 .master-reference .sketch-progress-track i{background:linear-gradient(90deg,#0878ec,#53b1ff)}
+
+
+/* MASTER — sobrescreve as regras antigas com !important para aplicar o azul do Laser/Ferragem */
+.master-page.master-reference{
+  background:radial-gradient(ellipse at 48% 0%,#10263a 0%,#080d12 58%,#05090e 100%)!important;
+}
+.master-reference .master-overview-main,
+.master-reference .master-process-card,
+.master-reference .master-process-card.process-1,
+.master-reference .master-process-card.process-2,
+.master-reference .master-process-card.process-3{
+  background:linear-gradient(130deg,#12375a,#101d2b)!important;
+  border-color:#2b5276!important;
+}
+.master-reference .master-overview-main{border-color:#1d5d92!important}
+.master-reference .master-process-track i,
+.master-reference .process-1 .master-process-track i,
+.master-reference .process-2 .master-process-track i,
+.master-reference .process-3 .master-process-track i{
+  background:linear-gradient(90deg,#0878ec,#53b1ff)!important;
+}
+.master-reference .master-process-title span{
+  color:#78c2ff!important;border-color:#1d5d92!important;background:#102a42!important;
+}
+.master-reference .master-sketch-panel{
+  background:linear-gradient(145deg,#102a42,#0b1724)!important;
+  border-color:#2b5276!important;
+}
+.master-reference .master-sketch-table th,
+.master-reference .master-sketch-table thead tr:first-child th,
+.master-reference .master-sketch-table th.sketch-corte-laser,
+.master-reference .master-sketch-table th.sketch-radiador,
+.master-reference .master-sketch-table th.sketch-prensa,
+.master-reference .master-sketch-table th.sketch-bordadeira{
+  background:#12375a!important;border-top-color:#53b1ff!important;
+}
+.master-reference .master-sketch-table thead tr:nth-child(2) th:nth-child(n+5):nth-child(-n+20){
+  background:#12375a!important;border-bottom-color:#2b75b8!important;
+}
+.master-reference .master-sketch-table tbody td:nth-child(n+5):nth-child(-n+20),
+.master-reference .master-sketch-table tbody tr:nth-child(even) td:nth-child(n+5):nth-child(-n+20){
+  background:#102a42!important;border-right-color:#294b68!important;
+}
+.master-reference .master-sketch-table tbody tr:hover td:nth-child(n+5):nth-child(-n+20){
+  background:#173b5c!important;
+}
+.master-reference .master-sketch-table tbody td{
+  border-color:#29445f!important;
+}
+.master-reference .master-sketch-header{border-bottom-color:#294b68!important}
+.master-reference .master-sketch-mark{color:#53b1ff!important;text-shadow:0 0 12px #1688ff55!important}
+.master-reference .master-sketch-summary>span{
+  background:#102a42!important;border-color:#1d5d92!important;
+}
+.master-reference .master-sketch-summary .summary-done,
+.master-reference .master-sketch-summary .summary-active,
+.master-reference .master-sketch-summary .summary-waiting{
+  background:#102a42!important;border-color:#1d5d92!important;
+}
+.master-reference .sketch-progress-track i{background:linear-gradient(90deg,#0878ec,#53b1ff)!important}
