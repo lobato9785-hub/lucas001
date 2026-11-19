@@ -42,17 +42,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const entries = Array.isArray(body.entries) ? body.entries : [];
-    const validCreateStages = ['RADIADOR SOLDADO','FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'];
+    const allowedStageProcesses:Record<string,string> = {
+      'CORTE':'RADIADOR','DOBRA':'RADIADOR','ESTAMPAGEM':'RADIADOR','RADIADOR SOLDADO':'RADIADOR',
+      'FERRAGEM SUPERIOR':'PLASMA','FERRAGEM INFERIOR':'PLASMA',
+      'DOBRA SUPERIOR':'DOBRADEIRA','DOBRA INFERIOR':'DOBRADEIRA'
+    };
     const invalidEntry = entries.find((e:any) => {
       const scheduleId = Number(e.scheduleId);
       const hasSchedule = Number.isSafeInteger(scheduleId) && scheduleId > 0;
-      const stage = String(e.createSchedule?.operationType || '').trim().toUpperCase();
       const seed = e.createSchedule || {};
-      const canCreate = validCreateStages.includes(stage) &&
+      const stage = String(seed.operationType || '').trim().toUpperCase();
+      const processType = String(seed.processType || '').trim().toUpperCase();
+      const canResolve = allowedStageProcesses[stage] === processType &&
         String(seed.opNumber || '').trim() &&
         /^\d{4}-\d{2}-\d{2}$/.test(String(seed.scheduledDate || ''));
       const quantity = Number(e.quantity);
-      return (!hasSchedule && !canCreate) || !Number.isSafeInteger(quantity) || quantity < 1;
+      return (!hasSchedule && !canResolve) || !Number.isSafeInteger(quantity) || quantity < 1;
     });
     if (!entries.length || entries.length > 4 || invalidEntry) {
       return NextResponse.json({
@@ -75,6 +80,21 @@ export async function POST(req: NextRequest) {
     for (const entry of entries) {
       let scheduleId = Number(entry.scheduleId)||0;
       const quantity = Number(entry.quantity);
+      if (!scheduleId && entry.createSchedule) {
+        const seed=entry.createSchedule;
+        const stage=String(seed.operationType||'').trim().toUpperCase();
+        const processType=String(seed.processType||'').trim().toUpperCase();
+        const found=await sql.query(
+          `SELECT id FROM process_schedule
+           WHERE process_type=$1 AND operation_type=$2 AND op_number=$3 AND scheduled_date=$4
+             AND COALESCE(series_start,'')=COALESCE($5,'')
+             AND COALESCE(series_end,'')=COALESCE($6,'')
+             AND COALESCE(source_status,'') <> '__ARCHIVED__'
+           ORDER BY id LIMIT 1`,
+          [processType,stage,String(seed.opNumber),String(seed.scheduledDate),String(seed.seriesStart||''),String(seed.seriesEnd||'')]
+        );
+        if(found.length) scheduleId=Number(found[0].id);
+      }
       if (!scheduleId && ['FERRAGEM SUPERIOR','FERRAGEM INFERIOR','DOBRA SUPERIOR','DOBRA INFERIOR'].includes(String(entry.createSchedule?.operationType||'').trim().toUpperCase())) {
         if (role !== 'ferragem') return NextResponse.json({ error: 'Acesso Ferragem necessário.' }, { status: 401 });
         const seed=entry.createSchedule;
