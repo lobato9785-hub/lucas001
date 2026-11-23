@@ -217,3 +217,19 @@
 .shift-chart-legend{font-size:10px!important}
 .shift-bar-group small{font-size:10px!important;font-weight:600!important}
 @media(max-width:760px){.shift-kpis-reference .shift-kpi span svg{width:26px;height:26px;flex-basis:26px}.shift-panel h3{font-size:14px!important}}
+
+
+/* Correção: limitar o tamanho dos ícones SVG nos cartões para evitar que ocupem o painel inteiro */
+.shift-kpis-reference .shift-kpi{position:relative!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;min-height:112px!important;padding:14px 16px 12px 68px!important;overflow:hidden!important}
+.shift-kpis-reference .shift-kpi:before{content:none!important;display:none!important}
+.shift-kpis-reference .shift-kpi span{display:flex!important;align-items:center!important;gap:8px!important;min-height:32px!important;max-width:100%!important;font-size:11px!important;line-height:1.2!important}
+.shift-kpis-reference .shift-kpi span svg{display:block!important;width:30px!important;height:30px!important;min-width:30px!important;max-width:30px!important;min-height:30px!important;max-height:30px!important;flex:0 0 30px!important;overflow:hidden!important;fill:none!important;stroke:#4cebb6!important;stroke-width:2.2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+.shift-kpis-reference .shift-kpi strong{display:block!important;margin:4px 0 0!important;font-size:27px!important;line-height:1.15!important}
+.shift-kpis-reference .shift-kpi strong small{font-size:12px!important}
+.shift-kpis-reference .shift-kpi.first,.shift-kpis-reference .shift-kpi.second{align-items:center!important;text-align:center!important;padding:12px 12px 10px!important}
+.shift-kpis-reference .shift-kpi.first span,.shift-kpis-reference .shift-kpi.second span{justify-content:center!important}
+.shift-kpis-reference .shift-kpi.first span svg{stroke:#ffd447!important}
+.shift-kpis-reference .shift-kpi.second span svg{stroke:#20aaff!important}
+.shift-kpis-reference .shift-kpi.first strong,.shift-kpis-reference .shift-kpi.second strong{font-size:24px!important}
+.shift-kpis-reference .shift-kpi small{font-size:10px!important}
+@media(max-width:760px){.shift-kpis-reference .shift-kpi{min-height:94px!important;padding-left:48px!important}.shift-kpis-reference .shift-kpi span svg{width:24px!important;height:24px!important;min-width:24px!important;max-width:24px!important;min-height:24px!important;max-height:24px!important;flex-basis:24px!important}.shift-kpis-reference .shift-kpi.first,.shift-kpis-reference .shift-kpi.second{padding:10px!important}}
