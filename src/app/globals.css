@@ -1140,7 +1140,7 @@ html,body{font-size:13px}.content{padding:25px 27px 36px}.toolbar b{font-size:11
 .holiday-greeting-text{display:flex;flex-direction:column;align-items:flex-end;gap:0;white-space:nowrap;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;line-height:1.03}
 .holiday-greeting-text span{color:#087447;font-size:clamp(17px,1.55vw,27px)}
 .holiday-greeting-text strong{color:#c51f2c;font-size:clamp(17px,1.55vw,27px)}
-.holiday-greeting img{display:block;width:clamp(92px,12vw,164px);height:auto;object-fit:contain;flex:0 0 auto}
-@media(max-width:850px){.heading-side{gap:9px}.holiday-greeting{gap:3px}.holiday-greeting img{width:88px}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:16px}}
-@media(max-width:650px){.heading{align-items:flex-start;flex-direction:column}.heading-side{width:100%;justify-content:space-between}.holiday-greeting{justify-content:flex-start}.holiday-greeting img{width:76px}.holiday-greeting-text{align-items:flex-start}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:15px}}
-@media(max-width:390px){.holiday-greeting img{width:58px}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:13px}.heading-side{gap:5px}}
+.holiday-greeting img,.holiday-greeting .holiday-art{display:block;width:clamp(92px,12vw,164px);height:auto;max-height:86px;object-fit:contain;flex:0 0 auto}
+@media(max-width:850px){.heading-side{gap:9px}.holiday-greeting{gap:3px}.holiday-greeting img,.holiday-greeting .holiday-art{width:88px}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:16px}}
+@media(max-width:650px){.heading{align-items:flex-start;flex-direction:column}.heading-side{width:100%;justify-content:space-between}.holiday-greeting{justify-content:flex-start}.holiday-greeting img,.holiday-greeting .holiday-art{width:76px}.holiday-greeting-text{align-items:flex-start}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:15px}}
+@media(max-width:390px){.holiday-greeting img,.holiday-greeting .holiday-art{width:58px}.holiday-greeting-text span,.holiday-greeting-text strong{font-size:13px}.heading-side{gap:5px}}
