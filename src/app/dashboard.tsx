@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 
 type Entry = {id:number;quantity:number;operator?:string;note?:string;at?:string};
@@ -14,12 +14,33 @@ const monthKey=(d:Date)=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 const esc=(s:any)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=false}:{initialSector?:string;restrictedAccess?:boolean}={}){
  const [sector,setSector]=useState(initialSector),[raw,setRaw]=useState<any[]>([]),[month,setMonth]=useState(()=>new Date(new Date().getFullYear(),new Date().getMonth(),1));
+ const requestVersion=useRef(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState(''),[importBusy,setImportBusy]=useState<''|'FERRAGEM'|'DEMAIS'>(''),[search,setSearch]=useState(''),[parent,setParent]=useState(''),[series,setSeries]=useState(''),[client,setClient]=useState(''),[power,setPower]=useState(''),[line,setLine]=useState(''),[from,setFrom]=useState(''),[to,setTo]=useState(''),[statusFilter,setStatusFilter]=useState(''),[sort,setSort]=useState('asc');
  const stages=STAGES_BY_SECTOR[sector]||[];
  const visibleSectors=restrictedAccess?['PLASMA + DOBRADEIRA']:SECTORS;
  const [modal,setModal]=useState<Row|null>(null),[amounts,setAmounts]=useState<Record<string,string>>({}),[operator,setOperator]=useState(''),[note,setNote]=useState(''),[activeStage,setActiveStage]=useState(''),[editTarget,setEditTarget]=useState<{id:number;scheduleId:number;stage:string;quantity:number;operator:string;note:string}|null>(null),[busy,setBusy]=useState(false),[settings,setSettings]=useState(false),[page,setPage]=useState(1);
- async function load(){setLoading(true);setError('');try{const r=await fetch('/api/production?sector='+encodeURIComponent(sector),{cache:'no-store'});const j=await r.json();if(!r.ok)throw new Error(j.error||'Falha ao carregar');setRaw(j.rows||[])}catch(e:any){setError(e.message||'Erro ao carregar produção')}finally{setLoading(false)}}
- useEffect(()=>{load()},[sector]);
+ async function load(targetSector=sector,signal?:AbortSignal){
+  const version=++requestVersion.current;
+  setLoading(true);setError('');
+  try{
+   const r=await fetch('/api/production?sector='+encodeURIComponent(targetSector),{cache:'no-store',signal});
+   const j=await r.json();
+   if(!r.ok)throw new Error(j.error||'Falha ao carregar');
+   if(version===requestVersion.current&&!signal?.aborted)setRaw(j.rows||[]);
+  }catch(e:any){
+   if(version===requestVersion.current&&e?.name!=='AbortError'&&!signal?.aborted)setError(e.message||'Erro ao carregar produção');
+  }finally{
+   if(version===requestVersion.current&&!signal?.aborted)setLoading(false);
+  }
+ }
+ useEffect(()=>{
+  const controller=new AbortController();
+  setRaw([]);
+  setLoading(true);
+  setError('');
+  void load(sector,controller.signal);
+  return ()=>controller.abort();
+ },[sector]);
  const rows=useMemo<Row[]>(()=>{const map=new Map<string,Row>();for(const x of raw){const day=String(x.scheduled_date).slice(0,10),key=[day,x.op_number,x.series_start||'',x.series_end||''].join('|');let r=map.get(key);if(!r){r={key,date:day,op:String(x.op_number||''),parentOp:String(x.parent_op||x.op_number||''),client:x.client_name||'',reference:x.product_reference||x.product_description||'',line:x.production_line||'',power:x.power_pa||'',orderQty:Number(x.order_quantity||0),series:[x.series_start,x.series_end].filter(Boolean).join('–'),stages:{}};map.set(key,r)}const rawStage=String(x.operation_type||'').toUpperCase();const stage=rawStage==='DOBRA'&&sector==='PLASMA + DOBRADEIRA'?'DOBRA INFERIOR':rawStage;if(stages.includes(stage))r.stages[stage]={id:Number(x.id),planned:Number(x.planned_quantity||0),reported:Number(x.reported_quantity||0),entries:x.entries||[]};}return [...map.values()]},[raw,stages]);
  const getStatus=(r:Row)=>{const stageData=stages.map(s=>stageFor(r,s)),total=stageData.reduce((n,s)=>n+(s?.reported||0),0);if(stageData.length>0&&stageData.every(s=>(s?.planned||0)>0&&(s?.reported||0)>=(s?.planned||0)))return 'Concluída';if(total>0)return 'Em andamento';if(r.date<todayKey())return 'Atrasada';return 'Não iniciada'};
  const filtered=useMemo(()=>rows.filter(r=>{const m=monthKey(month);if(!r.date.startsWith(m))return false;const st=getStatus(r),total=stages.reduce((n,s)=>n+(stageFor(r,s)?.reported||0),0),late=r.date<todayKey();const matchesStatus=!statusFilter||(statusFilter==='Atrasada'?late&&st!=='Concluída':statusFilter==='Em andamento'?total>0&&st!=='Concluída':st===statusFilter);const q=[search,parent,series,client].filter(Boolean).join(' ').toLowerCase();return (!q||[r.op,r.parentOp,r.series,r.client,r.reference].join(' ').toLowerCase().includes(q))&&(!power||r.power===power)&&(!line||r.line===line)&&(!from||r.date>=from)&&(!to||r.date<=to)&&matchesStatus}).sort((a,b)=>sort==='desc'?b.date.localeCompare(a.date):sort==='op'?a.op.localeCompare(b.op):a.date.localeCompare(b.date)),[rows,month,search,parent,series,client,power,line,from,to,statusFilter,sort,stages]);
@@ -97,7 +118,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  const stageStatus=(r:Row)=>getStatus(r);
  return <main className="app production-theme">
   <header className="topbar"><div className="searchbox"><span>⌕</span><input value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}} placeholder="Buscar por OP, cliente, referência ou série..."/></div><a className="access-link" href="/">{ "↔ Trocar setor" }</a><button className="settings" onClick={()=>setSettings(true)}>☷ <span>Configurações</span></button></header>
-  <div className="workspace"><aside className="sidebar"><div className="sidebrand"><span className="brandmark">E</span><div><b>ESTAMPARIA</b><small>CHÃO DE FÁBRICA</small></div></div><div className="sidetitle">SETORES</div><nav className="sector-nav">{visibleSectors.map((s,i)=><button key={s} className={sector===s?"active":""} onClick={()=>{setSector(s);setPage(1)}}><span className="navicon">{["◫","◈","▤","▦","▧","▥"][i]}</span>{s}{sector===s&&<i/>}</button>)}</nav><div className="sidebar-foot"><span className="online-dot"/> Sistema conectado</div></aside><div className="mainpanel"><section className="content"><div className="eyebrow"><i/> CHÃO DE FÁBRICA <b>/</b> ESTAMPARIA <span className="connection"><i/> {loading?'Atualizando':'Conectado'} <button className="refresh" onClick={load}>⟳</button></span></div>
+  <div className="workspace"><aside className="sidebar"><div className="sidebrand"><span className="brandmark">E</span><div><b>ESTAMPARIA</b><small>CHÃO DE FÁBRICA</small></div></div><div className="sidetitle">SETORES</div><nav className="sector-nav">{visibleSectors.map((s,i)=><button key={s} className={sector===s?"active":""} onClick={()=>{if(s!==sector){setRaw([]);setLoading(true);setError('')}setSector(s);setPage(1)}}><span className="navicon">{["◫","◈","▤","▦","▧","▥"][i]}</span>{s}{sector===s&&<i/>}</button>)}</nav><div className="sidebar-foot"><span className="online-dot"/> Sistema conectado</div></aside><div className="mainpanel"><section className="content"><div className="eyebrow"><i/> CHÃO DE FÁBRICA <b>/</b> ESTAMPARIA <span className="connection"><i/> {loading?'Atualizando':'Conectado'} <button className="refresh" onClick={load}>⟳</button></span></div>
   <div className="heading"><div><h1>Visão da produção</h1><p>{restrictedAccess?'Aponte FERRAGEM INFERIOR, FERRAGEM SUPERIOR e DOBRA por dia.':'Da programação à peça pronta. Acompanhe também o Radiador.'}</p></div><span className="current-sector">{sector}</span></div>
   <div className="monthbar"><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()-1,1));setPage(1)}}>‹ <span>Mês Anterior</span></button><strong>▦　{month.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())}</strong><div><button className="outlined" onClick={()=>{setMonth(new Date());setMonth(new Date(new Date().getFullYear(),new Date().getMonth(),1));setPage(1)}}>Mês Atual</button><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()+1,1));setPage(1)}}>Próximo Mês ›</button></div></div>
   <div className="cards">
