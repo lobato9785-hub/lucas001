@@ -128,15 +128,15 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <filter id="giftShadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="2.2"/></filter>
 </defs>
 <ellipse cx="96" cy="102" rx="77" ry="5" fill="#183d2d" opacity=".14" filter="url(#giftShadow)"/>
-<!-- pine sprigs -->
+{/* pine sprigs */}
 <g fill="none" stroke="#0b6845" strokeWidth="2.5" strokeLinecap="round">
  <path d="M12 94Q25 52 49 15M22 72L5 59M27 58L9 42M34 43L20 26M40 29L32 13M20 77L42 68M28 60L49 53M37 43L56 37"/>
  <path d="M144 95Q157 52 180 19M154 73L138 60M160 58L144 44M168 43L154 28M174 29L166 14M153 78L174 68M162 61L181 54M170 45L187 39"/>
 </g>
 <g fill="#146c48"><path d="M12 94l5-26 8 17 14-5-17 18zM27 59L17 36l17 10 3-18 8 25zM39 35l-2-22 13 17 10-10-7 27zM144 95l7-26 8 17 14-5-17 18zM160 59l-9-23 17 10 3-18 8 25zM173 34l-2-21 13 17 6-10-2 28z"/></g>
-<!-- red baubles and berries -->
+{/* red baubles and berries */}
 <g><circle cx="20" cy="49" r="7" fill="url(#giftRed)"/><path d="M18 41q2-5 5 0" stroke="#d6ad59" strokeWidth="2" fill="none"/><circle cx="169" cy="48" r="7" fill="url(#giftRed)"/><path d="M167 40q2-5 5 0" stroke="#d6ad59" strokeWidth="2" fill="none"/><circle cx="36" cy="84" r="3" fill="#c51f2c"/><circle cx="158" cy="82" r="3" fill="#c51f2c"/></g>
-<!-- large red present -->
+{/* large red present */}
 <g>
  <rect x="39" y="49" width="76" height="49" rx="4" fill="url(#giftRed)" stroke="#941329" strokeWidth="1.4"/>
  <path d="M39 60h76v4H39z" fill="#ff7767" opacity=".45"/>
@@ -147,7 +147,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <path d="M76 43C61 33 57 28 59 26M77 43c9-13 16-17 20-15" fill="none" stroke="#fff0bc" strokeWidth="2" strokeLinecap="round"/>
  <path d="M46 72h17M46 78h11" stroke="#ffb1a1" strokeWidth="1.4" opacity=".45" strokeLinecap="round"/>
 </g>
-<!-- smaller gold present -->
+{/* smaller gold present */}
 <g>
  <rect x="111" y="66" width="51" height="32" rx="3" fill="url(#giftGold)" stroke="#a76c16" strokeWidth="1.2"/>
  <path d="M111 75h51v3h-51z" fill="#fff0bb" opacity=".5"/>
@@ -156,9 +156,9 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <rect x="131" y="61" width="10" height="9" fill="#fff0c3"/>
  <path d="M136 62c-15-1-18-11-11-13 5-2 10 5 11 12 3-9 11-14 16-9 5 5-4 10-16 10z" fill="#fff0bd" stroke="#c18a2c" strokeWidth="1.2"/>
 </g>
-<!-- little green parcel -->
+{/* little green parcel */}
 <g><rect x="22" y="79" width="29" height="20" rx="2" fill="url(#giftGreen)" stroke="#075638"/><rect x="33" y="79" width="6" height="20" fill="#e6c36c"/><rect x="20" y="75" width="33" height="6" rx="2" fill="#14734a"/><path d="M36 75c-9-1-10-8-5-9 3-1 5 3 5 8 2-6 7-9 10-6 3 3-3 7-10 7z" fill="#e8c66f" stroke="#a77b29"/></g>
-<!-- stars -->
+{/* stars */}
 <g fill="#d6a33d"><path d="M96 10l3.4 8 8.6.7-6.6 5.4 2.1 8.3-7.5-4.6-7.3 4.6 1.9-8.3-6.4-5.4 8.4-.7z"/><path d="M126 23l2 4.5 5 .5-3.8 3.1 1.2 4.8-4.4-2.7-4.2 2.7 1.1-4.8-3.7-3.1 4.8-.5z"/><circle cx="57" cy="16" r="2.2"/><circle cx="183" cy="70" r="2.4"/></g>
 </svg></div><span className="current-sector">{sector}</span></div></div>
   <div className="monthbar"><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()-1,1));setPage(1)}}>‹ <span>Mês Anterior</span></button><strong>▦　{month.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())}</strong><div><button className="outlined" onClick={()=>{setMonth(new Date());setMonth(new Date(new Date().getFullYear(),new Date().getMonth(),1));setPage(1)}}>Mês Atual</button><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()+1,1));setPage(1)}}>Próximo Mês ›</button></div></div>
