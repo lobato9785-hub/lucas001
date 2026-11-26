@@ -119,60 +119,73 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  return <main className="app production-theme">
   <header className="topbar"><div className="searchbox"><span>⌕</span><input value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}} placeholder="Buscar por OP, cliente, referência ou série..."/></div><a className="access-link" href="/">{ "↔ Trocar setor" }</a><button className="settings" onClick={()=>setSettings(true)}>☷ <span>Configurações</span></button></header>
   <div className="workspace"><aside className="sidebar"><div className="sidebrand"><span className="brandmark">E</span><div><b>ESTAMPARIA</b><small>CHÃO DE FÁBRICA</small></div></div><div className="sidetitle">SETORES</div><nav className="sector-nav">{visibleSectors.map((s,i)=><button key={s} className={sector===s?"active":""} onClick={()=>{if(s!==sector){setRaw([]);setLoading(true);setError('')}setSector(s);setPage(1)}}><span className="navicon">{["◫","◈","▤","▦","▧","▥"][i]}</span>{s}{sector===s&&<i/>}</button>)}</nav><div className="sidebar-foot"><span className="online-dot"/> Sistema conectado</div></aside><div className="mainpanel"><section className="content"><div className="eyebrow"><i/> CHÃO DE FÁBRICA <b>/</b> ESTAMPARIA <span className="connection"><i/> {loading?'Atualizando':'Conectado'} <button className="refresh" onClick={()=>load()}>⟳</button></span></div>
-  <div className="heading"><div className="heading-copy"><h1>Visão da produção</h1><p>{restrictedAccess?'Aponte FERRAGEM INFERIOR, FERRAGEM SUPERIOR e DOBRA por dia.':'Da programação à peça pronta. Acompanhe também o Radiador.'}</p></div><div className="heading-side"><div className="holiday-greeting" aria-label="Feliz Natal e Próspero Ano Novo"><div className="holiday-greeting-text"><span>Feliz Natal e</span><strong>Próspero Ano Novo!</strong></div><svg className="holiday-art" viewBox="0 0 220 132" role="img" aria-label="Pilha de presentes natalinos com laços, pinhos e enfeites">
+  <div className="heading"><div className="heading-copy"><h1>Visão da produção</h1><p>{restrictedAccess?'Aponte FERRAGEM INFERIOR, FERRAGEM SUPERIOR e DOBRA por dia.':'Da programação à peça pronta. Acompanhe também o Radiador.'}</p></div><div className="heading-side"><div className="holiday-greeting" aria-label="Feliz Natal e Próspero Ano Novo"><div className="holiday-greeting-text"><span>Feliz Natal e</span><strong>Próspero Ano Novo!</strong></div><svg className="holiday-art" viewBox="0 0 300 190" role="img" aria-label="Presentes de Natal com laços de cetim, ramos de pinheiro e enfeites">
 <defs>
- <linearGradient id="xmasRed" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ff6658"/><stop offset=".38" stopColor="#d82032"/><stop offset="1" stopColor="#8e1021"/></linearGradient>
- <linearGradient id="xmasGold" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fff1b6"/><stop offset=".42" stopColor="#edbd50"/><stop offset="1" stopColor="#a96812"/></linearGradient>
- <linearGradient id="xmasGreen" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#2b9661"/><stop offset="1" stopColor="#06452f"/></linearGradient>
- <linearGradient id="xmasRibbon" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#fff4cb"/><stop offset=".5" stopColor="#d6a33e"/><stop offset="1" stopColor="#fff0b7"/></linearGradient>
- <filter id="xmasBlur" x="-30%" y="-50%" width="160%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+ <linearGradient id="giftRuby" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ff8271"/><stop offset=".28" stopColor="#d92736"/><stop offset="1" stopColor="#781323"/></linearGradient>
+ <linearGradient id="giftGold" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fff5c9"/><stop offset=".32" stopColor="#e9bd62"/><stop offset=".7" stopColor="#bd812b"/><stop offset="1" stopColor="#80501c"/></linearGradient>
+ <linearGradient id="giftGreen" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#40a878"/><stop offset=".5" stopColor="#087044"/><stop offset="1" stopColor="#03402d"/></linearGradient>
+ <linearGradient id="giftRibbon" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#fff1c1"/><stop offset=".22" stopColor="#d5a044"/><stop offset=".5" stopColor="#fff0bd"/><stop offset=".78" stopColor="#c28a32"/><stop offset="1" stopColor="#fff1c1"/></linearGradient>
+ <linearGradient id="giftRedRibbon" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#ffd5aa"/><stop offset=".5" stopColor="#fff0d0"/><stop offset="1" stopColor="#d6a45c"/></linearGradient>
+ <filter id="giftShadow" x="-30%" y="-40%" width="160%" height="190%"><feGaussianBlur stdDeviation="4"/></filter>
+ <filter id="giftShine"><feGaussianBlur stdDeviation="1.2"/></filter>
 </defs>
-<ellipse cx="111" cy="120" rx="91" ry="7" fill="#183d2d" opacity=".16" filter="url(#xmasBlur)"/>
-{/* lush pine branches behind the gifts */}
-<g stroke="#07583b" strokeWidth="2.4" strokeLinecap="round" fill="none">
- <path d="M17 111Q28 61 57 13M24 86L5 72M29 70L10 53M37 53L19 36M44 36L31 18M27 91L50 79M34 73L57 65M42 54L66 48"/>
- <path d="M164 112Q180 61 207 14M174 88L155 73M181 70L162 53M189 52L172 35M197 34L184 17M176 93L199 80M184 74L207 65M194 54L215 47"/>
+<ellipse cx="151" cy="173" rx="126" ry="10" fill="#183b2c" opacity=".2" filter="url(#giftShadow)"/>
+<!-- pine branches -->
+<g fill="none" strokeLinecap="round" strokeLinejoin="round">
+ <path d="M25 162Q35 86 85 15M38 126L8 104M43 108L13 80M52 84L26 57M62 61L45 34M34 137L68 121M43 111L79 101M54 84L88 77" stroke="#075537" strokeWidth="4"/>
+ <path d="M270 165Q255 88 216 16M260 130L291 105M253 108L284 79M244 83L270 55M234 60L252 32M265 140L230 121M255 112L220 100M245 85L211 75" stroke="#075537" strokeWidth="4"/>
 </g>
-<g fill="#117047"><path d="M17 111l7-34 10 23 19-10-21 25zM29 71L14 44l22 14 3-22 12 29zM45 38L37 12l17 21 13-12-9 32zM164 112l10-34 9 23 19-10-21 25zM181 71l-15-27 22 14 3-22 12 29zM197 38l-8-26 17 21 9-12-5 32z"/></g>
-{/* ornaments */}
-<g><path d="M28 44v-7" stroke="#bd8b2d" strokeWidth="2"/><circle cx="28" cy="52" r="8" fill="url(#xmasRed)" stroke="#a51628" strokeWidth="1"/><path d="M23 48q4-4 8 0" stroke="#ffb6a8" strokeWidth="2" fill="none" opacity=".8"/><path d="M190 41v-7" stroke="#bd8b2d" strokeWidth="2"/><circle cx="190" cy="49" r="8" fill="url(#xmasGold)" stroke="#b17a1e"/><path d="M185 45q4-4 8 0" stroke="#fff5d5" strokeWidth="2" fill="none"/></g>
-{/* big red gift with gold satin ribbon */}
+<g fill="#0d7046">
+ <path d="M25 161l8-49 14 37 25-24-29 44zM41 119L9 89l36 12 1-34 18 39zM59 79L40 40l31 26 12-31 3 47zM270 164l-8-49-14 37-25-24 29 44zM254 119l32-30-36 12-1-34-18 39zM236 79l19-39-31 26-12-31-3 47z"/>
+</g>
+<g fill="#1a8654" opacity=".85"><path d="M17 112l-10-20 26 14zM49 88L34 63l28 16zM74 49L66 22l20 24zM282 111l10-20-26 14zM251 87l15-25-28 16zM226 49l8-27-20 24z"/></g>
+<!-- hanging baubles -->
 <g>
- <rect x="43" y="58" width="91" height="57" rx="5" fill="url(#xmasRed)" stroke="#8f1526" strokeWidth="1.5"/>
- <path d="M49 66h78M49 70h78" stroke="#ff9b8d" strokeWidth="1" opacity=".35"/>
- <path d="M80 58h17v57H80z" fill="url(#xmasRibbon)"/>
- <path d="M43 74h91" stroke="#8f1526" strokeWidth="1" opacity=".35"/>
- <rect x="39" y="51" width="99" height="13" rx="3" fill="#b9152a" stroke="#8c1021" strokeWidth="1.2"/>
- <rect x="80" y="51" width="17" height="13" fill="url(#xmasRibbon)"/>
- <path d="M88 52C61 51 56 32 67 28c9-3 17 9 21 22 5-17 20-27 29-17 8 9-7 20-29 19z" fill="url(#xmasGold)" stroke="#b77d20" strokeWidth="1.5"/>
- <path d="M87 50C68 39 65 31 69 29M89 50c10-17 20-22 25-17" fill="none" stroke="#fff5d5" strokeWidth="2.5" strokeLinecap="round"/>
- <path d="M52 86h18M52 92h12M52 98h16" stroke="#ffb6a9" strokeWidth="1.5" opacity=".45" strokeLinecap="round"/>
- <path d="M108 86l13 13m0-13l-13 13" stroke="#f7c4a4" strokeWidth="1.2" opacity=".35"/>
+ <path d="M49 42v-10M249 44V31" stroke="#bd8a35" strokeWidth="2.5"/>
+ <circle cx="49" cy="52" r="11" fill="url(#giftRuby)" stroke="#8e1726" strokeWidth="1.4"/><ellipse cx="45" cy="48" rx="3" ry="5" fill="#fff" opacity=".36"/>
+ <circle cx="249" cy="55" r="11" fill="url(#giftGold)" stroke="#a86d20" strokeWidth="1.4"/><ellipse cx="245" cy="51" rx="3" ry="5" fill="#fff" opacity=".48"/>
+ <path d="M45 39h8M245 42h8" stroke="#e6c276" strokeWidth="3" strokeLinecap="round"/>
 </g>
-{/* gold gift to the right */}
+<!-- back gold present -->
 <g>
- <rect x="128" y="77" width="57" height="38" rx="4" fill="url(#xmasGold)" stroke="#a56b16" strokeWidth="1.3"/>
- <path d="M133 84h47" stroke="#fff3c8" strokeWidth="2" opacity=".6"/>
- <rect x="150" y="77" width="12" height="38" fill="#fff0bf"/>
- <rect x="124" y="70" width="65" height="11" rx="3" fill="#d39424" stroke="#a56b16"/>
- <rect x="150" y="70" width="12" height="11" fill="#fff0bf"/>
- <path d="M156 71C138 70 137 57 145 55c5-1 10 6 11 14 4-11 14-17 20-11 6 6-5 13-20 13z" fill="url(#xmasRibbon)" stroke="#b27a20" strokeWidth="1.3"/>
- <path d="M155 70c-9-8-10-12-8-14m10 14c6-10 12-13 16-12" stroke="#fff9df" strokeWidth="1.7" fill="none"/>
- <circle cx="174" cy="96" r="2" fill="#fff3c8" opacity=".8"/><circle cx="139" cy="105" r="2" fill="#fff3c8" opacity=".8"/>
+ <path d="M177 95l64 4v61l-64-5z" fill="#9a641d" opacity=".25"/>
+ <path d="M174 91l63 3v62l-63-4z" fill="url(#giftGold)" stroke="#99621c" strokeWidth="1.5"/>
+ <path d="M197 92l13 1v62l-13-1z" fill="url(#giftRibbon)"/>
+ <path d="M170 84l72 4v13l-72-4z" fill="#c28b32" stroke="#87551c" strokeWidth="1.4"/>
+ <path d="M197 85l13 1v13l-13-1z" fill="#fff0bd"/>
+ <path d="M203 85C180 81 178 65 188 62c7-2 13 7 16 19 5-15 18-23 25-15 7 8-8 20-26 19z" fill="url(#giftRibbon)" stroke="#a46d25" strokeWidth="1.5"/>
+ <path d="M202 83c-12-10-16-17-12-20m14 20c9-13 17-17 22-15" fill="none" stroke="#fff8df" strokeWidth="2.5" strokeLinecap="round"/>
+ <path d="M181 111l8 2m-8 8l8 2m30 19l12 1" stroke="#fff6d7" strokeWidth="1.5" opacity=".5"/>
 </g>
-{/* small green gift in front */}
+<!-- large red present -->
 <g>
- <rect x="23" y="91" width="38" height="26" rx="3" fill="url(#xmasGreen)" stroke="#06452f" strokeWidth="1.2"/>
- <rect x="38" y="91" width="8" height="26" fill="url(#xmasRibbon)"/>
- <rect x="20" y="86" width="44" height="8" rx="2" fill="#0b7048"/>
- <rect x="38" y="86" width="8" height="8" fill="url(#xmasRibbon)"/>
- <path d="M42 87C29 86 29 77 35 76c4-1 7 4 7 10 3-7 10-11 14-7 4 4-3 9-14 8z" fill="url(#xmasGold)" stroke="#b17b26"/>
+ <path d="M65 101l114 2v66l-114-2z" fill="#6e1520" opacity=".22"/>
+ <path d="M61 94l115 2v70l-115-2z" fill="url(#giftRuby)" stroke="#861626" strokeWidth="1.7"/>
+ <path d="M105 95l21 1v69l-21-1z" fill="url(#giftRibbon)"/>
+ <path d="M61 121l115 2" stroke="#7d1423" strokeWidth="1.2" opacity=".55"/>
+ <path d="M68 103l29 1m-29 5l22 1m68 46l9 0" stroke="#ffb6a4" strokeWidth="1.7" opacity=".45" strokeLinecap="round"/>
+ <path d="M56 85l124 3v15l-124-3z" fill="#b8192b" stroke="#781321" strokeWidth="1.5"/>
+ <path d="M105 86l21 1v15l-21-1z" fill="url(#giftRibbon)"/>
+ <path d="M115 87C82 84 78 62 92 57c10-4 19 9 24 27 7-22 26-33 36-21 10 12-9 26-37 24z" fill="url(#giftRedRibbon)" stroke="#b1813c" strokeWidth="1.7"/>
+ <path d="M113 84C94 71 88 63 94 59m22 25c12-21 24-28 31-22" fill="none" stroke="#fff9e8" strokeWidth="3" strokeLinecap="round"/>
+ <path d="M73 132h17m-17 7h12m-12 7h19" stroke="#ffb9a9" strokeWidth="1.8" opacity=".48" strokeLinecap="round"/>
+ <path d="M146 132l13 13m0-13l-13 13" stroke="#ffd5bd" strokeWidth="1.4" opacity=".35"/>
 </g>
-{/* candy cane and holly accents */}
-<path d="M197 91V73q0-10 9-10t9 10" stroke="#fff5e6" strokeWidth="6" fill="none" strokeLinecap="round"/>
-<path d="M197 82l6-5m-6 14l6-5m3-20l6 5" stroke="#d52b37" strokeWidth="3" fill="none"/>
-<g fill="#c51f32"><circle cx="66" cy="19" r="3.2"/><circle cx="73" cy="23" r="3.2"/><circle cx="69" cy="29" r="3.2"/></g>
-<g fill="#d8a53e"><path d="M119 7l3.8 8.2 9 .8-6.8 5.8 2.2 8.7-8.2-4.7-7.7 4.7 1.9-8.7-6.7-5.8 8.8-.8z"/><path d="M20 17l2 4.2 4.7.5-3.5 3 1.1 4.5-4.3-2.5-4 2.5 1-4.5-3.4-3 4.5-.5z"/><circle cx="151" cy="20" r="2.3"/><circle cx="201" cy="57" r="2.5"/></g>
+<!-- foreground green gift -->
+<g>
+ <path d="M24 132l51 1v37l-51-1z" fill="url(#giftGreen)" stroke="#06442e" strokeWidth="1.5"/>
+ <path d="M44 132l10 0v37l-10 0z" fill="url(#giftRibbon)"/>
+ <path d="M20 124l59 1v11l-59-1z" fill="#075b3b" stroke="#03402d" strokeWidth="1.4"/>
+ <path d="M44 124l10 0v11l-10 0z" fill="url(#giftRibbon)"/>
+ <path d="M49 125C33 123 31 112 38 109c5-2 10 5 11 13 4-11 14-16 19-10 5 6-6 14-19 13z" fill="url(#giftGold)" stroke="#a8752a" strokeWidth="1.2"/>
+ <path d="M48 123c-8-7-10-11-7-13m9 13c6-10 12-12 15-10" fill="none" stroke="#fff7dc" strokeWidth="1.8" strokeLinecap="round"/>
+</g>
+<!-- holly, stars and tiny lights -->
+<g fill="#bd1e32"><circle cx="78" cy="35" r="4"/><circle cx="87" cy="39" r="4"/><circle cx="82" cy="47" r="4"/><circle cx="220" cy="28" r="3.5"/><circle cx="227" cy="32" r="3.5"/><circle cx="222" cy="39" r="3.5"/></g>
+<g fill="#176a42"><path d="M82 43q-18-17-18 0 8 2 18 0 1 18 12 10 0-10-12-10zM222 35q-15-16-17-1 8 4 17 1 1 16 11 8 0-9-11-8z"/></g>
+<g fill="url(#giftGold)"><path d="M147 9l5 11 12 1-9 8 3 12-11-6-10 6 3-12-9-8 12-1z"/><path d="M24 19l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z"/></g>
+<g fill="#e6bd65"><circle cx="111" cy="26" r="2.5"/><circle cx="183" cy="32" r="2.5"/><circle cx="267" cy="75" r="2"/><circle cx="34" cy="75" r="2"/><circle cx="151" cy="58" r="2"/></g>
+<path d="M16 174Q147 181 284 173" stroke="#d9bd84" strokeWidth="1.2" opacity=".55" fill="none"/>
 </svg></div><span className="current-sector">{sector}</span></div></div>
   <div className="monthbar"><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()-1,1));setPage(1)}}>‹ <span>Mês Anterior</span></button><strong>▦　{month.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())}</strong><div><button className="outlined" onClick={()=>{setMonth(new Date());setMonth(new Date(new Date().getFullYear(),new Date().getMonth(),1));setPage(1)}}>Mês Atual</button><button onClick={()=>{setMonth(new Date(month.getFullYear(),month.getMonth()+1,1));setPage(1)}}>Próximo Mês ›</button></div></div>
   <div className="cards">
