@@ -130,7 +130,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <filter id="giftShine"><feGaussianBlur stdDeviation="1.2"/></filter>
 </defs>
 <ellipse cx="151" cy="173" rx="126" ry="10" fill="#183b2c" opacity=".2" filter="url(#giftShadow)"/>
-{/* pine branches */
+{/* pine branches */}
 <g fill="none" strokeLinecap="round" strokeLinejoin="round">
  <path d="M25 162Q35 86 85 15M38 126L8 104M43 108L13 80M52 84L26 57M62 61L45 34M34 137L68 121M43 111L79 101M54 84L88 77" stroke="#075537" strokeWidth="4"/>
  <path d="M270 165Q255 88 216 16M260 130L291 105M253 108L284 79M244 83L270 55M234 60L252 32M265 140L230 121M255 112L220 100M245 85L211 75" stroke="#075537" strokeWidth="4"/>
@@ -139,14 +139,14 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <path d="M25 161l8-49 14 37 25-24-29 44zM41 119L9 89l36 12 1-34 18 39zM59 79L40 40l31 26 12-31 3 47zM270 164l-8-49-14 37-25-24 29 44zM254 119l32-30-36 12-1-34-18 39zM236 79l19-39-31 26-12-31-3 47z"/>
 </g>
 <g fill="#1a8654" opacity=".85"><path d="M17 112l-10-20 26 14zM49 88L34 63l28 16zM74 49L66 22l20 24zM282 111l10-20-26 14zM251 87l15-25-28 16zM226 49l8-27-20 24z"/></g>
-{/* hanging baubles */
+{/* hanging baubles */}
 <g>
  <path d="M49 42v-10M249 44V31" stroke="#bd8a35" strokeWidth="2.5"/>
  <circle cx="49" cy="52" r="11" fill="url(#giftRuby)" stroke="#8e1726" strokeWidth="1.4"/><ellipse cx="45" cy="48" rx="3" ry="5" fill="#fff" opacity=".36"/>
  <circle cx="249" cy="55" r="11" fill="url(#giftGold)" stroke="#a86d20" strokeWidth="1.4"/><ellipse cx="245" cy="51" rx="3" ry="5" fill="#fff" opacity=".48"/>
  <path d="M45 39h8M245 42h8" stroke="#e6c276" strokeWidth="3" strokeLinecap="round"/>
 </g>
-{/* back gold present */
+{/* back gold present */}
 <g>
  <path d="M177 95l64 4v61l-64-5z" fill="#9a641d" opacity=".25"/>
  <path d="M174 91l63 3v62l-63-4z" fill="url(#giftGold)" stroke="#99621c" strokeWidth="1.5"/>
@@ -157,7 +157,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <path d="M202 83c-12-10-16-17-12-20m14 20c9-13 17-17 22-15" fill="none" stroke="#fff8df" strokeWidth="2.5" strokeLinecap="round"/>
  <path d="M181 111l8 2m-8 8l8 2m30 19l12 1" stroke="#fff6d7" strokeWidth="1.5" opacity=".5"/>
 </g>
-{/* large red present */
+{/* large red present */}
 <g>
  <path d="M65 101l114 2v66l-114-2z" fill="#6e1520" opacity=".22"/>
  <path d="M61 94l115 2v70l-115-2z" fill="url(#giftRuby)" stroke="#861626" strokeWidth="1.7"/>
@@ -171,7 +171,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <path d="M73 132h17m-17 7h12m-12 7h19" stroke="#ffb9a9" strokeWidth="1.8" opacity=".48" strokeLinecap="round"/>
  <path d="M146 132l13 13m0-13l-13 13" stroke="#ffd5bd" strokeWidth="1.4" opacity=".35"/>
 </g>
-{/* foreground green gift */
+{/* foreground green gift */}
 <g>
  <path d="M24 132l51 1v37l-51-1z" fill="url(#giftGreen)" stroke="#06442e" strokeWidth="1.5"/>
  <path d="M44 132l10 0v37l-10 0z" fill="url(#giftRibbon)"/>
@@ -180,7 +180,7 @@ export default function Dashboard({initialSector='CORTE LASER',restrictedAccess=
  <path d="M49 125C33 123 31 112 38 109c5-2 10 5 11 13 4-11 14-16 19-10 5 6-6 14-19 13z" fill="url(#giftGold)" stroke="#a8752a" strokeWidth="1.2"/>
  <path d="M48 123c-8-7-10-11-7-13m9 13c6-10 12-12 15-10" fill="none" stroke="#fff7dc" strokeWidth="1.8" strokeLinecap="round"/>
 </g>
-{/* holly, stars and tiny lights */
+{/* holly, stars and tiny lights */}
 <g fill="#bd1e32"><circle cx="78" cy="35" r="4"/><circle cx="87" cy="39" r="4"/><circle cx="82" cy="47" r="4"/><circle cx="220" cy="28" r="3.5"/><circle cx="227" cy="32" r="3.5"/><circle cx="222" cy="39" r="3.5"/></g>
 <g fill="#176a42"><path d="M82 43q-18-17-18 0 8 2 18 0 1 18 12 10 0-10-12-10zM222 35q-15-16-17-1 8 4 17 1 1 16 11 8 0-9-11-8z"/></g>
 <g fill="url(#giftGold)"><path d="M147 9l5 11 12 1-9 8 3 12-11-6-10 6 3-12-9-8 12-1z"/><path d="M24 19l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z"/></g>
